@@ -1,0 +1,121 @@
+import assert from "node:assert/strict";
+import { access, readFile } from "node:fs/promises";
+import path from "node:path";
+import test from "node:test";
+import { fileURLToPath } from "node:url";
+
+const testsDirectory = path.dirname(fileURLToPath(import.meta.url));
+const sourceDirectory = path.resolve(testsDirectory, "..");
+const requiredFiles = [
+  "app/login/page.tsx",
+  "app/register/page.tsx",
+  "app/hubungkan-perangkat/page.tsx",
+  "components/auth/AuthShell.tsx",
+  "components/auth/AuthVisualPanel.tsx",
+  "components/auth/AuthInput.tsx",
+  "components/auth/LoginForm.tsx",
+  "components/auth/RegisterForm.tsx",
+  "components/auth/ConnectDeviceForm.tsx",
+];
+
+async function findMissingFiles() {
+  const checks = await Promise.all(
+    requiredFiles.map(async (filePath) => {
+      try {
+        await access(path.join(sourceDirectory, filePath));
+        return null;
+      } catch {
+        return filePath;
+      }
+    }),
+  );
+
+  return checks.filter(Boolean);
+}
+
+test("defines three auth routes with PascalCase shared components", async () => {
+  const missingFiles = await findMissingFiles();
+
+  assert.deepEqual(missingFiles, [], "auth and device page files are missing");
+
+  for (const componentPath of requiredFiles.slice(3)) {
+    const filename = path.basename(componentPath);
+    assert.match(filename, /^[A-Z][A-Za-z]+\.tsx$/);
+  }
+});
+
+test("composes the shared split-screen shell and route-specific forms", async (context) => {
+  if ((await findMissingFiles()).length > 0) {
+    context.skip("auth and device pages have not been implemented yet");
+    return;
+  }
+
+  const sources = await Promise.all(
+    requiredFiles.map((filePath) =>
+      readFile(path.join(sourceDirectory, filePath), "utf8"),
+    ),
+  );
+  const [loginPage, registerPage, devicePage, shell, visualPanel] = sources;
+  const allSource = sources.join("\n");
+
+  assert.match(loginPage, /<AuthShell/);
+  assert.match(loginPage, /<LoginForm/);
+  assert.match(registerPage, /<AuthShell/);
+  assert.match(registerPage, /<RegisterForm/);
+  assert.match(devicePage, /<AuthShell/);
+  assert.match(devicePage, /<ConnectDeviceForm/);
+  assert.match(shell, /<AuthVisualPanel/);
+  assert.match(visualPanel, /from "next\/image"/);
+  assert.match(visualPanel, /src="\/watch\.png"/);
+
+  for (const copy of [
+    "Masuk ke Akun",
+    "Daftar Akun",
+    "Hubungkan Perangkat",
+    "Deteksi Dini Risiko",
+    "Langkah Awal Pencegahan",
+    "Masukkan Device ID",
+  ]) {
+    assert.ok(allSource.includes(copy), `missing auth reference copy: ${copy}`);
+  }
+});
+
+test("implements active form states, password toggles, and fixed navigation", async (context) => {
+  if ((await findMissingFiles()).length > 0) {
+    context.skip("auth and device pages have not been implemented yet");
+    return;
+  }
+
+  const [inputSource, loginSource, registerSource, deviceSource] = await Promise.all([
+    readFile(path.join(sourceDirectory, "components/auth/AuthInput.tsx"), "utf8"),
+    readFile(path.join(sourceDirectory, "components/auth/LoginForm.tsx"), "utf8"),
+    readFile(path.join(sourceDirectory, "components/auth/RegisterForm.tsx"), "utf8"),
+    readFile(path.join(sourceDirectory, "components/auth/ConnectDeviceForm.tsx"), "utf8"),
+  ]);
+
+  for (const formSource of [loginSource, registerSource, deviceSource]) {
+    assert.match(formSource, /^["']use client["'];/);
+    assert.match(formSource, /useState/);
+    assert.match(formSource, /disabled={!isComplete}/);
+    assert.match(formSource, /required/);
+  }
+
+  assert.match(inputSource, /showPassword/);
+  assert.match(inputSource, /type="button"/);
+  assert.match(loginSource, /router\.push\("\/hubungkan-perangkat"\)/);
+  assert.match(registerSource, /router\.push\("\/login"\)/);
+  assert.match(registerSource, /password === confirmation/);
+  assert.match(deviceSource, /Hubungkan perangkat/);
+});
+
+test("connects landing entry points to login and registration routes", async () => {
+  const [headerSource, ctaSource] = await Promise.all([
+    readFile(path.join(sourceDirectory, "components/sections/HeaderSection.tsx"), "utf8"),
+    readFile(path.join(sourceDirectory, "components/sections/CtaSection.tsx"), "utf8"),
+  ]);
+
+  assert.match(headerSource, /href="\/register"/);
+  assert.match(headerSource, /href="\/login"/);
+  assert.match(ctaSource, /from "next\/link"/);
+  assert.match(ctaSource, /href="\/register"/);
+});

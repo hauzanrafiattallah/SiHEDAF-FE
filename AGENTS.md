@@ -3,3 +3,195 @@
 
 This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` before writing any code. Heed deprecation notices.
 <!-- END:nextjs-agent-rules -->
+
+# SiHEDAF Project Guide
+
+Terakhir diperbarui: 2 Juli 2026.
+
+## Gambaran Project
+
+SiHEDAF adalah antarmuka web untuk wearable pemantau sinyal PPG yang membantu deteksi dini risiko Atrial Fibrillation (AF) dan stroke. Project saat ini mencakup website pemasaran, autentikasi, penyambungan perangkat, serta dashboard pemantauan kesehatan.
+
+Bahasa utama antarmuka adalah Bahasa Indonesia. Implementasi saat ini berfokus pada UI dan pengalaman pengguna berdasarkan desain referensi; data kesehatan, akun, notifikasi, dan perangkat masih berupa data statis/mock.
+
+## Tech Stack
+
+- Next.js `16.2.10` dengan App Router dan Turbopack.
+- React dan React DOM `19.2.4`.
+- TypeScript 5.
+- Tailwind CSS 4 melalui `@tailwindcss/postcss`.
+- ESLint 9 dengan `eslint-config-next`.
+- Node.js native test runner untuk source-contract tests.
+- Tidak menggunakan UI kit atau chart library eksternal; ikon dan grafik dibuat dengan SVG lokal.
+
+Sebelum mengubah API, route, layout, metadata, atau convention Next.js, baca panduan yang relevan di `node_modules/next/dist/docs/` karena versi ini memiliki perubahan dari versi Next.js sebelumnya.
+
+## Update yang Sudah Dikerjakan
+
+### Design foundation
+
+- Font Switzer Variable sudah disimpan secara lokal di `src/app/fonts/switzer-variable.woff2` dan dimuat melalui `next/font/local`.
+- Palet warna SiHEDAF sudah menjadi token Tailwind pada `src/app/globals.css`.
+- Logo, gambar wearable utama, dan wearable dashboard tersedia di folder `public`.
+- Global selection color, smooth scroll, typography, motion dashboard, dan dukungan `prefers-reduced-motion` sudah disiapkan.
+
+### Landing page
+
+- Header/navigation responsif.
+- Hero deteksi dini stroke dengan visual smartwatch dan garis sinyal.
+- Section ancaman stroke, fitur teknologi, cara kerja, CTA, dan footer.
+- Link navigasi menuju Tentang, Fitur, Cara Kerja, Tim Kami, Daftar, dan Masuk.
+- Setiap section dipisahkan ke komponen PascalCase di `src/components/sections`.
+
+### Tim Kami
+
+- Route `/tim-kami` dengan shared header/footer.
+- Empat team cards sesuai role pada desain.
+- Foto anggota selain data yang tersedia masih menggunakan tampilan placeholder.
+
+### Authentication dan perangkat
+
+- Route `/login`, `/register`, dan `/hubungkan-perangkat`.
+- Split-screen auth layout yang responsif.
+- Active/inactive form state, validasi kelengkapan sederhana, dan toggle password.
+- Login mengarahkan pengguna ke penyambungan perangkat.
+- Register mengarahkan pengguna kembali ke login.
+- Form perangkat mengarahkan pengguna ke `/dashboard` setelah Device ID terisi.
+- Belum ada backend authentication, session, API, atau validasi Device ID sebenarnya.
+
+### Dashboard
+
+- Shared route-group layout untuk `/dashboard`, `/riwayat`, `/profil`, dan `/profil/ubah`.
+- Sidebar desktop dapat diciutkan dari `210px` menjadi icon rail `72px`.
+- Pada mobile, sidebar berubah menjadi off-canvas drawer dengan backdrop.
+- Active navigation mengikuti pathname dan state sidebar tetap hidup selama navigasi child route.
+- Dashboard utama berisi hasil analisis terakhir, grafik PPG, monitoring terakhir, status wearable, dan notification rail.
+- Riwayat analisis berisi summary cards, filter tanggal, enam baris hasil, sparklines, dan pagination UI.
+- Profil berisi account summary, informasi profil, edit profile, ubah kata sandi, dan logout UI.
+- Edit profil berisi avatar placeholder, field nama/email, Device ID disabled, serta tombol batal/simpan.
+- Page entry, sidebar, chart draw, staggered rows, card hover, dan tombol menggunakan motion ringan.
+
+### Testing dan struktur
+
+- Semua test berada di `src/tests`.
+- Test mencakup design system, landing page, team page, auth/device flow, dashboard routes, struktur PascalCase, dan organisasi test.
+- Route framework tetap menggunakan nama wajib Next.js seperti `page.tsx` dan `layout.tsx`; seluruh file komponen buatan project menggunakan PascalCase.
+
+## Design System
+
+### Typography
+
+- Font utama: `Switzer Variable` dengan rentang weight `100–900`.
+- Font dimuat secara self-hosted agar tampilan stabil dan tidak bergantung pada layanan font eksternal.
+- Fallback: `Arial`, `Helvetica`, lalu `sans-serif`.
+- Default letter spacing body: `-0.02em`.
+- Heading umumnya memakai weight `600` dan tracking rapat sekitar `-0.035em` sampai `-0.04em`.
+- Body/caption menggunakan weight `400–500`; ukuran mengikuti skala visual referensi dan responsif per section.
+- Variabel CSS font: `--font-switzer`.
+
+### Primary color palette
+
+| Token | Hex | Penggunaan utama |
+| --- | --- | --- |
+| `primary-50` | `#E8F1FF` | Active navigation, background sangat muda |
+| `primary-100` | `#D9E9FB` | Gradient dan panel informasi |
+| `primary-200` | `#B0D2FE` | Border, ring, dan aksen lembut |
+| `primary-300` | `#006EFB` | CTA, link aktif, fokus, dan grafik PPG |
+| `primary-400` | `#0063E2` | Hover CTA |
+| `primary-500` | `#0058C9` | Primary brand color |
+| `primary-600` | `#0053BC` | Aksen biru gelap |
+| `primary-700` | `#004297` | Teks/aksen sekunder |
+| `primary-800` | `#003171` | Heading biru gelap |
+| `primary-900` | `#002758` | Foreground utama dan logo text |
+
+Semantic colors yang konsisten dipakai pada dashboard:
+
+- AF/error: `#FF4572` dengan background `#FFE8EE`.
+- Normal/success: sekitar `#43B956`–`#4BC35A` dengan background `#E6F7E9`.
+- App background: `#F7F7F8`; card background: `#FFFFFF`.
+- Border netral: sekitar `#E1E5E9`–`#EDF0F3`.
+- Muted text: sekitar `#9298A1`–`#A4A9B1`.
+
+Gunakan token `primary-*` untuk warna brand. Warna semantic health boleh memakai nilai di atas agar status AF dan Normal tetap konsisten.
+
+### Motion
+
+- Page enter: fade dan translate vertikal selama `420ms`.
+- SVG PPG: stroke draw selama `1.35s`.
+- Sidebar: transisi width/transform selama `300ms`.
+- Stagger list: jeda bertahap `50ms`.
+- Card hover: lift `2px` dengan shadow halus.
+- Semua motion non-esensial harus tetap mengikuti `prefers-reduced-motion`.
+
+## Route Map
+
+| Route | Fungsi |
+| --- | --- |
+| `/` | Landing page |
+| `/tim-kami` | Daftar tim pengembang |
+| `/login` | Masuk akun |
+| `/register` | Daftar akun |
+| `/hubungkan-perangkat` | Input Device ID |
+| `/dashboard` | Ringkasan monitoring |
+| `/riwayat` | Riwayat analisis PPG |
+| `/profil` | Informasi dan tindakan akun |
+| `/profil/ubah` | Form edit profil |
+
+## Struktur Folder
+
+```text
+src/
+├── app/
+│   ├── (dashboard)/        # Shared dashboard layout dan private-style routes
+│   ├── fonts/              # Self-hosted fonts
+│   ├── login/
+│   ├── register/
+│   ├── hubungkan-perangkat/
+│   └── tim-kami/
+├── components/
+│   ├── auth/               # Auth shell, input, dan forms
+│   ├── dashboard/          # Shell, navigation, views, charts, dan status UI
+│   ├── sections/           # Landing-page sections
+│   └── ui/                 # Reusable shared UI primitives
+└── tests/                  # Seluruh source-contract tests
+```
+
+## Coding Conventions
+
+- Gunakan PascalCase untuk nama file dan exported React component.
+- Pengecualian hanya file convention Next.js seperti `page.tsx`, `layout.tsx`, dan file framework lain yang wajib lowercase.
+- Gunakan alias import `@/` untuk source internal.
+- Utamakan Server Components. Tambahkan `"use client"` hanya saat component membutuhkan state, event handler, router client, atau browser API.
+- Gunakan `next/link` untuk navigasi internal dan `next/image` untuk image assets.
+- Pisahkan component berdasarkan section atau satu tanggung jawab yang jelas.
+- Pertahankan shared dashboard shell pada route group `(dashboard)` agar state collapse tidak reset saat berpindah halaman.
+- Jangan menambahkan dependency chart hanya untuk grafik sederhana; lanjutkan pola inline SVG yang sudah ada.
+- Semua interactive controls harus memiliki accessible label, focus state, dan reduced-motion behavior bila menggunakan animasi.
+- Jangan memasukkan credential, `.env`, build output, cache, atau file editor ke repository.
+
+## Assets
+
+- `public/logo.png`: logo icon SiHEDAF.
+- `public/watch.png`: smartwatch untuk landing/auth visual.
+- `public/watch2.png`: wearable ramping untuk device-status dashboard.
+- `src/app/favicon.ico`: favicon aplikasi.
+- `src/app/fonts/switzer-variable.woff2`: font utama.
+
+## Commands dan Quality Gate
+
+```bash
+npm run dev
+npm test
+npm run lint
+npm run build
+```
+
+Sebelum menyatakan perubahan selesai, jalankan test, lint, dan production build. Untuk perubahan route atau komponen penting, tambahkan/update source-contract test terkait di `src/tests`.
+
+## Batasan Saat Ini
+
+- Seluruh health data, history, notification, dan profile data masih mock/static.
+- Tombol monitoring, pagination, filter tanggal, edit profile, ganti foto, ubah password, dan logout belum tersambung ke backend.
+- Tidak ada proteksi route/session untuk dashboard.
+- Tidak ada database, API, device protocol, atau real-time PPG stream.
+- Avatar profil menggunakan placeholder dan dapat diganti setelah asset final tersedia.
