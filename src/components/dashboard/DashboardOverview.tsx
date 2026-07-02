@@ -1,15 +1,19 @@
+"use client";
+
+import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { Pause, Play } from "lucide-react";
 
 import { DashboardIcon } from "@/components/dashboard/DashboardIcon";
-import { NotificationPanel } from "@/components/dashboard/NotificationPanel";
 import { SignalChart } from "@/components/dashboard/SignalChart";
 import { StatusMark } from "@/components/dashboard/StatusMark";
 
 export function DashboardOverview() {
+  const [isMonitoringActive, setIsMonitoringActive] = useState(true);
+
   return (
-    <div className="grid min-h-[calc(100dvh-72px)] xl:grid-cols-[minmax(0,1fr)_320px]">
-      <section className="min-w-0 px-4 py-7 sm:px-7 lg:px-9 lg:py-9">
+    <section className="min-h-[calc(100dvh-72px)] min-w-0 px-4 py-7 sm:px-7 lg:px-9 lg:py-9">
         <div className="mx-auto max-w-[1280px]">
           <div>
             <h1 className="text-[22px] font-semibold tracking-[-0.035em] text-[#151a20]">
@@ -20,7 +24,7 @@ export function DashboardOverview() {
             </p>
           </div>
 
-          <article className="dashboard-card mt-6 flex min-h-[184px] items-center gap-9 rounded-[24px] bg-[linear-gradient(105deg,#f5fbff_0%,#e0eeff_100%)] px-7 py-7 sm:px-11">
+          <article className="mt-6 flex min-h-[184px] items-center gap-9 rounded-[24px] bg-[linear-gradient(105deg,#f5fbff_0%,#e0eeff_100%)] px-7 py-7 sm:px-11">
             <div className="ml-2 grid h-[110px] w-[110px] shrink-0 place-items-center rounded-full border border-primary-200/60 bg-white/45 sm:ml-4">
               <StatusMark size="large" status="normal" />
             </div>
@@ -39,16 +43,31 @@ export function DashboardOverview() {
             </div>
           </article>
 
-          <article className="dashboard-card mt-6 rounded-[24px] border border-[#edf0f3] bg-white px-6 py-6 sm:px-7">
+          <article className="mt-6 rounded-[24px] border border-[#edf0f3] bg-white px-6 py-6 sm:px-7">
             <div className="flex flex-wrap items-start justify-between gap-4">
               <div>
                 <h2 className="text-[16px] font-semibold text-[#171c21]">Sinyal PPG Terbaru</h2>
-                <div className="mt-3 flex flex-wrap items-center gap-x-5 gap-y-2 text-[12px]">
-                  <span className="flex items-center gap-2 text-[#38b952]">
-                    <span className="h-2.5 w-2.5 rounded-full bg-[#43bd59]" />
-                    Monitoring aktif
+                <div
+                  aria-live="polite"
+                  className="mt-3 flex flex-wrap items-center gap-x-5 gap-y-2 text-[12px]"
+                >
+                  <span
+                    className={`flex items-center gap-2 ${
+                      isMonitoringActive ? "text-[#38b952]" : "text-[#9298a1]"
+                    }`}
+                  >
+                    <span
+                      className={`h-2.5 w-2.5 rounded-full transition-colors ${
+                        isMonitoringActive ? "bg-[#43bd59]" : "bg-[#b6bbc3]"
+                      }`}
+                    />
+                    {isMonitoringActive ? "Monitoring aktif" : "Monitoring dijeda"}
                   </span>
-                  <span className="text-[#a4a9b1]">Pembaruan otomatis selama 3 menit</span>
+                  <span className="text-[#a4a9b1]">
+                    {isMonitoringActive
+                      ? "Pembaruan otomatis selama 3 menit"
+                      : "Pembaruan dihentikan sementara"}
+                  </span>
                 </div>
               </div>
               <div className="flex items-center gap-2">
@@ -60,19 +79,29 @@ export function DashboardOverview() {
                   <DashboardIcon className="h-3 w-3 rotate-90" name="chevron" />
                 </button>
                 <button
-                  className="flex h-10 items-center gap-2 rounded-full border border-primary-300 px-5 text-[12px] text-primary-300 transition-colors hover:bg-primary-50"
+                  aria-pressed={isMonitoringActive}
+                  className={`flex h-10 items-center gap-2 rounded-full border px-5 text-[12px] font-medium transition-[color,background-color,border-color,box-shadow,transform] duration-200 active:scale-[0.98] ${
+                    isMonitoringActive
+                      ? "border-primary-300 bg-white text-primary-300 hover:bg-primary-50"
+                      : "border-primary-300 bg-primary-300 text-white shadow-[0_8px_20px_rgba(0,110,251,0.2)] hover:bg-primary-400"
+                  }`}
+                  onClick={() => setIsMonitoringActive((current) => !current)}
                   type="button"
                 >
-                  <span className="h-3.5 w-px bg-primary-300" />
-                  Hentikan Monitoring
+                  {isMonitoringActive ? (
+                    <Pause aria-hidden="true" size={16} strokeWidth={2} />
+                  ) : (
+                    <Play aria-hidden="true" fill="currentColor" size={16} strokeWidth={2} />
+                  )}
+                  {isMonitoringActive ? "Hentikan Monitoring" : "Mulai Monitoring"}
                 </button>
               </div>
             </div>
-            <SignalChart />
+            <SignalChart isActive={isMonitoringActive} />
           </article>
 
           <div className="mt-6 grid gap-6 lg:grid-cols-2">
-            <article className="dashboard-card rounded-[24px] border border-[#edf0f3] bg-white px-6 py-6">
+            <article className="rounded-[24px] border border-[#edf0f3] bg-white px-6 py-6">
               <h2 className="text-[16px] font-semibold">Monitoring Terakhir</h2>
               <div className="mt-4 divide-y divide-[#edf0f3]">
                 <div className="flex items-center gap-3 pb-3">
@@ -98,7 +127,7 @@ export function DashboardOverview() {
               </Link>
             </article>
 
-            <article className="dashboard-card rounded-[24px] border border-[#edf0f3] bg-white px-6 py-6">
+            <article className="rounded-[24px] border border-[#edf0f3] bg-white px-6 py-6">
               <h2 className="text-[16px] font-semibold">Status Perangkat</h2>
               <div className="mt-4 flex items-center gap-6">
                 <Image
@@ -138,8 +167,6 @@ export function DashboardOverview() {
             </article>
           </div>
         </div>
-      </section>
-      <NotificationPanel />
-    </div>
+    </section>
   );
 }

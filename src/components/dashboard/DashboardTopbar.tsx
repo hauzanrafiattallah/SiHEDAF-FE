@@ -1,27 +1,34 @@
+import Link from "next/link";
+import { Bell } from "lucide-react";
+
 import { DashboardIcon } from "@/components/dashboard/DashboardIcon";
 
 type DashboardTopbarProps = {
+  showNotificationLink: boolean;
   title: string;
 };
 
-export function DashboardTopbar({ title }: DashboardTopbarProps) {
+const notificationButtonClassName =
+  "grid h-10 w-10 place-items-center rounded-xl border border-[#d7dce2] text-[#303740] transition-colors hover:border-primary-200 hover:bg-primary-50 hover:text-primary-400 focus-visible:outline-2 focus-visible:outline-primary-300";
+
+export function DashboardTopbar({
+  showNotificationLink,
+  title,
+}: DashboardTopbarProps) {
   return (
     <div className="flex min-w-0 flex-1 items-center justify-between gap-4">
-      <div className="flex min-w-0 items-center gap-3 text-[14px] font-medium text-[#1f252c]">
-        <span className="grid h-7 w-7 shrink-0 place-items-center rounded-lg border border-[#cbd0d6]">
-          <span className="h-3 w-px bg-[#505860]" />
-        </span>
-        <span className="truncate">{title}</span>
-      </div>
+      <span className="truncate text-[14px] font-medium text-[#1f252c]">{title}</span>
 
       <div className="flex shrink-0 items-center gap-4">
-        <button
-          aria-label="Buka notifikasi"
-          className="grid h-10 w-10 place-items-center rounded-full text-[#303740] transition-colors hover:bg-primary-50 hover:text-primary-400 focus-visible:outline-2 focus-visible:outline-primary-300"
-          type="button"
-        >
-          <DashboardIcon className="h-[18px] w-[18px]" name="bell" />
-        </button>
+        {showNotificationLink ? (
+          <Link
+            aria-label="Buka notifikasi di dashboard"
+            className={notificationButtonClassName}
+            href="/dashboard"
+          >
+            <Bell aria-hidden="true" size={19} strokeWidth={1.7} />
+          </Link>
+        ) : null}
         <button
           className="flex h-10 items-center gap-2.5 rounded-full border border-[#e1e4e8] bg-white px-2.5 pr-4 text-[12px] text-[#1c2229] shadow-[0_2px_8px_rgba(10,32,60,0.03)] transition-shadow hover:shadow-[0_5px_18px_rgba(10,32,60,0.09)]"
           type="button"

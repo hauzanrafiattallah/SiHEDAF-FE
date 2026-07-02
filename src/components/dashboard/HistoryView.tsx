@@ -40,7 +40,7 @@ export function HistoryView() {
         <div className="mt-7 grid gap-5 sm:grid-cols-3">
           {summaries.map((summary) => (
             <article
-              className="dashboard-card rounded-[22px] border border-[#edf0f3] bg-white px-7 py-6"
+              className="rounded-[22px] border border-[#edf0f3] bg-white px-7 py-6"
               key={summary.label}
             >
               <p className="text-[28px] font-semibold tracking-[-0.04em] text-[#171c21]">

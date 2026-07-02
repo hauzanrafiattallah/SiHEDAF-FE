@@ -176,19 +176,6 @@ footer[id] {
   animation-delay: 250ms;
 }
 
-.dashboard-card {
-  transition:
-    transform 240ms ease,
-    border-color 240ms ease,
-    box-shadow 240ms ease;
-}
-
-.dashboard-card:hover {
-  transform: translateY(-2px);
-  border-color: rgba(176, 210, 254, 0.9);
-  box-shadow: 0 13px 32px rgba(21, 51, 87, 0.06);
-}
-
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;

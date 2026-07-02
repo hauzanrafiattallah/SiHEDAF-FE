@@ -10,7 +10,7 @@ export function EditProfileView() {
         <p className="text-[12px] text-[#9aa0a8]">Profil / Ubah Profil</p>
         <h1 className="mt-3 text-[22px] font-semibold">Ubah Profil</h1>
 
-        <form className="dashboard-card mt-6 rounded-[24px] border border-[#e1e5e9] bg-white p-7">
+        <form className="mt-6 rounded-[24px] border border-[#e1e5e9] bg-white p-7">
           <div className="flex items-center gap-4 border-b border-[#edf0f3] pb-5">
             <ProfileAvatar editable />
             <button

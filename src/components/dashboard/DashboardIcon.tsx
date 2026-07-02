@@ -8,7 +8,6 @@ export type DashboardIconName =
   | "history"
   | "key"
   | "logout"
-  | "menu"
   | "profile";
 
 type DashboardIconProps = {
@@ -62,14 +61,6 @@ export function DashboardIcon({ className = "h-5 w-5", name }: DashboardIconProp
       <svg aria-hidden="true" {...commonProps}>
         <path d="M6.8 9.7c0-3.2 1.8-5.5 5.2-5.5s5.2 2.3 5.2 5.5v3.1l1.5 2.5H5.3l1.5-2.5V9.7Z" />
         <path d="M9.8 18.2c.5 1 1.2 1.5 2.2 1.5s1.7-.5 2.2-1.5" />
-      </svg>
-    );
-  }
-
-  if (name === "menu") {
-    return (
-      <svg aria-hidden="true" {...commonProps}>
-        <path d="M4 7h16M4 12h16M4 17h16" />
       </svg>
     );
   }

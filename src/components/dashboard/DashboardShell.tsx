@@ -2,10 +2,11 @@
 
 import { useState } from "react";
 import { usePathname } from "next/navigation";
+import { PanelLeftClose, PanelLeftOpen, PanelRightOpen } from "lucide-react";
 
-import { DashboardIcon } from "@/components/dashboard/DashboardIcon";
 import { DashboardSidebar } from "@/components/dashboard/DashboardSidebar";
 import { DashboardTopbar } from "@/components/dashboard/DashboardTopbar";
+import { NotificationPanel } from "@/components/dashboard/NotificationPanel";
 
 type DashboardShellProps = Readonly<{
   children: React.ReactNode;
@@ -22,6 +23,8 @@ export function DashboardShell({ children }: DashboardShellProps) {
   const pathname = usePathname();
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
+  const [isNotificationsOpen, setIsNotificationsOpen] = useState(true);
+  const isDashboardRoute = pathname === "/dashboard";
 
   return (
     <div className="min-h-dvh bg-[#f7f7f8] text-[#171b20]">
@@ -57,7 +60,11 @@ export function DashboardShell({ children }: DashboardShellProps) {
               onClick={() => setIsMobileOpen((current) => !current)}
               type="button"
             >
-              <DashboardIcon className="h-[17px] w-[17px]" name="menu" />
+              {isMobileOpen ? (
+                <PanelLeftClose aria-hidden="true" size={19} strokeWidth={1.7} />
+              ) : (
+                <PanelLeftOpen aria-hidden="true" size={19} strokeWidth={1.7} />
+              )}
             </button>
             <button
               aria-expanded={!isCollapsed}
@@ -66,14 +73,49 @@ export function DashboardShell({ children }: DashboardShellProps) {
               onClick={() => setIsCollapsed((current) => !current)}
               type="button"
             >
-              <DashboardIcon className="h-[17px] w-[17px]" name="menu" />
+              {isCollapsed ? (
+                <PanelLeftOpen aria-hidden="true" size={19} strokeWidth={1.7} />
+              ) : (
+                <PanelLeftClose aria-hidden="true" size={19} strokeWidth={1.7} />
+              )}
             </button>
-            <DashboardTopbar title={routeTitles[pathname] ?? "Dashboard"} />
+            <DashboardTopbar
+              showNotificationLink={!isDashboardRoute}
+              title={routeTitles[pathname] ?? "Dashboard"}
+            />
           </header>
 
-          <main className="min-w-0 flex-1" key={pathname}>
-            <div className="dashboard-enter min-h-full">{children}</div>
-          </main>
+          <div className="relative flex min-w-0 flex-1 flex-col xl:flex-row">
+            {isDashboardRoute && !isNotificationsOpen ? (
+              <button
+                aria-label="Tampilkan notifikasi"
+                className="fixed right-5 top-[100px] z-30 grid h-10 w-10 place-items-center rounded-xl border border-[#d7dce2] bg-white text-[#303740] transition-[color,border-color,background-color,transform] duration-200 hover:border-primary-200 hover:bg-primary-50 hover:text-primary-400 active:scale-95 focus-visible:outline-2 focus-visible:outline-primary-300 sm:right-7"
+                onClick={() => setIsNotificationsOpen(true)}
+                title="Tampilkan notifikasi"
+                type="button"
+              >
+                <PanelRightOpen aria-hidden="true" size={19} strokeWidth={1.7} />
+              </button>
+            ) : null}
+
+            <main className="min-w-0 flex-1" key={pathname}>
+              <div className="dashboard-enter min-h-full">{children}</div>
+            </main>
+
+            {isDashboardRoute ? (
+              <div
+                aria-hidden={!isNotificationsOpen}
+                className={`self-stretch bg-white shrink-0 overflow-hidden transition-[width,opacity,max-height] duration-300 ease-out ${
+                  isNotificationsOpen
+                    ? "max-h-[1200px] w-full opacity-100 xl:max-h-none xl:w-[320px]"
+                    : "pointer-events-none max-h-0 w-full opacity-0 xl:max-h-none xl:w-0"
+                }`}
+                inert={!isNotificationsOpen}
+              >
+                <NotificationPanel onClose={() => setIsNotificationsOpen(false)} />
+              </div>
+            ) : null}
+          </div>
         </div>
       </div>
     </div>

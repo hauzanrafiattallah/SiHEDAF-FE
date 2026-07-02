@@ -1,3 +1,5 @@
+import { PanelRightClose } from "lucide-react";
+
 import { StatusMark } from "@/components/dashboard/StatusMark";
 
 const notifications = [
@@ -6,13 +8,22 @@ const notifications = [
   { day: "Kemarin", time: "14:06 WIB" },
 ];
 
-export function NotificationPanel() {
+type NotificationPanelProps = {
+  onClose: () => void;
+};
+
+export function NotificationPanel({ onClose }: NotificationPanelProps) {
   return (
-    <aside className="border-t border-[#e5e8eb] bg-white px-6 py-7 xl:min-h-[calc(100dvh-72px)] xl:border-l xl:border-t-0">
+    <aside className="h-full w-full border-t border-[#e5e8eb] bg-white px-6 py-7 xl:min-h-[calc(100dvh-72px)] xl:w-[320px] xl:border-l xl:border-t-0">
       <div className="flex items-center gap-2.5">
-        <span className="grid h-7 w-7 place-items-center rounded-lg border border-[#cbd0d6]">
-          <span className="h-3 w-px bg-[#505860]" />
-        </span>
+        <button
+          aria-label="Sembunyikan notifikasi"
+          className="grid h-9 w-9 place-items-center rounded-xl border border-[#d7dce2] text-[#313841] transition-colors hover:border-primary-200 hover:bg-primary-50 hover:text-primary-400 focus-visible:outline-2 focus-visible:outline-primary-300"
+          onClick={onClose}
+          type="button"
+        >
+          <PanelRightClose aria-hidden="true" size={18} strokeWidth={1.7} />
+        </button>
         <h2 className="text-[16px] font-medium">Notifikasi</h2>
       </div>
 

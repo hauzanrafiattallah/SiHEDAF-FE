@@ -22,7 +22,7 @@ export function ProfileView() {
         <h1 className="text-[22px] font-semibold">Profil Akun</h1>
         <p className="mt-2 text-[13px] text-[#969ca5]">Kelola profil kamu di sini</p>
 
-        <article className="dashboard-card mt-7 flex items-center gap-6 rounded-[24px] bg-[linear-gradient(105deg,#f5fbff,#dcecff)] px-7 py-7">
+        <article className="mt-7 flex items-center gap-6 rounded-[24px] bg-[linear-gradient(105deg,#f5fbff,#dcecff)] px-7 py-7">
           <ProfileAvatar />
           <div>
             <h2 className="text-[18px] font-semibold text-[#1b2026]">Armand Setya Nugraha</h2>
@@ -30,7 +30,7 @@ export function ProfileView() {
           </div>
         </article>
 
-        <article className="dashboard-card mt-6 overflow-hidden rounded-[24px] border border-[#e3e7eb] bg-white">
+        <article className="mt-6 overflow-hidden rounded-[24px] border border-[#e3e7eb] bg-white">
           <div className="flex items-center justify-between px-7 py-5">
             <h2 className="text-[16px] font-semibold">Informasi Profil</h2>
             <Link

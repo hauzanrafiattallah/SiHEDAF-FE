@@ -20,6 +20,7 @@ Bahasa utama antarmuka adalah Bahasa Indonesia. Implementasi saat ini berfokus p
 - React dan React DOM `19.2.4`.
 - TypeScript 5.
 - Tailwind CSS 4 melalui `@tailwindcss/postcss`.
+- Lucide React untuk ikon kontrol panel yang semantic dan konsisten.
 - ESLint 9 dengan `eslint-config-next`.
 - Node.js native test runner untuk source-contract tests.
 - Tidak menggunakan UI kit atau chart library eksternal; ikon dan grafik dibuat dengan SVG lokal.
@@ -53,6 +54,7 @@ Sebelum mengubah API, route, layout, metadata, atau convention Next.js, baca pan
 
 - Route `/login`, `/register`, dan `/hubungkan-perangkat`.
 - Split-screen auth layout yang responsif.
+- Visual panel auth memakai vertical flex flow; logo, copy, dan smartwatch tidak boleh kembali menggunakan absolute offsets yang dapat saling overlap.
 - Active/inactive form state, validasi kelengkapan sederhana, dan toggle password.
 - Login mengarahkan pengguna ke penyambungan perangkat.
 - Register mengarahkan pengguna kembali ke login.
@@ -65,11 +67,15 @@ Sebelum mengubah API, route, layout, metadata, atau convention Next.js, baca pan
 - Sidebar desktop dapat diciutkan dari `210px` menjadi icon rail `72px`.
 - Pada mobile, sidebar berubah menjadi off-canvas drawer dengan backdrop.
 - Active navigation mengikuti pathname dan state sidebar tetap hidup selama navigasi child route.
+- Tombol topbar memakai ikon panel open/close; tidak ada decorative icon ganda di samping judul.
+- Notification rail full-height dapat ditutup melalui `PanelRightClose`, lalu dibuka kembali melalui tombol floating `PanelRightOpen` di sisi kanan content dengan transisi width/opacity.
+- Tombol monitoring memiliki state UI aktif/dijeda: ikon Pause menghentikan tampilan live, sedangkan ikon Play memulai kembali status dan animasi grafik.
 - Dashboard utama berisi hasil analisis terakhir, grafik PPG, monitoring terakhir, status wearable, dan notification rail.
 - Riwayat analisis berisi summary cards, filter tanggal, enam baris hasil, sparklines, dan pagination UI.
 - Profil berisi account summary, informasi profil, edit profile, ubah kata sandi, dan logout UI.
 - Edit profil berisi avatar placeholder, field nama/email, Device ID disabled, serta tombol batal/simpan.
-- Page entry, sidebar, chart draw, staggered rows, card hover, dan tombol menggunakan motion ringan.
+- Page entry, sidebar, notification rail, chart draw, staggered rows, dan tombol menggunakan motion ringan.
+- Card dan information surface statis tidak memakai hover-lift agar tidak memberi affordance klik palsu; motion hover hanya dipakai pada kontrol yang benar-benar interaktif.
 
 ### Testing dan struktur
 
@@ -191,7 +197,7 @@ Sebelum menyatakan perubahan selesai, jalankan test, lint, dan production build.
 ## Batasan Saat Ini
 
 - Seluruh health data, history, notification, dan profile data masih mock/static.
-- Tombol monitoring, pagination, filter tanggal, edit profile, ganti foto, ubah password, dan logout belum tersambung ke backend.
+- Tombol monitoring baru mengubah state UI lokal; pagination, filter tanggal, edit profile, ganti foto, ubah password, dan logout belum tersambung ke backend.
 - Tidak ada proteksi route/session untuk dashboard.
 - Tidak ada database, API, device protocol, atau real-time PPG stream.
 - Avatar profil menggunakan placeholder dan dapat diganti setelah asset final tersedia.
