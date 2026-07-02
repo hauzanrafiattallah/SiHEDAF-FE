@@ -47,6 +47,7 @@ html {
   scroll-behavior: smooth;
   scroll-padding-top: 7rem;
   scrollbar-color: #b0d2fe #f7f9fc;
+  scrollbar-gutter: stable;
   scrollbar-width: thin;
   -webkit-overflow-scrolling: touch;
 }
