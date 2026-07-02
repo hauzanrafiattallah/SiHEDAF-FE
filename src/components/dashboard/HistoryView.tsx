@@ -61,7 +61,7 @@ function isDateInRange(date: Date, range: DateRange) {
 
 export function HistoryView() {
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(6);
+  const [itemsPerPage, setItemsPerPage] = useState(5);
   const [dateRange, setDateRange] = useState<DateRange>({
     from: new Date(2026, 5, 1),
     to: new Date(2026, 5, 2),
@@ -216,7 +216,7 @@ export function HistoryView() {
                 onChange={(event) => handleItemsPerPageChange(Number(event.target.value))}
                 value={itemsPerPage}
               >
-                {[6, 10, 20].map((amount) => (
+                {[5, 10, 20].map((amount) => (
                   <option key={amount} value={amount}>
                     {amount}
                   </option>

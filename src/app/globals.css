@@ -109,6 +109,28 @@ footer[id] {
   color: #003171;
 }
 
+.rdp-range_start > .rdp-day_button,
+.rdp-range_end > .rdp-day_button {
+  border-radius: 999px;
+}
+
+.rdp-range_start {
+  background: transparent;
+}
+
+.rdp-range_end {
+  background: transparent;
+}
+
+.rdp-range_start.rdp-range_end {
+  background: transparent;
+}
+
+.rdp-range_middle {
+  background-color: var(--rdp-range_middle-background-color);
+  border-radius: 999px;
+}
+
 @keyframes dashboard-enter {
   from {
     opacity: 0;
