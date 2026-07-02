@@ -8,7 +8,7 @@ import {
   type FormEvent,
 } from "react";
 import { useRouter } from "next/navigation";
-import { CheckCircle2 } from "lucide-react";
+import { CheckCircle2, Save } from "lucide-react";
 
 import { DashboardModal } from "@/components/dashboard/DashboardModal";
 import { ProfileAvatar } from "@/components/dashboard/ProfileView";
@@ -31,6 +31,7 @@ function EditProfileForm({ initialProfile }: { initialProfile: ProfileData }) {
   const [email, setEmail] = useState(initialProfile.email);
   const [avatarPreview, setAvatarPreview] = useState(initialProfile.avatarDataUrl);
   const [formError, setFormError] = useState("");
+  const [showConfirm, setShowConfirm] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
 
   function openFilePicker() {
@@ -67,12 +68,17 @@ function EditProfileForm({ initialProfile }: { initialProfile: ProfileData }) {
       return;
     }
 
+    setFormError("");
+    setShowConfirm(true);
+  }
+
+  function confirmSave() {
     saveProfile({
       avatarDataUrl: avatarPreview,
       email: email.trim(),
       fullName: fullName.trim(),
     });
-    setFormError("");
+    setShowConfirm(false);
     setIsSaved(true);
   }
 
@@ -89,7 +95,7 @@ function EditProfileForm({ initialProfile }: { initialProfile: ProfileData }) {
             onClick={openFilePicker}
             type="button"
           >
-            <ProfileAvatar avatarDataUrl={avatarPreview} editable />
+            <ProfileAvatar avatarDataUrl={avatarPreview} />
           </button>
           <input
             accept="image/*"
@@ -159,6 +165,35 @@ function EditProfileForm({ initialProfile }: { initialProfile: ProfileData }) {
           </button>
         </div>
       </form>
+
+      <DashboardModal
+        description="Perubahan pada nama, email, dan foto profil akan disimpan."
+        onClose={() => setShowConfirm(false)}
+        open={showConfirm}
+        title="Simpan perubahan profil?"
+      >
+        <div className="text-center">
+          <span className="mx-auto grid h-16 w-16 place-items-center rounded-full bg-primary-50 text-primary-300">
+            <Save aria-hidden="true" size={30} strokeWidth={1.8} />
+          </span>
+          <div className="mt-7 grid grid-cols-2 gap-3">
+            <button
+              className="h-12 rounded-full border border-[#dfe4e8] text-[13px] text-[#707781] transition-colors hover:bg-[#f6f8fa]"
+              onClick={() => setShowConfirm(false)}
+              type="button"
+            >
+              Batal
+            </button>
+            <button
+              className="h-12 rounded-full bg-primary-300 text-[13px] font-medium text-white transition-colors hover:bg-primary-400"
+              onClick={confirmSave}
+              type="button"
+            >
+              Ya, simpan
+            </button>
+          </div>
+        </div>
+      </DashboardModal>
 
       <DashboardModal
         description="Nama, email, dan foto profil sudah tersimpan pada simulasi frontend."

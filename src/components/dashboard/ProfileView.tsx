@@ -18,10 +18,8 @@ type ActiveModal = "logout" | "password" | null;
 
 function ProfileAvatar({
   avatarDataUrl = "",
-  editable = false,
 }: {
   avatarDataUrl?: string;
-  editable?: boolean;
 }) {
   return (
     <span className="relative block h-20 w-20 shrink-0">
@@ -31,11 +29,6 @@ function ProfileAvatar({
       >
         {avatarDataUrl ? <span className="sr-only">Foto profil</span> : "AS"}
       </span>
-      {!editable ? (
-        <span className="absolute -bottom-0.5 -right-0.5 grid h-5 w-5 place-items-center rounded-full border-2 border-white bg-primary-300 text-white">
-          <DashboardIcon className="h-2.5 w-2.5" name="edit" />
-        </span>
-      ) : null}
     </span>
   );
 }
