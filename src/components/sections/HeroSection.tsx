@@ -10,8 +10,9 @@ export function HeroSection() {
     >
       <div className="relative z-10 mx-auto flex max-w-[1120px] flex-col items-center text-center">
         <h1
-          className="text-[clamp(3rem,4.4vw,5rem)] leading-[0.98] font-medium tracking-[-0.06em] text-primary-900"
+          className="hero-stagger text-[clamp(3rem,4.4vw,5rem)] leading-[0.98] font-medium tracking-[-0.06em] text-primary-900"
           id="hero-title"
+          style={{ "--stagger": 0 } as React.CSSProperties}
         >
           <span className="block">Deteksi Dini Risiko</span>
           <span className="mt-2 block">
@@ -22,21 +23,27 @@ export function HeroSection() {
           </span>
         </h1>
 
-        <p className="mt-8 max-w-[820px] text-[clamp(0.875rem,1vw,1.0625rem)] leading-[1.65] font-medium tracking-[-0.02em] text-primary-900/45">
+        <p
+          className="hero-stagger mt-8 max-w-[820px] text-[clamp(0.875rem,1vw,1.0625rem)] leading-[1.65] font-medium tracking-[-0.02em] text-primary-900/45"
+          style={{ "--stagger": 1 } as React.CSSProperties}
+        >
           Pemantauan Jantung Portabel cerdas melalui sinyal PPG dan wearable
           device, dianalisis AI untuk memberikan peringatan dini risiko stroke.
         </p>
 
-        <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row">
+        <div
+          className="hero-stagger mt-8 flex flex-col items-center gap-3 sm:flex-row"
+          style={{ "--stagger": 2 } as React.CSSProperties}
+        >
           <a
-            className="inline-flex h-13 items-center justify-center gap-2.5 rounded-full bg-primary-500 px-8 text-[14px] font-semibold text-white shadow-[0_12px_30px_rgba(0,88,201,0.2)] transition-[transform,box-shadow] duration-200 hover:-translate-y-0.5 hover:shadow-[0_16px_34px_rgba(0,88,201,0.25)] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary-400"
+            className="inline-flex h-13 items-center justify-center gap-2.5 rounded-full bg-primary-500 px-8 text-[14px] font-semibold text-white shadow-[0_12px_30px_rgba(0,88,201,0.2)] transition-[transform,box-shadow,background-color] duration-400 ease-[cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-[1.5px] hover:bg-primary-400 hover:shadow-[0_18px_38px_rgba(0,88,201,0.28)] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary-400"
             href="#cta"
           >
             Mulai Sekarang
             <ArrowIcon />
           </a>
           <a
-            className="inline-flex h-13 items-center rounded-full px-4 text-[14px] font-semibold text-primary-400 transition-colors hover:text-primary-600 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary-400"
+            className="inline-flex h-13 items-center rounded-full px-4 text-[14px] font-semibold text-primary-400 transition-colors duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] hover:text-primary-600 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary-400"
             href="#tentang"
           >
             Pelajari Lebih Lanjut
@@ -44,7 +51,10 @@ export function HeroSection() {
         </div>
       </div>
 
-      <div className="relative mx-auto mt-5 h-[clamp(330px,39vh,430px)] max-w-[1280px]">
+      <div
+        className="hero-stagger relative mx-auto mt-5 h-[clamp(330px,39vh,430px)] max-w-[1280px]"
+        style={{ "--stagger": 3 } as React.CSSProperties}
+      >
         <div className="absolute left-1/2 top-16 h-[340px] w-[min(72vw,720px)] -translate-x-1/2 rounded-full bg-[radial-gradient(circle,rgba(176,210,254,0.52)_0%,rgba(217,233,251,0.26)_46%,rgba(255,255,255,0)_72%)] blur-xl" />
 
         <svg

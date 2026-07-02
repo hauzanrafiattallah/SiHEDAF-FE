@@ -30,7 +30,7 @@ export function AboutSection() {
         </div>
 
         <div className="mt-16 grid rounded-[34px] bg-primary-900/[0.035] p-2.5 md:grid-cols-2 md:grid-rows-2">
-          <article className="dashboard-card min-h-[390px] rounded-[29px] bg-white p-8 shadow-[0_8px_30px_rgba(0,39,88,0.02)] sm:p-11 md:row-span-2">
+          <article className="child-reveal dashboard-card min-h-[390px] rounded-[29px] bg-white p-8 shadow-[0_8px_30px_rgba(0,39,88,0.02)] sm:p-11 md:row-span-2" style={{ "--child": 0 } as React.CSSProperties}>
             <p className="text-[64px] leading-none font-semibold tracking-[-0.06em] text-primary-300">
               5x
             </p>
@@ -54,7 +54,7 @@ export function AboutSection() {
             </ul>
           </article>
 
-          <article className="dashboard-card mt-2.5 min-h-[194px] rounded-[29px] bg-white p-8 shadow-[0_8px_30px_rgba(0,39,88,0.02)] md:mt-0 md:ml-2.5">
+          <article className="child-reveal dashboard-card mt-2.5 min-h-[194px] rounded-[29px] bg-white p-8 shadow-[0_8px_30px_rgba(0,39,88,0.02)] md:mt-0 md:ml-2.5" style={{ "--child": 1 } as React.CSSProperties}>
             <span className="inline-flex size-13 items-center justify-center rounded-full bg-primary-50 text-primary-300">
               <LineIcon className="size-7" name="pulse" />
             </span>
@@ -67,7 +67,7 @@ export function AboutSection() {
             </p>
           </article>
 
-          <article className="dashboard-card mt-2.5 min-h-[194px] rounded-[29px] bg-white p-8 shadow-[0_8px_30px_rgba(0,39,88,0.02)] md:ml-2.5">
+          <article className="child-reveal dashboard-card mt-2.5 min-h-[194px] rounded-[29px] bg-white p-8 shadow-[0_8px_30px_rgba(0,39,88,0.02)] md:ml-2.5" style={{ "--child": 2 } as React.CSSProperties}>
             <span className="inline-flex size-13 items-center justify-center rounded-full bg-primary-50 text-primary-300">
               <LineIcon className="size-7" name="scan" />
             </span>

@@ -48,8 +48,9 @@ export function ProcessSection() {
         <ol className="mt-20 grid gap-12 lg:grid-cols-4 lg:gap-0">
           {steps.map((step, index) => (
             <li
-              className="relative border-primary-900/10 lg:min-h-[330px] lg:border-l lg:px-10 first:lg:border-l-0 first:lg:pl-0 last:lg:pr-0"
+              className="child-reveal relative border-primary-900/10 lg:min-h-[330px] lg:border-l lg:px-10 first:lg:border-l-0 first:lg:pl-0 last:lg:pr-0"
               key={step.title}
+              style={{ "--child": index } as React.CSSProperties}
             >
               <span className="inline-flex h-10 items-center rounded-full border border-primary-300/60 px-5 text-[12px] font-semibold text-primary-300">
                 Langkah {index + 1}

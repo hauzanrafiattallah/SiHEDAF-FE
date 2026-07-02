@@ -54,7 +54,7 @@ export function HeaderSection({
             Daftar
           </Link>
           <Link
-            className="inline-flex h-11 min-w-[96px] items-center justify-center rounded-full bg-primary-300 px-5 text-[13px] font-semibold text-white shadow-[0_10px_24px_rgba(0,110,251,0.22)] transition-[transform,box-shadow,background-color] duration-200 hover:-translate-y-0.5 hover:bg-primary-400 hover:shadow-[0_14px_30px_rgba(0,110,251,0.26)] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary-400"
+            className="inline-flex h-11 min-w-[96px] items-center justify-center rounded-full bg-primary-300 px-5 text-[13px] font-semibold text-white shadow-[0_10px_24px_rgba(0,110,251,0.22)] transition-[transform,box-shadow,background-color] duration-400 ease-[cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-[1.5px] hover:bg-primary-400 hover:shadow-[0_16px_30px_rgba(0,110,251,0.28)] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary-400"
             href="/login"
           >
             Masuk

@@ -52,10 +52,11 @@ export function FeaturesSection() {
         </div>
 
         <div className="mt-16 grid gap-5 md:grid-cols-3">
-          {features.map((feature) => (
+          {features.map((feature, index) => (
             <article
-              className="dashboard-card min-h-[270px] rounded-[30px] bg-white p-9 shadow-[0_8px_30px_rgba(0,39,88,0.02)]"
+              className="child-reveal dashboard-card min-h-[270px] rounded-[30px] bg-white p-9 shadow-[0_8px_30px_rgba(0,39,88,0.02)]"
               key={feature.title}
+              style={{ "--child": index } as React.CSSProperties}
             >
               <LineIcon
                 className="size-12 text-primary-300"

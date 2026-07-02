@@ -12,7 +12,7 @@ export function BrandLogo({ compact = false }: BrandLogoProps) {
     <Link
       aria-label="Kembali ke halaman utama SiHEDAF"
       className="inline-flex shrink-0 items-center gap-2.5 rounded-lg focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary-400"
-      href="/"
+      href="/#top"
     >
       <Image
         alt="Logo SiHEDAF"
