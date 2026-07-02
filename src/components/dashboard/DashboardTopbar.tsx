@@ -29,16 +29,16 @@ export function DashboardTopbar({
             <Bell aria-hidden="true" size={19} strokeWidth={1.7} />
           </Link>
         ) : null}
-        <button
+        <Link
           className="flex h-10 items-center gap-2.5 rounded-full border border-[#e1e4e8] bg-white px-2.5 pr-4 text-[12px] text-[#1c2229] shadow-[0_2px_8px_rgba(10,32,60,0.03)] transition-shadow hover:shadow-[0_5px_18px_rgba(10,32,60,0.09)]"
-          type="button"
+          href="/profil"
         >
           <span className="grid h-7 w-7 place-items-center rounded-full bg-[linear-gradient(135deg,#d7ebff,#8eb9e7)] text-[12px] font-semibold text-primary-900">
             AS
           </span>
           <span className="hidden sm:inline">Armand Setya</span>
           <DashboardIcon className="h-3 w-3 text-[#858b94]" name="chevron" />
-        </button>
+        </Link>
       </div>
     </div>
   );

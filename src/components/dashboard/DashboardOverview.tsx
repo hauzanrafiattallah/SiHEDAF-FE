@@ -11,6 +11,7 @@ import { StatusMark } from "@/components/dashboard/StatusMark";
 
 export function DashboardOverview() {
   const [isMonitoringActive, setIsMonitoringActive] = useState(true);
+  const [monitoringRange, setMonitoringRange] = useState("12");
 
   return (
     <section className="min-h-[calc(100dvh-72px)] min-w-0 px-4 py-7 sm:px-7 lg:px-9 lg:py-9">
@@ -65,19 +66,30 @@ export function DashboardOverview() {
                   </span>
                   <span className="text-[#a4a9b1]">
                     {isMonitoringActive
-                      ? "Pembaruan otomatis selama 3 menit"
+                      ? `Pembaruan otomatis selama ${monitoringRange} menit`
                       : "Pembaruan dihentikan sementara"}
                   </span>
                 </div>
               </div>
               <div className="flex items-center gap-2">
-                <button
-                  className="flex h-10 items-center gap-2 rounded-full border border-[#222831] px-5 text-[12px] text-[#20252b] transition-colors hover:border-primary-300 hover:text-primary-300"
-                  type="button"
-                >
-                  12 menit terakhir
-                  <DashboardIcon className="h-3 w-3 rotate-90" name="chevron" />
-                </button>
+                <label className="relative block">
+                  <span className="sr-only">Rentang waktu monitoring</span>
+                  <select
+                    className="h-10 appearance-none rounded-full border border-[#222831] bg-white pl-5 pr-10 text-[12px] text-[#20252b] outline-none transition-colors hover:border-primary-300 focus:border-primary-300 focus-visible:ring-2 focus-visible:ring-primary-200"
+                    onChange={(event) => setMonitoringRange(event.target.value)}
+                    value={monitoringRange}
+                  >
+                    {[3, 6, 12, 30].map((minute) => (
+                      <option key={minute} value={minute}>
+                        {minute} menit terakhir
+                      </option>
+                    ))}
+                  </select>
+                  <DashboardIcon
+                    className="pointer-events-none absolute right-4 top-1/2 h-3 w-3 -translate-y-1/2 rotate-90 text-[#20252b]"
+                    name="chevron"
+                  />
+                </label>
                 <button
                   aria-pressed={isMonitoringActive}
                   className={`flex h-10 items-center gap-2 rounded-full border px-5 text-[12px] font-medium transition-[color,background-color,border-color,box-shadow,transform] duration-200 active:scale-[0.98] ${

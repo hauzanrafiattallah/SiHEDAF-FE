@@ -1,23 +1,93 @@
-import { DashboardIcon } from "@/components/dashboard/DashboardIcon";
+"use client";
+
+import { useState } from "react";
+import type { DateRange } from "@daypicker/react";
+
+import { DateRangePicker } from "@/components/dashboard/DateRangePicker";
 import { Sparkline } from "@/components/dashboard/Sparkline";
 import { StatusMark } from "@/components/dashboard/StatusMark";
 
-const historyRows = [
-  { status: "normal", time: "06:45 WIB", tone: "blue" },
-  { status: "af", time: "09:42 WIB", tone: "pink" },
-  { status: "normal", time: "09:39 WIB", tone: "blue" },
-  { status: "af", time: "08:42 WIB", tone: "pink" },
-  { status: "af", time: "09:42 WIB", tone: "pink" },
-  { status: "normal", time: "09:39 WIB", tone: "blue" },
-] as const;
+type HistoryStatus = "af" | "normal";
 
-const summaries = [
-  { label: "Total jumlah monitoring", value: "20" },
-  { label: "Terdeteksi AF", value: "5" },
-  { label: "Ritme Normal", value: "15" },
+type HistoryRow = {
+  date: Date;
+  id: number;
+  status: HistoryStatus;
+  time: string;
+  tone: "blue" | "pink";
+};
+
+const times = [
+  "06:45 WIB",
+  "07:18 WIB",
+  "08:02 WIB",
+  "08:42 WIB",
+  "09:12 WIB",
+  "09:39 WIB",
+  "09:42 WIB",
+  "10:15 WIB",
+  "11:08 WIB",
+  "12:45 WIB",
 ];
 
+const historyRows: HistoryRow[] = Array.from({ length: 20 }, (_, index) => {
+  const status: HistoryStatus = index % 4 === 1 ? "af" : "normal";
+
+  return {
+    date: new Date(2026, 5, index < 10 ? 1 : 2),
+    id: index + 1,
+    status,
+    time: times[index % times.length],
+    tone: status === "normal" ? "blue" : "pink",
+  };
+});
+
+const dateFormatter = new Intl.DateTimeFormat("id-ID", {
+  day: "numeric",
+  month: "long",
+  year: "numeric",
+});
+
+function isDateInRange(date: Date, range: DateRange) {
+  if (!range.from) return true;
+
+  const start = new Date(range.from);
+  start.setHours(0, 0, 0, 0);
+  const end = new Date(range.to ?? range.from);
+  end.setHours(23, 59, 59, 999);
+
+  return date >= start && date <= end;
+}
+
 export function HistoryView() {
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(6);
+  const [dateRange, setDateRange] = useState<DateRange>({
+    from: new Date(2026, 5, 1),
+    to: new Date(2026, 5, 2),
+  });
+
+  const filteredRows = historyRows.filter((row) => isDateInRange(row.date, dateRange));
+  const totalPages = Math.max(1, Math.ceil(filteredRows.length / itemsPerPage));
+  const pageStart = (currentPage - 1) * itemsPerPage;
+  const visibleRows = filteredRows.slice(pageStart, pageStart + itemsPerPage);
+  const afCount = filteredRows.filter((row) => row.status === "af").length;
+  const summaries = [
+    { label: "Total jumlah monitoring", value: filteredRows.length },
+    { label: "Terdeteksi AF", value: afCount },
+    { label: "Ritme Normal", value: filteredRows.length - afCount },
+  ];
+
+  function handleRangeChange(range: DateRange) {
+    setDateRange(range);
+    setCurrentPage(1);
+  }
+
+  function handleItemsPerPageChange(value: number) {
+    setItemsPerPage(value);
+    setCurrentPage(1);
+  }
+
   return (
     <section className="px-4 py-7 sm:px-7 lg:px-9 lg:py-9">
       <div className="mx-auto max-w-[1360px]">
@@ -28,13 +98,7 @@ export function HistoryView() {
               Lihat semua riwayat analisis dan hasil monitoring perangkat SiHEDAF kamu
             </p>
           </div>
-          <button
-            className="flex h-11 items-center gap-3 rounded-full border border-[#e1e5e9] bg-white px-5 text-[12px] text-[#252b31] transition-colors hover:border-primary-200 hover:bg-primary-50/50"
-            type="button"
-          >
-            1 Juni 2026 - 2 Juni 2026
-            <DashboardIcon className="h-4 w-4" name="calendar" />
-          </button>
+          <DateRangePicker onChange={handleRangeChange} value={dateRange} />
         </div>
 
         <div className="mt-7 grid gap-5 sm:grid-cols-3">
@@ -66,16 +130,16 @@ export function HistoryView() {
                 </tr>
               </thead>
               <tbody>
-                {historyRows.map((row, index) => {
+                {visibleRows.map((row) => {
                   const isNormal = row.status === "normal";
 
                   return (
                     <tr
                       className="stagger-item border-b border-[#f0f2f4] last:border-b-0"
-                      key={`${row.time}-${index}`}
+                      key={row.id}
                     >
                       <td className="px-6 py-4 text-[12px] text-[#989da5]">
-                        2 Juni 2026&nbsp; • &nbsp;{row.time}
+                        {dateFormatter.format(row.date)}&nbsp; • &nbsp;{row.time}
                       </td>
                       <td className="px-4 py-2.5">
                         <div className="flex items-center gap-3">
@@ -102,55 +166,64 @@ export function HistoryView() {
                 })}
               </tbody>
             </table>
+            {visibleRows.length === 0 ? (
+              <p className="px-6 py-12 text-center text-[13px] text-[#9298a1]">
+                Tidak ada riwayat pada rentang tanggal ini.
+              </p>
+            ) : null}
           </div>
 
           <div className="flex flex-wrap items-center justify-between gap-4 border-t border-[#edf0f3] px-6 py-4">
-            <div className="flex items-center gap-2 text-[12px]">
+            <nav aria-label="Pagination riwayat" className="flex items-center gap-2 text-[12px]">
               <button
-                className="h-8 rounded-full border border-[#e1e5e9] px-4 text-[#a0a5ad] transition-colors hover:border-primary-200 hover:text-primary-300"
+                className="h-8 rounded-full border border-[#e1e5e9] px-4 text-[#6f7680] transition-colors hover:border-primary-200 hover:text-primary-300 disabled:cursor-not-allowed disabled:text-[#b3b8bf] disabled:hover:border-[#e1e5e9]"
+                disabled={currentPage === 1}
+                onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
                 type="button"
               >
                 ‹&nbsp; Sebelumnya
               </button>
-              {[1, 2, 3].map((page) => (
+              {Array.from({ length: totalPages }, (_, index) => index + 1).map((page) => (
                 <button
-                  aria-current={page === 1 ? "page" : undefined}
+                  aria-current={page === currentPage ? "page" : undefined}
                   className={`grid h-8 w-8 place-items-center rounded-full border transition-colors ${
-                    page === 1
+                    page === currentPage
                       ? "border-primary-300 bg-primary-300 text-white"
                       : "border-[#e1e5e9] text-[#6f7680] hover:border-primary-200"
                   }`}
                   key={page}
+                  onClick={() => setCurrentPage(page)}
                   type="button"
                 >
                   {page}
                 </button>
               ))}
-              <span className="px-1 text-[#9ca2aa]">...</span>
               <button
-                className="grid h-8 w-8 place-items-center rounded-full border border-[#e1e5e9] text-[#6f7680]"
-                type="button"
-              >
-                5
-              </button>
-              <button
-                className="h-8 rounded-full border border-[#e1e5e9] px-4 text-[#6f7680] transition-colors hover:border-primary-200 hover:text-primary-300"
+                className="h-8 rounded-full border border-[#e1e5e9] px-4 text-[#6f7680] transition-colors hover:border-primary-200 hover:text-primary-300 disabled:cursor-not-allowed disabled:text-[#b3b8bf] disabled:hover:border-[#e1e5e9]"
+                disabled={currentPage === totalPages}
+                onClick={() => setCurrentPage((page) => Math.min(totalPages, page + 1))}
                 type="button"
               >
                 Selanjutnya&nbsp; ›
               </button>
-            </div>
+            </nav>
 
-            <div className="flex items-center gap-3 text-[12px] text-[#9aa0a9]">
+            <label className="flex items-center gap-3 text-[12px] text-[#9aa0a9]">
               <span>Tampilkan</span>
-              <button
-                className="flex h-7 min-w-11 items-center justify-center gap-1 rounded-full border border-[#e2e6ea] px-2 text-[#555c65]"
-                type="button"
+              <select
+                aria-label="Jumlah riwayat per halaman"
+                className="h-8 rounded-full border border-[#e2e6ea] bg-white px-3 text-[#555c65] outline-none focus:border-primary-300 focus-visible:ring-2 focus-visible:ring-primary-200"
+                onChange={(event) => handleItemsPerPageChange(Number(event.target.value))}
+                value={itemsPerPage}
               >
-                6 <DashboardIcon className="h-2.5 w-2.5 rotate-90" name="chevron" />
-              </button>
+                {[6, 10, 20].map((amount) => (
+                  <option key={amount} value={amount}>
+                    {amount}
+                  </option>
+                ))}
+              </select>
               <span>per halaman</span>
-            </div>
+            </label>
           </div>
         </article>
       </div>

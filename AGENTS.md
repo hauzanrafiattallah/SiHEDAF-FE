@@ -21,6 +21,7 @@ Bahasa utama antarmuka adalah Bahasa Indonesia. Implementasi saat ini berfokus p
 - TypeScript 5.
 - Tailwind CSS 4 melalui `@tailwindcss/postcss`.
 - Lucide React untuk ikon kontrol panel yang semantic dan konsisten.
+- `@daypicker/react` untuk calendar range picker yang terkontrol dan mudah dipetakan ke parameter API.
 - ESLint 9 dengan `eslint-config-next`.
 - Node.js native test runner untuk source-contract tests.
 - Tidak menggunakan UI kit atau chart library eksternal; ikon dan grafik dibuat dengan SVG lokal.
@@ -69,11 +70,14 @@ Sebelum mengubah API, route, layout, metadata, atau convention Next.js, baca pan
 - Active navigation mengikuti pathname dan state sidebar tetap hidup selama navigasi child route.
 - Tombol topbar memakai ikon panel open/close; tidak ada decorative icon ganda di samping judul.
 - Notification rail full-height dapat ditutup melalui `PanelRightClose`, lalu dibuka kembali melalui tombol floating `PanelRightOpen` di sisi kanan content dengan transisi width/opacity.
-- Tombol monitoring memiliki state UI aktif/dijeda: ikon Pause menghentikan tampilan live, sedangkan ikon Play memulai kembali status dan animasi grafik.
+- Tombol monitoring memiliki state UI aktif/dijeda: ikon Pause menghentikan tampilan live, sedangkan ikon Play memulai kembali status dan animasi grafik. Rentang monitoring dapat dipilih antara 3, 6, 12, dan 30 menit.
 - Dashboard utama berisi hasil analisis terakhir, grafik PPG, monitoring terakhir, status wearable, dan notification rail.
-- Riwayat analisis berisi summary cards, filter tanggal, enam baris hasil, sparklines, dan pagination UI.
-- Profil berisi account summary, informasi profil, edit profile, ubah kata sandi, dan logout UI.
-- Edit profil berisi avatar placeholder, field nama/email, Device ID disabled, serta tombol batal/simpan.
+- Profile pill pada topbar mengarahkan pengguna langsung ke `/profil`.
+- Riwayat analisis memiliki calendar range picker bertema SiHEDAF, filter data mock, pagination aktif, dan pilihan 6/10/20 item per halaman.
+- Profil memiliki modal ubah kata sandi dengan validasi dan modal konfirmasi logout; logout simulasi mengarahkan pengguna ke `/login`.
+- Edit profil memiliki field terkontrol, upload/preview foto maksimal 2 MB, Device ID disabled, cancel navigation, serta modal sukses setelah penyimpanan.
+- Nama, email, dan avatar edit profil disimpan sementara melalui adapter `ProfileStorage.ts` berbasis `localStorage`; adapter ini adalah batas yang perlu diganti dengan query/mutation backend.
+- Primitive `DashboardModal.tsx` dipakai bersama untuk dialog akun dan hasil aksi; modal dapat ditutup melalui backdrop, tombol close, atau tombol Escape.
 - Page entry, sidebar, notification rail, chart draw, staggered rows, dan tombol menggunakan motion ringan.
 - Card dan information surface statis tidak memakai hover-lift agar tidak memberi affordance klik palsu; motion hover hanya dipakai pada kontrol yang benar-benar interaktif.
 
@@ -126,7 +130,7 @@ Gunakan token `primary-*` untuk warna brand. Warna semantic health boleh memakai
 - SVG PPG: stroke draw selama `1.35s`.
 - Sidebar: transisi width/transform selama `300ms`.
 - Stagger list: jeda bertahap `50ms`.
-- Card hover: lift `2px` dengan shadow halus.
+- Hover motion hanya digunakan pada kontrol interaktif; card informasi statis tidak memakai lift atau shadow hover.
 - Semua motion non-esensial harus tetap mengikuti `prefers-reduced-motion`.
 
 ## Route Map
@@ -172,6 +176,8 @@ src/
 - Pisahkan component berdasarkan section atau satu tanggung jawab yang jelas.
 - Pertahankan shared dashboard shell pada route group `(dashboard)` agar state collapse tidak reset saat berpindah halaman.
 - Jangan menambahkan dependency chart hanya untuk grafik sederhana; lanjutkan pola inline SVG yang sudah ada.
+- Gunakan `DateRangePicker.tsx` sebagai boundary calendar; view menerima `DateRange` terkontrol sehingga integrasi backend cukup memetakan `from` dan `to` ke query API.
+- Gunakan `DashboardModal.tsx` untuk dialog dashboard baru agar backdrop, keyboard Escape, spacing, dan tema tetap konsisten.
 - Semua interactive controls harus memiliki accessible label, focus state, dan reduced-motion behavior bila menggunakan animasi.
 - Jangan memasukkan credential, `.env`, build output, cache, atau file editor ke repository.
 
@@ -196,8 +202,10 @@ Sebelum menyatakan perubahan selesai, jalankan test, lint, dan production build.
 
 ## Batasan Saat Ini
 
-- Seluruh health data, history, notification, dan profile data masih mock/static.
-- Tombol monitoring baru mengubah state UI lokal; pagination, filter tanggal, edit profile, ganti foto, ubah password, dan logout belum tersambung ke backend.
+- Seluruh health data, history, notification, dan profile data masih mock; kontrol UI sudah aktif tetapi belum memanggil API.
+- Monitoring range, calendar filter, pagination, dan password menggunakan state React lokal.
+- Edit profile dan avatar menggunakan `localStorage` sebagai persistence simulasi; upload belum dikirim ke object storage/backend.
+- Logout baru mengarahkan ke `/login` dan belum menghapus session/token karena authentication backend belum tersedia.
 - Tidak ada proteksi route/session untuk dashboard.
 - Tidak ada database, API, device protocol, atau real-time PPG stream.
 - Avatar profil menggunakan placeholder dan dapat diganti setelah asset final tersedia.

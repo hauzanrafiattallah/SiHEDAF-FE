@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "@daypicker/react/style.css";
 
 :root {
   --background: #ffffff;
@@ -72,6 +73,40 @@ footer[id] {
 ::selection {
   background: #b0d2fe;
   color: #002758;
+}
+
+.rdp-root {
+  --rdp-accent-color: #006efb;
+  --rdp-accent-background-color: #e8f1ff;
+  --rdp-day-height: 36px;
+  --rdp-day-width: 36px;
+  --rdp-day_button-height: 34px;
+  --rdp-day_button-width: 34px;
+  --rdp-day_button-border-radius: 999px;
+  --rdp-range_middle-background-color: #e8f1ff;
+  --rdp-range_middle-color: #003171;
+  --rdp-range_start-background: #006efb;
+  --rdp-range_end-background: #006efb;
+  margin: 0;
+  color: #252b31;
+  font-family: var(--font-switzer), Arial, Helvetica, sans-serif;
+  font-size: 12px;
+}
+
+.rdp-months {
+  justify-content: center;
+}
+
+.rdp-month_caption {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.rdp-button_previous,
+.rdp-button_next {
+  border: 1px solid #e1e5e9;
+  border-radius: 999px;
+  color: #003171;
 }
 
 @keyframes dashboard-enter {
