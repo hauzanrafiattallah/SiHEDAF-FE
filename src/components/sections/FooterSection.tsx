@@ -12,16 +12,16 @@ const footerNavigation = [
 export function FooterSection() {
   return (
     <footer className="border-t border-primary-900/[0.055] bg-white">
-      <div className="mx-auto flex min-h-[52px] w-[calc(100%-40px)] max-w-[1200px] flex-col items-center justify-between gap-5 py-6 sm:w-[86.5%] sm:flex-row sm:py-0">
+      <div className="mx-auto flex min-h-[88px] w-[calc(100%-40px)] max-w-[1440px] flex-col items-center justify-between gap-5 py-7 sm:w-[calc(100%-64px)] sm:flex-row sm:py-0">
         <BrandLogo compact />
 
         <nav
           aria-label="Navigasi footer"
-          className="flex flex-wrap justify-center gap-5"
+          className="flex flex-wrap justify-center gap-7"
         >
           {footerNavigation.map((item) => (
             <Link
-              className="text-[9px] font-medium text-primary-900/45 hover:text-primary-500 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary-400"
+              className="text-[12px] font-medium text-primary-900/45 transition-colors hover:text-primary-500 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary-400"
               href={item.href}
               key={item.href}
             >
@@ -30,7 +30,7 @@ export function FooterSection() {
           ))}
         </nav>
 
-        <p className="text-center text-[9px] font-medium text-primary-900/40 sm:text-right">
+        <p className="text-center text-[12px] font-medium text-primary-900/40 sm:text-right">
           Copyright © 2026. All Rights Reserved.
         </p>
       </div>

@@ -5,7 +5,7 @@ export function SignalChart() {
     <div className="mt-5">
       <svg
         aria-label="Grafik sinyal PPG terbaru"
-        className="h-[102px] w-full overflow-visible text-primary-300"
+        className="h-[126px] w-full overflow-visible text-primary-300"
         fill="none"
         role="img"
         viewBox="0 0 760 112"
@@ -20,7 +20,7 @@ export function SignalChart() {
           vectorEffect="non-scaling-stroke"
         />
       </svg>
-      <div className="mt-1 flex justify-between text-[9px] text-[#8c929d]">
+      <div className="mt-2 flex justify-between text-[12px] text-[#8c929d]">
         {timeLabels.map((label) => (
           <span key={label}>{label}</span>
         ))}

@@ -29,7 +29,7 @@ export function AuthInput({
   return (
     <div>
       <label
-        className="mb-2 block text-[11px] font-semibold tracking-[-0.02em] text-primary-900"
+        className="mb-2.5 block text-[13px] font-semibold tracking-[-0.02em] text-primary-900"
         htmlFor={inputId}
       >
         {label}
@@ -37,7 +37,7 @@ export function AuthInput({
       <div className="relative">
         <input
           autoComplete={autoComplete}
-          className="h-12 w-full rounded-full border border-primary-900/10 bg-white px-5 pr-12 text-[11px] font-medium text-primary-900 outline-none transition-colors placeholder:text-primary-900/24 focus:border-primary-300 focus:ring-2 focus:ring-primary-100"
+          className="h-14 w-full rounded-full border border-primary-900/10 bg-white px-6 pr-13 text-[14px] font-medium text-primary-900 outline-none transition-[border-color,box-shadow] duration-200 placeholder:text-primary-900/24 focus:border-primary-300 focus:ring-4 focus:ring-primary-100/70"
           id={inputId}
           name={name}
           onChange={(event) => onChange(event.target.value)}
@@ -49,11 +49,11 @@ export function AuthInput({
         {isPassword ? (
           <button
             aria-label={showPassword ? "Sembunyikan kata sandi" : "Tampilkan kata sandi"}
-            className="absolute top-1/2 right-4 flex size-7 -translate-y-1/2 items-center justify-center rounded-full text-primary-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-400"
+            className="absolute top-1/2 right-4 flex size-9 -translate-y-1/2 items-center justify-center rounded-full text-primary-300 transition-colors hover:bg-primary-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-400"
             onClick={() => setShowPassword((visible) => !visible)}
             type="button"
           >
-            <svg aria-hidden="true" className="size-4" fill="none" viewBox="0 0 20 20">
+            <svg aria-hidden="true" className="size-5" fill="none" viewBox="0 0 20 20">
               <path
                 d="M2.5 10s2.7-4 7.5-4 7.5 4 7.5 4-2.7 4-7.5 4-7.5-4-7.5-4Z"
                 stroke="currentColor"

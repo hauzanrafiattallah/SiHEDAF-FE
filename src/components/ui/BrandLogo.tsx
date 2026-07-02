@@ -6,7 +6,7 @@ type BrandLogoProps = {
 };
 
 export function BrandLogo({ compact = false }: BrandLogoProps) {
-  const imageSize = compact ? 18 : 22;
+  const imageSize = compact ? 22 : 28;
 
   return (
     <Link
@@ -24,8 +24,8 @@ export function BrandLogo({ compact = false }: BrandLogoProps) {
       <span
         className={
           compact
-            ? "text-[11px] font-semibold tracking-[-0.03em] text-primary-900"
-            : "text-[15px] font-semibold tracking-[-0.035em] text-primary-900"
+            ? "text-[13px] font-semibold tracking-[-0.03em] text-primary-900"
+            : "text-[18px] font-semibold tracking-[-0.035em] text-primary-900"
         }
       >
         SiHEDAF

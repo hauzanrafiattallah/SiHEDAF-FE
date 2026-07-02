@@ -18,7 +18,7 @@ export function ConnectDeviceForm() {
   }
 
   return (
-    <form className="space-y-8" onSubmit={handleSubmit}>
+    <form className="space-y-9" onSubmit={handleSubmit}>
       <AuthInput
         autoComplete="off"
         label="Masukkan Device ID"
@@ -29,7 +29,7 @@ export function ConnectDeviceForm() {
         value={deviceId}
       />
       <button
-        className={`h-12 w-full rounded-full text-[11px] font-semibold transition-colors ${
+        className={`h-14 w-full rounded-full text-[14px] font-semibold transition-[background-color,transform,box-shadow] duration-200 ${
           isComplete
             ? "bg-primary-300 text-white shadow-[0_10px_24px_rgba(0,110,251,0.16)] hover:bg-primary-400"
             : "cursor-not-allowed bg-[#e4e7eb] text-primary-900/30"

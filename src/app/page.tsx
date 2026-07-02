@@ -8,7 +8,7 @@ import { ProcessSection } from "@/components/sections/ProcessSection";
 
 export default function Home() {
   return (
-    <div className="min-h-screen overflow-x-clip bg-[#fbfbfb] text-primary-900">
+    <div className="page-enter min-h-dvh overflow-x-clip bg-[#fbfbfb] text-primary-900">
       <HeaderSection />
       <main>
         <HeroSection />

@@ -28,14 +28,14 @@ export function DashboardSidebar({
     <div className="flex h-full flex-col bg-white">
       <Link
         aria-label="SiHEDAF"
-        className={`flex h-16 shrink-0 items-center overflow-hidden border-b border-[#edf0f3] ${
+        className={`flex h-[72px] shrink-0 items-center overflow-hidden border-b border-[#edf0f3] ${
           collapsed ? "justify-center px-3" : "px-7"
         }`}
         href="/"
       >
-        <Image alt="Logo SiHEDAF" height={22} priority src="/logo.png" width={22} />
+        <Image alt="Logo SiHEDAF" height={27} priority src="/logo.png" width={27} />
         <span
-          className={`ml-2.5 whitespace-nowrap text-[14px] font-semibold tracking-[-0.04em] text-primary-900 transition-[opacity,max-width,margin] duration-300 ${
+          className={`ml-3 whitespace-nowrap text-[17px] font-semibold tracking-[-0.04em] text-primary-900 transition-[opacity,max-width,margin] duration-300 ${
             collapsed ? "ml-0 max-w-0 opacity-0" : "max-w-28 opacity-100"
           }`}
         >
@@ -43,7 +43,7 @@ export function DashboardSidebar({
         </span>
       </Link>
 
-      <nav aria-label="Navigasi dashboard" className="space-y-1.5 px-3 py-6">
+      <nav aria-label="Navigasi dashboard" className="space-y-2 px-3 py-7">
         {navigation.map((item) => {
           const isActive =
             item.href === "/profil"
@@ -53,7 +53,7 @@ export function DashboardSidebar({
           return (
             <Link
               aria-current={isActive ? "page" : undefined}
-              className={`group relative flex h-10 items-center rounded-lg text-[11px] transition-colors duration-200 ${
+              className={`group relative flex h-12 items-center rounded-xl text-[13px] transition-colors duration-200 ${
                 collapsed ? "justify-center px-2" : "gap-3 px-4"
               } ${
                 isActive
@@ -68,7 +68,7 @@ export function DashboardSidebar({
               {isActive ? (
                 <span className="absolute inset-y-2 left-0 w-0.5 rounded-r-full bg-primary-300" />
               ) : null}
-              <DashboardIcon className="h-[17px] w-[17px] shrink-0" name={item.icon} />
+              <DashboardIcon className="h-5 w-5 shrink-0" name={item.icon} />
               <span
                 className={`overflow-hidden whitespace-nowrap transition-[opacity,max-width] duration-300 ${
                   collapsed ? "max-w-0 opacity-0" : "max-w-36 opacity-100"
@@ -83,7 +83,7 @@ export function DashboardSidebar({
 
       <div className="mt-auto px-5 pb-5">
         <p
-          className={`overflow-hidden whitespace-nowrap text-[8px] text-[#b1b6bf] transition-opacity duration-200 ${
+          className={`overflow-hidden whitespace-nowrap text-[12px] text-[#b1b6bf] transition-opacity duration-200 ${
             collapsed ? "opacity-0" : "opacity-100"
           }`}
         >

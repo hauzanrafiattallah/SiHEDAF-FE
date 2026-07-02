@@ -17,14 +17,14 @@ export function AuthVisualPanel({
 }: AuthVisualPanelProps) {
   return (
     <aside className="relative hidden min-h-0 w-1/2 overflow-hidden bg-[linear-gradient(135deg,#f5f8ff_0%,#eaf2ff_55%,#d9e9fb_100%)] lg:block">
-      <div className="absolute top-[9%] left-[12%]">
+      <div className="absolute top-[8%] left-[10%]">
         <BrandLogo />
       </div>
 
-      <div className="absolute top-[27%] left-[12%] max-w-[330px]">
+      <div className="absolute top-[25%] left-[10%] max-w-[500px]">
         <h2
           aria-label={titleLabel}
-          className="text-[38px] leading-[1.02] font-medium tracking-[-0.055em] text-primary-900 xl:text-[44px]"
+          className="text-[clamp(2.75rem,3.3vw,4rem)] leading-[1.02] font-medium tracking-[-0.055em] text-primary-900"
         >
           {titleLines.map((line) => (
             <span className="block" key={line}>
@@ -35,14 +35,14 @@ export function AuthVisualPanel({
             {accent}
           </span>
         </h2>
-        <p className="mt-8 max-w-[280px] text-[11px] leading-[1.65] font-medium text-primary-900/43 xl:text-[12px]">
+        <p className="mt-9 max-w-[410px] text-[15px] leading-[1.7] font-medium text-primary-900/43 2xl:text-[16px]">
           {description}
         </p>
       </div>
 
       <Image
         alt="Jam tangan pintar SiHEDAF"
-        className="absolute bottom-[5%] left-1/2 h-auto w-[165px] -translate-x-1/2 drop-shadow-[0_24px_28px_rgba(0,49,113,0.16)] xl:w-[205px]"
+        className="absolute bottom-[4%] left-1/2 h-auto w-[205px] -translate-x-1/2 drop-shadow-[0_28px_34px_rgba(0,49,113,0.18)] 2xl:w-[250px]"
         height={443}
         priority
         src="/watch.png"

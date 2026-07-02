@@ -27,12 +27,12 @@ export function RegisterForm() {
 
   return (
     <div>
-      <p className="text-[10px] font-semibold text-primary-300">Buat Akun</p>
-      <h1 className="mt-2 text-[26px] font-medium tracking-[-0.045em] text-primary-900">
+      <p className="text-[13px] font-semibold text-primary-300">Buat Akun</p>
+      <h1 className="mt-2.5 text-[36px] font-medium tracking-[-0.045em] text-primary-900">
         Daftar Akun
       </h1>
 
-      <form className="mt-8 space-y-5" onSubmit={handleSubmit}>
+      <form className="mt-9 space-y-5" onSubmit={handleSubmit}>
         <AuthInput
           autoComplete="name"
           label="Nama Lengkap"
@@ -74,7 +74,7 @@ export function RegisterForm() {
         />
 
         <button
-          className={`mt-2 h-12 w-full rounded-full text-[11px] font-semibold transition-colors ${
+          className={`mt-2 h-14 w-full rounded-full text-[14px] font-semibold transition-[background-color,transform,box-shadow] duration-200 ${
             isComplete
               ? "bg-primary-300 text-white shadow-[0_10px_24px_rgba(0,110,251,0.16)] hover:bg-primary-400"
               : "cursor-not-allowed bg-[#e4e7eb] text-primary-900/30"
@@ -86,7 +86,7 @@ export function RegisterForm() {
         </button>
       </form>
 
-      <p className="mt-6 text-center text-[9px] font-medium text-primary-900/35">
+      <p className="mt-7 text-center text-[12px] font-medium text-primary-900/35">
         Sudah punya akun?{" "}
         <Link className="font-semibold text-primary-300" href="/login">
           Masuk sekarang

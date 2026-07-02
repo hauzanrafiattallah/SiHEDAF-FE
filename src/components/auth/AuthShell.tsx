@@ -19,7 +19,7 @@ export function AuthShell({
   children,
 }: AuthShellProps) {
   return (
-    <div className="flex min-h-screen flex-col bg-white text-primary-900">
+    <div className="page-enter flex min-h-dvh flex-col bg-white text-primary-900">
       <main className="flex min-h-0 flex-1">
         <AuthVisualPanel
           accent={accent}
@@ -28,15 +28,15 @@ export function AuthShell({
           titleLines={titleLines}
         />
 
-        <section className="flex w-full items-center justify-center bg-white px-6 py-12 sm:px-10 lg:w-1/2 xl:px-20">
-          <div className="w-full max-w-[500px]">{children}</div>
+        <section className="flex w-full items-center justify-center bg-white px-6 py-14 sm:px-10 lg:w-1/2 xl:px-20 2xl:px-28">
+          <div className="w-full max-w-[580px]">{children}</div>
         </section>
       </main>
 
-      <footer className="h-[52px] shrink-0 border-t border-primary-900/[0.055] bg-white px-5 sm:px-8">
-        <div className="mx-auto flex h-full max-w-[1440px] items-center justify-between">
+      <footer className="h-[72px] shrink-0 border-t border-primary-900/[0.055] bg-white px-5 sm:px-8">
+        <div className="mx-auto flex h-full max-w-[1600px] items-center justify-between">
           <BrandLogo compact />
-          <p className="text-[8px] font-medium text-primary-900/40 sm:text-[9px]">
+          <p className="text-[12px] font-medium text-primary-900/40">
             Copyright © 2026. All Rights Reserved.
           </p>
         </div>

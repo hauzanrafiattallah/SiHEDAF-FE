@@ -27,13 +27,13 @@ export function ProcessSection() {
   return (
     <section
       aria-labelledby="process-title"
-      className="bg-[#fbfbfb] px-5 py-24 sm:px-6 lg:px-8 lg:py-28"
+      className="section-reveal bg-[#fbfbfb] px-5 py-24 sm:px-8 lg:px-10 lg:py-36"
       id="cara-kerja"
     >
-      <div className="mx-auto max-w-[1200px]">
+      <div className="mx-auto max-w-[1440px]">
         <SectionLabel>Cara Kerja</SectionLabel>
         <h2
-          className="mt-8 max-w-[560px] text-[36px] leading-[1.02] font-medium tracking-[-0.055em] text-primary-900 sm:text-[44px]"
+          className="mt-9 max-w-[760px] text-[clamp(2.5rem,3.55vw,3.75rem)] leading-[1.02] font-medium tracking-[-0.055em] text-primary-900"
           id="process-title"
         >
           Langkah Sederhana,
@@ -45,19 +45,19 @@ export function ProcessSection() {
           </span>
         </h2>
 
-        <ol className="mt-16 grid gap-10 lg:grid-cols-4 lg:gap-0">
+        <ol className="mt-20 grid gap-12 lg:grid-cols-4 lg:gap-0">
           {steps.map((step, index) => (
             <li
-              className="relative border-primary-900/10 lg:min-h-[260px] lg:border-l lg:px-8 first:lg:border-l-0 first:lg:pl-0 last:lg:pr-0"
+              className="relative border-primary-900/10 lg:min-h-[330px] lg:border-l lg:px-10 first:lg:border-l-0 first:lg:pl-0 last:lg:pr-0"
               key={step.title}
             >
-              <span className="inline-flex h-8 items-center rounded-full border border-primary-300/60 px-4 text-[9px] font-semibold text-primary-300">
+              <span className="inline-flex h-10 items-center rounded-full border border-primary-300/60 px-5 text-[12px] font-semibold text-primary-300">
                 Langkah {index + 1}
               </span>
-              <h3 className="mt-11 max-w-[190px] text-[17px] leading-[1.2] font-semibold tracking-[-0.035em] text-primary-900">
+              <h3 className="mt-12 max-w-[250px] text-[21px] leading-[1.2] font-semibold tracking-[-0.035em] text-primary-900">
                 {step.title}
               </h3>
-              <p className="mt-4 max-w-[220px] text-[10px] leading-[1.65] font-medium text-primary-900/42">
+              <p className="mt-5 max-w-[280px] text-[14px] leading-[1.7] font-medium text-primary-900/42">
                 {step.description}
               </p>
             </li>

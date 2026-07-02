@@ -20,14 +20,14 @@ export function LoginForm() {
 
   return (
     <div>
-      <p className="text-[10px] font-semibold text-primary-300">
+      <p className="text-[13px] font-semibold text-primary-300">
         Selamat Datang Kembali
       </p>
-      <h1 className="mt-2 text-[26px] font-medium tracking-[-0.045em] text-primary-900">
+      <h1 className="mt-2.5 text-[36px] font-medium tracking-[-0.045em] text-primary-900">
         Masuk ke Akun
       </h1>
 
-      <form className="mt-9 space-y-6" onSubmit={handleSubmit}>
+      <form className="mt-10 space-y-7" onSubmit={handleSubmit}>
         <AuthInput
           autoComplete="email"
           label="Email"
@@ -51,7 +51,7 @@ export function LoginForm() {
           />
           <div className="mt-3 text-right">
             <Link
-              className="text-[9px] font-semibold text-primary-300 hover:text-primary-600"
+              className="text-[12px] font-semibold text-primary-300 transition-colors hover:text-primary-600"
               href="#"
             >
               Lupa kata sandi?
@@ -60,7 +60,7 @@ export function LoginForm() {
         </div>
 
         <button
-          className={`h-12 w-full rounded-full text-[11px] font-semibold transition-colors ${
+          className={`h-14 w-full rounded-full text-[14px] font-semibold transition-[background-color,transform,box-shadow] duration-200 ${
             isComplete
               ? "bg-primary-300 text-white shadow-[0_10px_24px_rgba(0,110,251,0.16)] hover:bg-primary-400"
               : "cursor-not-allowed bg-[#e4e7eb] text-primary-900/30"
@@ -72,7 +72,7 @@ export function LoginForm() {
         </button>
       </form>
 
-      <p className="mt-6 text-center text-[9px] font-medium text-primary-900/35">
+      <p className="mt-7 text-center text-[12px] font-medium text-primary-900/35">
         Belum punya akun?{" "}
         <Link className="font-semibold text-primary-300" href="/register">
           Daftar sekarang

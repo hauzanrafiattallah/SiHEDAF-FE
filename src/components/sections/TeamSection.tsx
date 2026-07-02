@@ -25,12 +25,12 @@ export function TeamSection() {
   return (
     <section
       aria-labelledby="team-title"
-      className="w-full bg-[#fbfbfb] pt-10 pb-12"
+      className="section-reveal w-full bg-[#fbfbfb] pt-16 pb-24 lg:pt-20 lg:pb-32"
     >
       <div className="text-center">
         <SectionLabel>Tim Kami</SectionLabel>
         <h1
-          className="mx-auto mt-4 max-w-[430px] text-[30px] leading-[1.04] font-medium tracking-[-0.055em] text-primary-900"
+          className="mx-auto mt-6 max-w-[620px] text-[clamp(2.5rem,3.5vw,3.75rem)] leading-[1.04] font-medium tracking-[-0.055em] text-primary-900"
           id="team-title"
         >
           Tim Pengembang
@@ -43,7 +43,7 @@ export function TeamSection() {
         </h1>
       </div>
 
-      <div className="mx-auto mt-8 grid w-[calc(100%-32px)] max-w-[1200px] grid-cols-1 gap-3 sm:w-[86.5%] sm:grid-cols-2 md:grid-cols-4">
+      <div className="mx-auto mt-14 grid w-[calc(100%-32px)] max-w-[1440px] grid-cols-1 gap-5 sm:w-[calc(100%-64px)] sm:grid-cols-2 md:grid-cols-4">
         {teamMembers.map((member) => (
           <TeamCard key={member.role} {...member} />
         ))}

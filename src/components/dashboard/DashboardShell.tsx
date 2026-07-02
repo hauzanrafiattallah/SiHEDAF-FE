@@ -37,9 +37,9 @@ export function DashboardShell({ children }: DashboardShellProps) {
         />
 
         <aside
-          className={`fixed inset-y-0 left-0 z-40 w-[210px] shrink-0 border-r border-[#e4e7eb] bg-white shadow-[8px_0_28px_rgba(22,45,75,0.08)] transition-[width,transform] duration-300 ease-out lg:sticky lg:top-0 lg:h-dvh lg:translate-x-0 lg:shadow-none ${
+          className={`fixed inset-y-0 left-0 z-40 w-[240px] shrink-0 border-r border-[#e4e7eb] bg-white shadow-[8px_0_28px_rgba(22,45,75,0.08)] transition-[width,transform] duration-300 ease-out lg:sticky lg:top-0 lg:h-dvh lg:translate-x-0 lg:shadow-none ${
             isMobileOpen ? "translate-x-0" : "-translate-x-full"
-          } ${isCollapsed ? "lg:w-[72px]" : "lg:w-[210px]"}`}
+          } ${isCollapsed ? "lg:w-[80px]" : "lg:w-[240px]"}`}
         >
           <DashboardSidebar
             collapsed={isCollapsed && !isMobileOpen}
@@ -49,11 +49,11 @@ export function DashboardShell({ children }: DashboardShellProps) {
         </aside>
 
         <div className="flex min-w-0 flex-1 flex-col">
-          <header className="sticky top-0 z-20 flex h-16 shrink-0 items-center gap-3 border-b border-[#e5e8eb] bg-white/95 px-4 backdrop-blur-md sm:px-6">
+          <header className="sticky top-0 z-20 flex h-[72px] shrink-0 items-center gap-3.5 border-b border-[#e5e8eb] bg-white/95 px-4 backdrop-blur-xl sm:px-7">
             <button
               aria-expanded={isMobileOpen}
               aria-label={isMobileOpen ? "Sembunyikan sidebar" : "Tampilkan sidebar"}
-              className="grid h-9 w-9 shrink-0 place-items-center rounded-lg border border-[#e0e4e8] bg-white text-[#303740] transition-[color,background-color,transform] duration-200 hover:bg-primary-50 hover:text-primary-400 active:scale-95 focus-visible:outline-2 focus-visible:outline-primary-300 lg:hidden"
+              className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-[#e0e4e8] bg-white text-[#303740] transition-[color,background-color,transform] duration-200 hover:bg-primary-50 hover:text-primary-400 active:scale-95 focus-visible:outline-2 focus-visible:outline-primary-300 lg:hidden"
               onClick={() => setIsMobileOpen((current) => !current)}
               type="button"
             >
@@ -62,7 +62,7 @@ export function DashboardShell({ children }: DashboardShellProps) {
             <button
               aria-expanded={!isCollapsed}
               aria-label={isCollapsed ? "Tampilkan sidebar" : "Sembunyikan sidebar"}
-              className="hidden h-9 w-9 shrink-0 place-items-center rounded-lg border border-[#e0e4e8] bg-white text-[#303740] transition-[color,background-color,transform] duration-200 hover:bg-primary-50 hover:text-primary-400 active:scale-95 focus-visible:outline-2 focus-visible:outline-primary-300 lg:grid"
+              className="hidden h-10 w-10 shrink-0 place-items-center rounded-xl border border-[#e0e4e8] bg-white text-[#303740] transition-[color,background-color,transform] duration-200 hover:bg-primary-50 hover:text-primary-400 active:scale-95 focus-visible:outline-2 focus-visible:outline-primary-300 lg:grid"
               onClick={() => setIsCollapsed((current) => !current)}
               type="button"
             >
