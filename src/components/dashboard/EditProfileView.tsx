@@ -24,7 +24,6 @@ function EditProfileForm({ user }: { user: UserProfile }) {
   const router = useRouter();
   const { submit, isPending, error: mutationError } = useUpdateProfile();
   const [showConfirm, setShowConfirm] = useState(false);
-  const [isSaved, setIsSaved] = useState(false);
   const {
     formState: { errors, isDirty, isValid },
     getValues,
@@ -60,7 +59,7 @@ function EditProfileForm({ user }: { user: UserProfile }) {
 
     toast.success(result.message);
     setShowConfirm(false);
-    setIsSaved(true);
+    router.push("/profil");
   }
 
   return (
@@ -134,7 +133,7 @@ function EditProfileForm({ user }: { user: UserProfile }) {
             Batal
           </button>
           <button
-            className="h-13 rounded-full bg-primary-300 text-[13px] font-medium text-white transition-colors hover:bg-primary-400 disabled:cursor-not-allowed disabled:bg-[#dfe3e7]"
+            className="h-13 rounded-full bg-primary-300 text-[13px] font-medium text-white transition-colors hover:bg-primary-400 disabled:cursor-not-allowed disabled:opacity-50"
             disabled={!isDirty || !isValid || isPending}
             type="submit"
           >
@@ -174,25 +173,6 @@ function EditProfileForm({ user }: { user: UserProfile }) {
         </div>
       </DashboardModal>
 
-      <DashboardModal
-        description="Nama lengkap pada akunmu sudah berhasil diperbarui."
-        onClose={() => setIsSaved(false)}
-        open={isSaved}
-        title="Profil berhasil diperbarui"
-      >
-        <div className="text-center">
-          <span className="mx-auto grid h-16 w-16 place-items-center rounded-full bg-[#e8f8ec] text-[#43b956]">
-            <CheckCircle2 aria-hidden="true" size={32} strokeWidth={1.8} />
-          </span>
-          <button
-            className="mt-7 h-12 w-full rounded-full bg-primary-300 text-[13px] font-medium text-white transition-colors hover:bg-primary-400"
-            onClick={() => router.push("/profil")}
-            type="button"
-          >
-            Kembali ke profil
-          </button>
-        </div>
-      </DashboardModal>
     </>
   );
 }

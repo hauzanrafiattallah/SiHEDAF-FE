@@ -1,4 +1,4 @@
-import { type Ref, useId, useState } from "react";
+import { type Ref, type ClipboardEvent, useId, useState } from "react";
 
 type AuthInputProps = {
   label: string;
@@ -12,6 +12,7 @@ type AuthInputProps = {
   required?: boolean;
   onBlur?: () => void;
   onChange: (value: string) => void;
+  onPaste?: (event: ClipboardEvent<HTMLInputElement>) => void;
 };
 
 export function AuthInput({
@@ -26,6 +27,7 @@ export function AuthInput({
   required = true,
   onBlur,
   onChange,
+  onPaste,
 }: AuthInputProps) {
   const inputId = useId();
   const errorId = `${inputId}-error`;
@@ -55,6 +57,7 @@ export function AuthInput({
           name={name}
           onBlur={onBlur}
           onChange={(event) => onChange(event.target.value)}
+          onPaste={onPaste}
           placeholder={placeholder}
           ref={inputRef}
           required={required}

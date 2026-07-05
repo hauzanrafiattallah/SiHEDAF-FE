@@ -87,7 +87,7 @@ export function AppToaster() {
             "rounded-full border border-primary-200 bg-white px-3 py-1.5 text-[12px] font-semibold text-primary-700 transition-colors hover:bg-primary-50 focus-visible:outline-2 focus-visible:outline-primary-300",
         },
       }}
-      visibleToasts={4}
+      visibleToasts={1}
     />
   );
 }

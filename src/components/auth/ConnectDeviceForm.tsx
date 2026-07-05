@@ -29,10 +29,10 @@ export function ConnectDeviceForm() {
         value={deviceId}
       />
       <button
-        className={`h-14 w-full rounded-full text-[14px] font-semibold transition-[background-color,transform,box-shadow] duration-200 ${
+        className={`h-14 w-full rounded-full text-[14px] font-semibold transition-[background-color,transform,box-shadow,opacity] duration-200 ${
           isComplete
             ? "bg-primary-300 text-white shadow-[0_10px_24px_rgba(0,110,251,0.16)] hover:bg-primary-400"
-            : "cursor-not-allowed bg-[#e4e7eb] text-primary-900/30"
+            : "cursor-not-allowed bg-primary-300 text-white opacity-50"
         }`}
         disabled={!isComplete}
         type="submit"
