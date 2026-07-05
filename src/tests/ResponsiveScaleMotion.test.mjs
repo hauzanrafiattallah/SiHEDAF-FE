@@ -11,17 +11,64 @@ async function readSource(relativePath) {
   return readFile(path.join(sourceDirectory, relativePath), "utf8");
 }
 
-test("uses a large sticky public navbar and viewport-height hero", async () => {
+test("uses fixed mobile navigation and sticky desktop navigation", async () => {
   const [header, hero] = await Promise.all([
     readSource("components/sections/HeaderSection.tsx"),
     readSource("components/sections/HeroSection.tsx"),
   ]);
 
-  assert.match(header, /sticky top-0/);
+  assert.match(header, /h-\[104px\]/);
+  assert.match(header, /fixed inset-x-0 top-0/);
+  assert.match(header, /md:static/);
+  assert.match(header, /md:sticky md:top-0/);
   assert.match(header, /h-\[(?:64|68|72)px\]/);
   assert.match(header, /max-w-\[1440px\]/);
   assert.match(hero, /min-h-\[calc\(100svh-/);
   assert.doesNotMatch(hero, /min-h-\[680px\]/);
+});
+
+test("floats the mobile menu without turning the public header into a client boundary", async () => {
+  const [header, mobileNavigation] = await Promise.all([
+    readSource("components/sections/HeaderSection.tsx"),
+    readSource("components/sections/MobileNavigation.tsx").catch(() => ""),
+  ]);
+  const navigationSource = `${header}\n${mobileNavigation}`;
+
+  assert.match(navigationSource, /data-mobile-menu-overlay/);
+  assert.match(navigationSource, /absolute inset-x-0 top-\[96px\]/);
+  assert.doesNotMatch(header, /["']use client["']/);
+  assert.match(mobileNavigation, /["']use client["']/);
+});
+
+test("keeps public navigation outside page motion and releases the transform", async () => {
+  const [globalStyles, homePage, teamPage] = await Promise.all([
+    readSource("app/globals.css"),
+    readSource("app/page.tsx"),
+    readSource("app/tim-kami/page.tsx"),
+  ]);
+  const pageEnterStart = globalStyles.indexOf("@keyframes page-enter");
+  const pageEnterEnd = globalStyles.indexOf(
+    "@keyframes section-reveal",
+    pageEnterStart,
+  );
+  const pageEnterKeyframes = globalStyles.slice(pageEnterStart, pageEnterEnd);
+
+  assert.match(pageEnterKeyframes, /to\s*{[^}]*transform:\s*none/s);
+  assert.match(globalStyles, /\.page-enter\s*{[^}]*animation:[^;]*\bbackwards;/s);
+  assert.match(homePage, /<HeaderSection\s*\/>[\s\S]*className="page-enter/);
+  assert.match(
+    teamPage,
+    /<HeaderSection activePage="team"\s*\/>[\s\S]*className="page-enter/,
+  );
+});
+
+test("limits scroll-linked reveal transforms to tablet and desktop", async () => {
+  const globalStyles = await readSource("app/globals.css");
+
+  assert.match(
+    globalStyles,
+    /@media\s*\(min-width:\s*768px\)\s*{[\s\S]*@supports\s*\(animation-timeline:\s*view\(\)\)[\s\S]*\.section-reveal[\s\S]*\.child-reveal/,
+  );
 });
 
 test("adds global smooth scrolling and progressive reveal motion", async () => {

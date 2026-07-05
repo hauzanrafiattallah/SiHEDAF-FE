@@ -47,13 +47,27 @@ test("renders four blank team cards with active route navigation", async (contex
     return;
   }
 
-  const [pageSource, teamSource, cardSource, headerSource] = await Promise.all([
-    readFile(path.join(sourceDirectory, requiredFiles[0]), "utf8"),
-    readFile(path.join(sourceDirectory, requiredFiles[1]), "utf8"),
-    readFile(path.join(sourceDirectory, requiredFiles[2]), "utf8"),
-    readFile(path.join(sourceDirectory, "components/sections/HeaderSection.tsx"), "utf8"),
-  ]);
-  const allSource = [pageSource, teamSource, cardSource, headerSource].join("\n");
+  const [pageSource, teamSource, cardSource, headerSource, navigationSource] =
+    await Promise.all([
+      readFile(path.join(sourceDirectory, requiredFiles[0]), "utf8"),
+      readFile(path.join(sourceDirectory, requiredFiles[1]), "utf8"),
+      readFile(path.join(sourceDirectory, requiredFiles[2]), "utf8"),
+      readFile(
+        path.join(sourceDirectory, "components/sections/HeaderSection.tsx"),
+        "utf8",
+      ),
+      readFile(
+        path.join(sourceDirectory, "components/sections/PublicNavigation.ts"),
+        "utf8",
+      ),
+    ]);
+  const allSource = [
+    pageSource,
+    teamSource,
+    cardSource,
+    headerSource,
+    navigationSource,
+  ].join("\n");
 
   assert.ok(pageSource.indexOf("<HeaderSection") < pageSource.indexOf("<TeamSection"));
   assert.ok(pageSource.indexOf("<TeamSection") < pageSource.indexOf("<FooterSection"));

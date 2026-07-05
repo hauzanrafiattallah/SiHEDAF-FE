@@ -20,7 +20,7 @@ export function AuthShell({
 }: AuthShellProps) {
   return (
     <div className="page-enter flex min-h-dvh flex-col bg-white text-primary-900">
-      <main className="flex min-h-0 flex-1">
+      <main className="flex min-h-0 flex-1 flex-col lg:flex-row">
         <AuthVisualPanel
           accent={accent}
           description={description}
@@ -28,7 +28,7 @@ export function AuthShell({
           titleLines={titleLines}
         />
 
-        <section className="flex w-full items-center justify-center bg-white px-6 py-14 sm:px-10 lg:w-1/2 xl:px-20 2xl:px-28">
+        <section className="flex w-full items-center justify-center bg-white px-6 py-10 sm:px-10 lg:w-1/2 lg:py-14 xl:px-20 2xl:px-28">
           <div className="w-full max-w-[580px]">{children}</div>
         </section>
       </main>

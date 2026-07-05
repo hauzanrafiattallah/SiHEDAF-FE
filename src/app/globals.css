@@ -44,12 +44,18 @@ body {
 html {
   background: #fbfbfb;
   overscroll-behavior-y: none;
-  scroll-behavior: smooth;
   scroll-padding-top: 7rem;
   scrollbar-color: #b0d2fe #f7f9fc;
   scrollbar-gutter: stable;
   scrollbar-width: thin;
   -webkit-overflow-scrolling: touch;
+}
+
+/* Smooth scroll only for anchor / programmatic navigation, not normal scrolling */
+@media (prefers-reduced-motion: no-preference) {
+  html:focus-within {
+    scroll-behavior: smooth;
+  }
 }
 
 section[id],
@@ -166,7 +172,7 @@ footer[id] {
   }
   to {
     opacity: 1;
-    transform: translateY(0);
+    transform: none;
   }
 }
 
@@ -206,7 +212,7 @@ footer[id] {
 }
 
 .page-enter {
-  animation: page-enter 560ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: page-enter 560ms cubic-bezier(0.22, 1, 0.36, 1) backwards;
 }
 
 @keyframes modal-enter {
@@ -241,13 +247,6 @@ footer[id] {
   animation: section-reveal 700ms cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
-@supports (animation-timeline: view()) {
-  .section-reveal {
-    animation-range: entry 4% cover 28%;
-    animation-timeline: view();
-  }
-}
-
 @keyframes child-reveal {
   from {
     opacity: 0;
@@ -264,10 +263,17 @@ footer[id] {
   animation-delay: calc(var(--child, 0) * 100ms);
 }
 
-@supports (animation-timeline: view()) {
-  .child-reveal {
-    animation-range: entry 8% cover 32%;
-    animation-timeline: view();
+@media (min-width: 768px) {
+  @supports (animation-timeline: view()) {
+    .section-reveal {
+      animation-range: entry 4% cover 28%;
+      animation-timeline: view();
+    }
+
+    .child-reveal {
+      animation-range: entry 8% cover 32%;
+      animation-timeline: view();
+    }
   }
 }
 

@@ -19,13 +19,13 @@ export function AuthVisualPanel({
   const finalTitleLine = titleLines.at(-1);
 
   return (
-    <aside className="hidden min-h-0 w-1/2 overflow-hidden bg-[linear-gradient(135deg,#f5f8ff_0%,#eaf2ff_55%,#d9e9fb_100%)] lg:block">
-      <div className="flex h-full flex-col px-[clamp(3rem,7vw,7rem)] py-[clamp(1.5rem,4vh,3.5rem)]">
+    <aside className="w-full overflow-hidden bg-[linear-gradient(135deg,#f5f8ff_0%,#eaf2ff_55%,#d9e9fb_100%)] lg:min-h-0 lg:w-1/2">
+      <div className="flex h-full flex-col px-6 py-10 sm:px-10 lg:px-[clamp(3rem,7vw,7rem)] lg:py-[clamp(1.5rem,4vh,3.5rem)]">
         <div className="shrink-0">
           <BrandLogo />
         </div>
 
-        <div className="mt-[clamp(1.75rem,6vh,5.5rem)] max-w-[500px] shrink-0">
+        <div className="mt-8 max-w-[500px] shrink-0 lg:mt-[clamp(1.75rem,6vh,5.5rem)]">
           <h2
             aria-label={titleLabel}
             className="text-[clamp(2rem,2.6vw,3.25rem)] leading-[1.02] font-medium tracking-[-0.055em] text-primary-900"
@@ -47,7 +47,7 @@ export function AuthVisualPanel({
           </p>
         </div>
 
-        <div className="mt-auto flex min-h-0 flex-1 items-end justify-center pt-4">
+        <div className="hidden lg:mt-auto lg:flex min-h-0 flex-1 items-end justify-center pt-4">
           <Image
             alt="Jam tangan pintar SiHEDAF"
             className="h-full max-h-[42vh] w-auto max-w-[clamp(150px,18vw,240px)] object-contain drop-shadow-[0_24px_30px_rgba(0,49,113,0.16)]"

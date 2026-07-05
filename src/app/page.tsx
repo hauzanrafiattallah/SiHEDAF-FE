@@ -8,16 +8,18 @@ import { ProcessSection } from "@/components/sections/ProcessSection";
 
 export default function Home() {
   return (
-    <div className="page-enter min-h-dvh overflow-x-clip bg-[#fbfbfb] text-primary-900">
+    <div className="min-h-dvh overflow-x-clip bg-[#fbfbfb] text-primary-900">
       <HeaderSection />
-      <main>
-        <HeroSection />
-        <AboutSection />
-        <FeaturesSection />
-        <ProcessSection />
-        <CtaSection />
-      </main>
-      <FooterSection />
+      <div className="page-enter">
+        <main>
+          <HeroSection />
+          <AboutSection />
+          <FeaturesSection />
+          <ProcessSection />
+          <CtaSection />
+        </main>
+        <FooterSection />
+      </div>
     </div>
   );
 }

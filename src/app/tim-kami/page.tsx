@@ -11,12 +11,14 @@ export const metadata: Metadata = {
 
 export default function TeamPage() {
   return (
-    <div className="page-enter flex min-h-dvh flex-col bg-[#fbfbfb] text-primary-900">
+    <div className="flex min-h-dvh flex-col bg-[#fbfbfb] text-primary-900">
       <HeaderSection activePage="team" />
-      <main className="flex flex-1">
-        <TeamSection />
-      </main>
-      <FooterSection />
+      <div className="page-enter flex flex-1 flex-col">
+        <main className="flex flex-1">
+          <TeamSection />
+        </main>
+        <FooterSection />
+      </div>
     </div>
   );
 }
