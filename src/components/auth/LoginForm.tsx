@@ -111,7 +111,7 @@ export function LoginForm() {
           <div className="mt-3 text-right">
             <Link
               className="text-[12px] font-semibold text-primary-300 transition-colors hover:text-primary-600"
-              href="#"
+              href="/lupa-kata-sandi"
             >
               Lupa kata sandi?
             </Link>

@@ -9,12 +9,16 @@ const sourceDirectory = path.resolve(testsDirectory, "..");
 const requiredFiles = [
   "app/login/page.tsx",
   "app/register/page.tsx",
+  "app/lupa-kata-sandi/page.tsx",
+  "app/reset-password/page.tsx",
   "app/hubungkan-perangkat/page.tsx",
   "components/auth/AuthShell.tsx",
   "components/auth/AuthVisualPanel.tsx",
   "components/auth/AuthInput.tsx",
   "components/auth/LoginForm.tsx",
   "components/auth/RegisterForm.tsx",
+  "components/auth/ForgotPasswordForm.tsx",
+  "components/auth/ResetPasswordForm.tsx",
   "components/auth/ConnectDeviceForm.tsx",
 ];
 
@@ -33,12 +37,12 @@ async function findMissingFiles() {
   return checks.filter(Boolean);
 }
 
-test("defines three auth routes with PascalCase shared components", async () => {
+test("defines five auth routes with PascalCase shared components", async () => {
   const missingFiles = await findMissingFiles();
 
   assert.deepEqual(missingFiles, [], "auth and device page files are missing");
 
-  for (const componentPath of requiredFiles.slice(3)) {
+  for (const componentPath of requiredFiles.slice(5)) {
     const filename = path.basename(componentPath);
     assert.match(filename, /^[A-Z][A-Za-z]+\.tsx$/);
   }
@@ -55,13 +59,23 @@ test("composes the shared split-screen shell and route-specific forms", async (c
       readFile(path.join(sourceDirectory, filePath), "utf8"),
     ),
   );
-  const [loginPage, registerPage, devicePage, shell, visualPanel] = sources;
+  const [
+    loginPage,
+    registerPage,
+    forgotPasswordPage,
+    resetPasswordPage,
+    devicePage,
+    shell,
+    visualPanel,
+  ] = sources;
   const allSource = sources.join("\n");
 
   assert.match(loginPage, /<AuthShell/);
   assert.match(loginPage, /<LoginForm/);
   assert.match(registerPage, /<AuthShell/);
   assert.match(registerPage, /<RegisterForm/);
+  assert.match(forgotPasswordPage, /<ForgotPasswordForm/);
+  assert.match(resetPasswordPage, /<ResetPasswordForm/);
   assert.match(devicePage, /<AuthShell/);
   assert.match(devicePage, /<ConnectDeviceForm/);
   assert.match(shell, /<AuthVisualPanel/);
@@ -71,6 +85,8 @@ test("composes the shared split-screen shell and route-specific forms", async (c
   for (const copy of [
     "Masuk ke Akun",
     "Daftar Akun",
+    "Lupa Kata Sandi",
+    "Buat Kata Sandi Baru",
     "Hubungkan Perangkat",
     "Deteksi Dini Risiko",
     "Langkah Awal Pencegahan",
