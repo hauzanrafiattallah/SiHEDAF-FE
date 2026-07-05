@@ -1,6 +1,7 @@
 # Dependencies and package-manager caches
 
 /node_modules
+/.worktrees/
 /.pnp
 .pnp.*
 .npm/
