@@ -27,14 +27,14 @@ export function DashboardShell({ children, initialUser }: DashboardShellProps) {
   const pathname = usePathname();
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
-  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
+  
+  // null = use CSS responsive defaults, true = user forced open, false = user forced closed
+  const [notifState, setNotifState] = useState<boolean | null>(null);
+  
   const isDashboardRoute = pathname === "/dashboard";
 
-  useEffect(() => {
-    if (window.innerWidth >= 1280) {
-      setIsNotificationsOpen(true);
-    }
-  }, []);
+  const isNotifOpenMobile = notifState ?? false; // closed by default on mobile
+  const isNotifOpenDesktop = notifState ?? true; // open by default on desktop
 
   return (
     <ProfileProvider initialUser={initialUser}>
@@ -97,11 +97,13 @@ export function DashboardShell({ children, initialUser }: DashboardShellProps) {
           </header>
 
           <div className="relative flex min-w-0 flex-1 flex-col xl:flex-row">
-            {isDashboardRoute && !isNotificationsOpen ? (
+            {isDashboardRoute ? (
               <button
                 aria-label="Tampilkan notifikasi"
-                className="fixed right-5 top-[100px] z-30 grid h-10 w-10 place-items-center rounded-xl border border-[#d7dce2] bg-white text-[#303740] transition-[color,border-color,background-color,transform] duration-200 hover:border-primary-200 hover:bg-primary-50 hover:text-primary-400 active:scale-95 focus-visible:outline-2 focus-visible:outline-primary-300 sm:right-7"
-                onClick={() => setIsNotificationsOpen(true)}
+                className={`fixed right-5 top-[100px] z-30 h-10 w-10 items-center justify-center rounded-xl border border-[#d7dce2] bg-white text-[#303740] transition-[color,border-color,background-color,transform] duration-200 hover:border-primary-200 hover:bg-primary-50 hover:text-primary-400 active:scale-95 focus-visible:outline-2 focus-visible:outline-primary-300 sm:right-7 ${
+                  isNotifOpenMobile ? "hidden" : "flex"
+                } ${isNotifOpenDesktop ? "xl:hidden" : "xl:flex"}`}
+                onClick={() => setNotifState(true)}
                 title="Tampilkan notifikasi"
                 type="button"
               >
@@ -118,22 +120,22 @@ export function DashboardShell({ children, initialUser }: DashboardShellProps) {
                 <button
                   aria-label="Tutup notifikasi"
                   className={`fixed inset-0 z-30 bg-primary-900/30 backdrop-blur-[2px] transition-opacity duration-300 xl:hidden ${
-                    isNotificationsOpen ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0"
+                    isNotifOpenMobile ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0"
                   }`}
-                  onClick={() => setIsNotificationsOpen(false)}
-                  tabIndex={isNotificationsOpen ? 0 : -1}
+                  onClick={() => setNotifState(false)}
+                  tabIndex={isNotifOpenMobile ? 0 : -1}
                   type="button"
                 />
                 <div
-                  aria-hidden={!isNotificationsOpen}
-                  className={`fixed inset-y-0 right-0 z-40 bg-white shrink-0 overflow-hidden shadow-[-8px_0_28px_rgba(22,45,75,0.08)] transition-[transform,width,opacity] duration-300 ease-out xl:sticky xl:top-[72px] xl:h-[calc(100dvh-72px)] xl:shadow-none ${
-                    isNotificationsOpen
-                      ? "translate-x-0 w-full max-w-[320px] opacity-100 xl:w-[320px]"
-                      : "translate-x-full w-full max-w-[320px] opacity-0 xl:translate-x-0 xl:w-0"
+                  className={`fixed inset-y-0 right-0 z-40 bg-white shrink-0 overflow-hidden shadow-[-8px_0_28px_rgba(22,45,75,0.08)] transition-[transform,width,opacity,visibility] duration-300 ease-out xl:sticky xl:top-[72px] xl:h-[calc(100dvh-72px)] xl:shadow-none ${
+                    isNotifOpenMobile
+                      ? "translate-x-0 w-full max-w-[320px] opacity-100 visible"
+                      : "translate-x-full w-full max-w-[320px] opacity-0 invisible"
+                  } xl:translate-x-0 ${
+                    isNotifOpenDesktop ? "xl:w-[320px] xl:opacity-100 xl:visible" : "xl:w-0 xl:opacity-0 xl:invisible"
                   }`}
-                  inert={!isNotificationsOpen}
                 >
-                  <NotificationPanel onClose={() => setIsNotificationsOpen(false)} />
+                  <NotificationPanel onClose={() => setNotifState(false)} />
                 </div>
               </>
             ) : null}

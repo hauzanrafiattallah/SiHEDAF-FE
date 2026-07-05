@@ -5,20 +5,24 @@ import Image from "next/image";
 import Link from "next/link";
 import { Pause, Play } from "lucide-react";
 
+import { useProfile } from "@/features/profile/client/ProfileProvider";
 import { DashboardIcon } from "@/components/dashboard/DashboardIcon";
 import { SignalChart } from "@/components/dashboard/SignalChart";
 import { StatusMark } from "@/components/dashboard/StatusMark";
 
 export function DashboardOverview() {
+  const { user } = useProfile();
   const [isMonitoringActive, setIsMonitoringActive] = useState(true);
   const [monitoringRange, setMonitoringRange] = useState("12");
+
+  const firstName = user?.fullname ? user.fullname.split(" ")[0] : "Pengguna";
 
   return (
     <section className="min-h-[calc(100dvh-72px)] min-w-0 px-4 py-7 sm:px-7 lg:px-9 lg:py-9">
         <div className="mx-auto max-w-[1280px]">
           <div>
             <h1 className="text-[22px] font-semibold tracking-[-0.035em] text-[#151a20]">
-              Selamat Datang, Armand!
+              Selamat Datang, {firstName}!
             </h1>
             <p className="mt-2 text-[13px] text-[#9298a1]">
               Pantau kondisi dan hasil analisis perangkat SiHEDAF
