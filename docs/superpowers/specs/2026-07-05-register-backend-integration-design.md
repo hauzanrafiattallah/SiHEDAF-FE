@@ -101,14 +101,14 @@ The submit button is disabled while the request is pending, displays
 
 Malformed JSON and invalid request data return a sanitized `400` or `422`
 response without contacting the external backend. External validation and
-conflict statuses are preserved where useful, but their response bodies are
-normalized so the browser does not depend on an undocumented backend error
-shape.
+conflict statuses are preserved where useful, but upstream error messages are
+never forwarded because their undocumented contents may expose internal
+details.
 
 Expected failures are presented in Indonesian:
 
-- Duplicate or rejected account: use the safe backend message when available,
-  otherwise `Akun tidak dapat didaftarkan.`
+- Duplicate account (`409`): `Email sudah terdaftar.`
+- Other rejected account: `Akun tidak dapat didaftarkan.`
 - Network or unavailable backend: `Layanan pendaftaran sedang bermasalah. Coba
   lagi beberapa saat.`
 - Unexpected client failure: `Terjadi kesalahan. Silakan coba lagi.`
