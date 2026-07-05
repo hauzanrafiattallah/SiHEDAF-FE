@@ -17,7 +17,9 @@ const teamMembers = [
   },
   {
     role: "AI Developer",
-    name: "Nama",
+    name: "Agung Ramadhan",
+    linkedInLabel: "https://www.linkedin.com/in/agung-ramadhan08/",
+    imageSrc: "/team/agung.png",
   },
 ];
 

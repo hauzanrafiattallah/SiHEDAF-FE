@@ -2,14 +2,17 @@ type TeamCardProps = {
   role: string;
   name: string;
   linkedInLabel?: string;
+  imageSrc?: string;
 };
 
+import Image from "next/image";
 import { LinkedinIcon } from "@/components/ui/LinkedinIcon";
 
 export function TeamCard({
   role,
   name,
   linkedInLabel,
+  imageSrc,
 }: TeamCardProps) {
   const hasLinkedIn = Boolean(linkedInLabel && linkedInLabel.includes("http"));
 
@@ -17,8 +20,19 @@ export function TeamCard({
     <article
       aria-label={`${role}: ${name}`}
       className="dashboard-card relative aspect-[0.76] min-h-[300px] overflow-hidden rounded-t-md rounded-b-[18px] bg-gradient-to-b from-[#f4f4f4] via-[#d6d6d5] to-[#858582]"
-      data-team-card
     >
+      {imageSrc ? (
+        <>
+          <Image
+            alt={name}
+            className="object-cover object-center transition-transform duration-700 hover:scale-105"
+            fill
+            sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, 25vw"
+            src={imageSrc}
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/5 via-transparent to-black/80" />
+        </>
+      ) : null}
       <span className="absolute top-4 left-4 inline-flex h-9 items-center rounded-full bg-white/95 px-5 text-[12px] font-medium text-primary-900/48 shadow-[0_3px_12px_rgba(0,39,88,0.03)]">
         {role}
       </span>
