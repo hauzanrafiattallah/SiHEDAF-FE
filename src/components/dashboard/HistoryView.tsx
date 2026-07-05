@@ -31,7 +31,7 @@ const times = [
   "12:45 WIB",
 ];
 
-const historyRows: HistoryRow[] = Array.from({ length: 30 }, (_, index) => {
+const historyRows: HistoryRow[] = Array.from({ length: 20 }, (_, index) => {
   const status: HistoryStatus = index % 4 === 1 ? "af" : "normal";
 
   return {
@@ -193,11 +193,11 @@ export function HistoryView() {
                   type PageItem = { val: number | "..."; hiddenOnMobile?: boolean };
                   const pages: PageItem[] = [];
                   
-                  if (totalPages <= 5) {
+                  if (totalPages <= 3) {
                     for (let i = 1; i <= totalPages; i++) {
                       pages.push({ 
                         val: i, 
-                        hiddenOnMobile: (i === 3 || i === 4) && i !== currentPage && i !== 1 && i !== totalPages 
+                        hiddenOnMobile: (i === 3 || i === 4) && i !== currentPage && i !== totalPages 
                       });
                     }
                   } else {
@@ -279,7 +279,7 @@ export function HistoryView() {
                 onChange={(event) => handleItemsPerPageChange(Number(event.target.value))}
                 value={itemsPerPage}
               >
-                {[6, 12, 24].map((amount) => (
+                {[5, 10, 20].map((amount) => (
                   <option key={amount} value={amount}>
                     {amount}
                   </option>
