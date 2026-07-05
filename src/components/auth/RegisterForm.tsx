@@ -25,7 +25,7 @@ const defaultValues: RegisterFormInput = {
 
 export function RegisterForm() {
   const router = useRouter();
-  const { register, isPending, error } = useRegister();
+  const { register, isPending } = useRegister();
   const {
     control,
     formState: { isValid },

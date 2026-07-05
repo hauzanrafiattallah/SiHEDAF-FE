@@ -22,7 +22,7 @@ const defaultValues: LoginFormInput = {
 
 export function LoginForm() {
   const router = useRouter();
-  const { login, isPending, error } = useLogin();
+  const { login, isPending } = useLogin();
   const {
     control,
     formState: { isValid },
