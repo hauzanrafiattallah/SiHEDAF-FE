@@ -1,28 +1,65 @@
 "use client";
 
+import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { type FormEvent, useState } from "react";
+import { Controller, useForm } from "react-hook-form";
+import { toast } from "sonner";
 
 import { AuthInput } from "@/components/auth/AuthInput";
+import { useRegister } from "@/features/auth/register/client/hooks/UseRegister";
+import {
+  RegisterFormSchema,
+  RegisterRequestSchema,
+  type RegisterFormData,
+  type RegisterFormInput,
+  type RegisterRequest,
+} from "@/features/auth/register/shared/RegisterSchema";
+
+const defaultValues: RegisterFormInput = {
+  fullname: "",
+  email: "",
+  password: "",
+  confirmation: "",
+};
 
 export function RegisterForm() {
   const router = useRouter();
-  const [fullName, setFullName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmation, setConfirmation] = useState("");
-  const isComplete =
-    fullName.trim() !== "" &&
-    email.trim() !== "" &&
-    password !== "" &&
-    confirmation !== "" &&
-    password === confirmation;
+  const { register, isPending, error } = useRegister();
+  const {
+    control,
+    formState: { isValid },
+    handleSubmit,
+    setError,
+  } = useForm<RegisterFormInput, unknown, RegisterFormData>({
+    defaultValues,
+    mode: "onChange",
+    resolver: zodResolver(RegisterFormSchema),
+  });
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    if (!isComplete) return;
-    router.push("/login");
+  async function onSubmit(data: RegisterFormData) {
+    const input = RegisterRequestSchema.parse(data);
+    const result = await register(input);
+    if (!result) return;
+
+    if (!result.success) {
+      const fieldErrors = Object.entries(result.fieldErrors ?? {}) as [
+        keyof RegisterRequest,
+        string[],
+      ][];
+
+      for (const [field, messages] of fieldErrors) {
+        setError(field, { type: "server", message: messages[0] });
+      }
+
+      toast.error(result.message);
+      return;
+    }
+
+    toast.success("Akun berhasil dibuat. Silakan masuk.", {
+      description: result.message,
+    });
+    router.replace("/login");
   }
 
   return (
@@ -32,57 +69,103 @@ export function RegisterForm() {
         Daftar Akun
       </h1>
 
-      <form className="mt-9 space-y-5" onSubmit={handleSubmit}>
-        <AuthInput
-          autoComplete="name"
-          label="Nama Lengkap"
-          name="fullName"
-          onChange={setFullName}
-          placeholder="Masukkan nama lengkap"
-          required
-          value={fullName}
+      <form
+        aria-busy={isPending}
+        className="mt-9 space-y-5"
+        noValidate
+        onSubmit={handleSubmit(onSubmit)}
+      >
+        <Controller
+          control={control}
+          name="fullname"
+          render={({ field, fieldState }) => (
+            <AuthInput
+              autoComplete="name"
+              error={fieldState.error?.message}
+              inputRef={field.ref}
+              label="Nama Lengkap"
+              name={field.name}
+              onBlur={field.onBlur}
+              onChange={field.onChange}
+              placeholder="Masukkan nama lengkap"
+              value={field.value}
+            />
+          )}
         />
-        <AuthInput
-          autoComplete="email"
-          label="Email"
+        <Controller
+          control={control}
           name="email"
-          onChange={setEmail}
-          placeholder="Masukkan email"
-          required
-          type="email"
-          value={email}
+          render={({ field, fieldState }) => (
+            <AuthInput
+              autoComplete="email"
+              error={fieldState.error?.message}
+              inputRef={field.ref}
+              label="Email"
+              name={field.name}
+              onBlur={field.onBlur}
+              onChange={field.onChange}
+              placeholder="Masukkan email"
+              type="email"
+              value={field.value}
+            />
+          )}
         />
-        <AuthInput
-          autoComplete="new-password"
-          label="Kata sandi"
+        <Controller
+          control={control}
           name="password"
-          onChange={setPassword}
-          placeholder="Buat kata sandi"
-          required
-          type="password"
-          value={password}
+          render={({ field, fieldState }) => (
+            <AuthInput
+              autoComplete="new-password"
+              error={fieldState.error?.message}
+              inputRef={field.ref}
+              label="Kata sandi"
+              name={field.name}
+              onBlur={field.onBlur}
+              onChange={field.onChange}
+              placeholder="Buat kata sandi"
+              type="password"
+              value={field.value}
+            />
+          )}
         />
-        <AuthInput
-          autoComplete="new-password"
-          label="Konfirmasi Kata sandi"
+        <Controller
+          control={control}
           name="confirmation"
-          onChange={setConfirmation}
-          placeholder="Masukkan ulang kata sandi"
-          required
-          type="password"
-          value={confirmation}
+          render={({ field, fieldState }) => (
+            <AuthInput
+              autoComplete="new-password"
+              error={fieldState.error?.message}
+              inputRef={field.ref}
+              label="Konfirmasi Kata sandi"
+              name={field.name}
+              onBlur={field.onBlur}
+              onChange={field.onChange}
+              placeholder="Masukkan ulang kata sandi"
+              type="password"
+              value={field.value}
+            />
+          )}
         />
+
+        {error ? (
+          <p
+            className="rounded-2xl bg-[#FFE8EE] px-4 py-3 text-[12px] font-medium text-[#D72D55]"
+            role="alert"
+          >
+            {error.message}
+          </p>
+        ) : null}
 
         <button
           className={`mt-2 h-14 w-full rounded-full text-[14px] font-semibold transition-[background-color,transform,box-shadow] duration-200 ${
-            isComplete
+            isValid && !isPending
               ? "bg-primary-300 text-white shadow-[0_10px_24px_rgba(0,110,251,0.16)] hover:bg-primary-400"
               : "cursor-not-allowed bg-[#e4e7eb] text-primary-900/30"
           }`}
-          disabled={!isComplete}
+          disabled={!isValid || isPending}
           type="submit"
         >
-          Daftar
+          {isPending ? "Mendaftarkan..." : "Daftar"}
         </button>
       </form>
 

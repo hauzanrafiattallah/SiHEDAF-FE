@@ -95,16 +95,21 @@ test("implements active form states, password toggles, and fixed navigation", as
 
   for (const formSource of [loginSource, registerSource, deviceSource]) {
     assert.match(formSource, /^["']use client["'];/);
-    assert.match(formSource, /useState/);
-    assert.match(formSource, /disabled={!isComplete}/);
-    assert.match(formSource, /required/);
+  }
+
+  for (const localStateForm of [loginSource, deviceSource]) {
+    assert.match(localStateForm, /useState/);
+    assert.match(localStateForm, /disabled={!isComplete}/);
+    assert.match(localStateForm, /required/);
   }
 
   assert.match(inputSource, /showPassword/);
   assert.match(inputSource, /type="button"/);
   assert.match(loginSource, /router\.push\("\/hubungkan-perangkat"\)/);
-  assert.match(registerSource, /router\.push\("\/login"\)/);
-  assert.match(registerSource, /password === confirmation/);
+  assert.match(registerSource, /useRegister/);
+  assert.match(registerSource, /zodResolver\(RegisterFormSchema\)/);
+  assert.match(registerSource, /disabled={!isValid \|\| isPending}/);
+  assert.match(registerSource, /router\.replace\("\/login"\)/);
   assert.match(deviceSource, /Hubungkan perangkat/);
 });
 

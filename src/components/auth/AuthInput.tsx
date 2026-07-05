@@ -1,4 +1,4 @@
-import { useId, useState } from "react";
+import { type Ref, useId, useState } from "react";
 
 type AuthInputProps = {
   label: string;
@@ -7,7 +7,10 @@ type AuthInputProps = {
   type?: "text" | "email" | "password";
   value: string;
   autoComplete?: string;
+  error?: string;
+  inputRef?: Ref<HTMLInputElement>;
   required?: boolean;
+  onBlur?: () => void;
   onChange: (value: string) => void;
 };
 
@@ -18,10 +21,14 @@ export function AuthInput({
   type = "text",
   value,
   autoComplete,
+  error,
+  inputRef,
   required = true,
+  onBlur,
   onChange,
 }: AuthInputProps) {
   const inputId = useId();
+  const errorId = `${inputId}-error`;
   const [showPassword, setShowPassword] = useState(false);
   const isPassword = type === "password";
   const inputType = isPassword && showPassword ? "text" : type;
@@ -36,12 +43,20 @@ export function AuthInput({
       </label>
       <div className="relative">
         <input
+          aria-describedby={error ? errorId : undefined}
+          aria-invalid={Boolean(error)}
           autoComplete={autoComplete}
-          className="h-14 w-full rounded-full border border-primary-900/10 bg-white px-6 pr-13 text-[14px] font-medium text-primary-900 outline-none transition-[border-color,box-shadow] duration-200 placeholder:text-primary-900/24 focus:border-primary-300 focus:ring-4 focus:ring-primary-100/70"
+          className={`h-14 w-full rounded-full border bg-white px-6 pr-13 text-[14px] font-medium text-primary-900 outline-none transition-[border-color,box-shadow] duration-200 placeholder:text-primary-900/24 focus:ring-4 ${
+            error
+              ? "border-[#FF4572] focus:border-[#FF4572] focus:ring-[#FFE8EE]"
+              : "border-primary-900/10 focus:border-primary-300 focus:ring-primary-100/70"
+          }`}
           id={inputId}
           name={name}
+          onBlur={onBlur}
           onChange={(event) => onChange(event.target.value)}
           placeholder={placeholder}
+          ref={inputRef}
           required={required}
           type={inputType}
           value={value}
@@ -66,6 +81,15 @@ export function AuthInput({
           </button>
         ) : null}
       </div>
+      {error ? (
+        <p
+          className="mt-2 px-4 text-[12px] font-medium text-[#FF4572]"
+          id={errorId}
+          role="alert"
+        >
+          {error}
+        </p>
+      ) : null}
     </div>
   );
 }

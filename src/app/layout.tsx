@@ -1,5 +1,8 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
+
+import { AppToaster } from "@/components/ui/AppToaster";
+
 import "./globals.css";
 
 const switzer = localFont({
@@ -22,7 +25,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="id" className={`${switzer.variable} h-full antialiased`}>
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        {children}
+        <AppToaster />
+      </body>
     </html>
   );
 }
