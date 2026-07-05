@@ -70,6 +70,7 @@ export const ProfileResponseSchema: z.ZodType<ProfileResponse> =
       success: z.literal(false),
       message: z.string().min(1),
       fieldErrors: ProfileFieldErrorsSchema,
+      status: z.number().int().optional(),
     }),
   ]);
 
@@ -84,6 +85,7 @@ export const ProfileMutationResponseSchema: z.ZodType<ProfileMutationResponse> =
       success: z.literal(false),
       message: z.string().min(1),
       fieldErrors: ProfileFieldErrorsSchema,
+      status: z.number().int().optional(),
     }),
   ]);
 

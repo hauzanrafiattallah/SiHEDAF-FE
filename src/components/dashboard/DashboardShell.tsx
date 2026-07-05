@@ -7,6 +7,7 @@ import { PanelLeftClose, PanelLeftOpen, PanelRightOpen } from "lucide-react";
 import { DashboardSidebar } from "@/components/dashboard/DashboardSidebar";
 import { DashboardTopbar } from "@/components/dashboard/DashboardTopbar";
 import { NotificationPanel } from "@/components/dashboard/NotificationPanel";
+import { ProfileProvider } from "@/features/profile/client/ProfileProvider";
 
 type DashboardShellProps = Readonly<{
   children: React.ReactNode;
@@ -27,7 +28,8 @@ export function DashboardShell({ children }: DashboardShellProps) {
   const isDashboardRoute = pathname === "/dashboard";
 
   return (
-    <div className="min-h-dvh bg-[#f7f7f8] text-[#171b20]">
+    <ProfileProvider>
+      <div className="min-h-dvh bg-[#f7f7f8] text-[#171b20]">
       <div className="flex min-h-dvh">
         <button
           aria-label="Tutup menu navigasi"
@@ -118,6 +120,7 @@ export function DashboardShell({ children }: DashboardShellProps) {
           </div>
         </div>
       </div>
-    </div>
+      </div>
+    </ProfileProvider>
   );
 }

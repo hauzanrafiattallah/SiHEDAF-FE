@@ -55,7 +55,7 @@ test("paginates history rows and lets users choose page size", async () => {
   assert.match(historySource, /aria-current/);
 });
 
-test("supports account modals, profile save, image preview, and logout", async () => {
+test("supports account modals, backend profile save, and authenticated logout", async () => {
   const [modalSource, profileSource, editSource] = await Promise.all([
     readSource("components/dashboard/DashboardModal.tsx"),
     readSource("components/dashboard/ProfileView.tsx"),
@@ -67,10 +67,12 @@ test("supports account modals, profile save, image preview, and logout", async (
   assert.match(profileSource, /^"use client";/);
   assert.match(profileSource, /DashboardModal/);
   assert.match(profileSource, /Ubah kata sandi/);
-  assert.match(profileSource, /router\.push\("\/login"\)/);
+  assert.match(profileSource, /useLogout/);
+  assert.match(profileSource, /router\.replace\("\/login"\)/);
   assert.match(editSource, /^"use client";/);
-  assert.match(editSource, /accept="image\/\*"/);
-  assert.match(editSource, /FileReader/);
+  assert.match(editSource, /useUpdateProfile/);
+  assert.match(editSource, /name="email"/);
+  assert.match(editSource, /disabled/);
   assert.match(editSource, /DashboardModal/);
   assert.match(editSource, /router\.push\("\/profil"\)/);
 });

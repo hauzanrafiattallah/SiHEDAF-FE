@@ -27,6 +27,7 @@ export type ProfileFailure = {
   success: false;
   message: string;
   fieldErrors?: ProfileFieldErrors;
+  status?: number;
 };
 
 export type ProfileResponse = ProfileSuccess | ProfileFailure;
