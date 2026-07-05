@@ -23,6 +23,10 @@ test("shares backend profile state across dashboard routes", async () => {
   assert.match(provider, /router\.replace\("\/login"\)/);
   assert.match(provider, /createContext/);
   assert.match(provider, /useProfile/);
+  assert.match(provider, /if \(isLoading\)/);
+  assert.match(provider, /if \(error \|\| !user\)/);
+  assert.match(provider, /Memverifikasi sesi/);
+  assert.match(provider, /Konten dashboard belum dapat ditampilkan/);
   assert.match(topbar, /useProfile/);
   assert.doesNotMatch(topbar, /Armand Setya/);
 });
