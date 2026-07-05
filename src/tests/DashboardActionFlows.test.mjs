@@ -55,9 +55,10 @@ test("paginates history rows and lets users choose page size", async () => {
   assert.match(historySource, /aria-current/);
   assert.match(historySource, /<ScrollArea/);
   assert.match(historySource, /min-w-\[680px\]/);
-  assert.match(historySource, /{currentPage}\s*\/\s*{totalPages}/);
-  assert.match(historySource, /sm:hidden/);
-  assert.match(historySource, /hidden items-center gap-2 sm:flex/);
+  assert.match(historySource, /type PageItem/);
+  assert.match(historySource, /pages\.map/);
+  assert.match(historySource, /hiddenOnMobile/);
+  assert.match(historySource, /hidden sm:inline/);
   assert.doesNotMatch(historySource, /overflow-x-auto|min-w-\[900px\]/);
 });
 

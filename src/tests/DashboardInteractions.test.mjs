@@ -19,13 +19,16 @@ test("floats the notification restore control beside content instead of the topb
   ]);
 
   assert.match(shellSource, /PanelRightOpen/);
-  assert.match(shellSource, /!isNotificationsOpen/);
+  assert.match(shellSource, /isNotifOpenMobile/);
+  assert.match(shellSource, /isNotifOpenDesktop/);
+  assert.match(shellSource, /setNotifState/);
   assert.match(shellSource, /fixed right-/);
   assert.match(shellSource, /Tampilkan notifikasi/);
   assert.doesNotMatch(topbarSource, /PanelRight(?:Open|Close)/);
   assert.match(panelSource, /PanelRightClose/);
   assert.match(panelSource, /h-full/);
-  assert.match(shellSource, /self-stretch bg-white/);
+  assert.match(shellSource, /fixed inset-y-0 right-0/);
+  assert.match(shellSource, /xl:sticky/);
 });
 
 test("keeps static dashboard cards free from hover-motion hooks", async () => {

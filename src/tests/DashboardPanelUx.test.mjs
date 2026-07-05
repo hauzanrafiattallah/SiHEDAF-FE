@@ -34,10 +34,11 @@ test("lets floating and rail controls toggle shared shell state", async () => {
     readProjectFile("src/components/dashboard/DashboardOverview.tsx"),
   ]);
 
-  assert.match(shellSource, /isNotificationsOpen/);
-  assert.match(shellSource, /setIsNotificationsOpen/);
+  assert.match(shellSource, /isNotifOpenMobile/);
+  assert.match(shellSource, /isNotifOpenDesktop/);
+  assert.match(shellSource, /setNotifState/);
   assert.match(shellSource, /<NotificationPanel/);
-  assert.match(shellSource, /transition-\[width,opacity/);
+  assert.match(shellSource, /transition-\[transform,width,opacity,visibility\]/);
   assert.match(shellSource, /PanelRightOpen/);
   assert.doesNotMatch(topbarSource, /notificationsOpen/);
   assert.doesNotMatch(topbarSource, /onToggleNotifications/);

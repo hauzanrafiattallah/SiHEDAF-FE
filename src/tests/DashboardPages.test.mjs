@@ -91,7 +91,7 @@ test("composes every dashboard view with the reference content", async (context)
   const allSource = sources.join("\n");
 
   for (const copy of [
-    "Selamat Datang, Armand!",
+    "Selamat Datang,",
     "Hasil Analisis Terakhir",
     "Sinyal PPG Terbaru",
     "Monitoring Terakhir",
