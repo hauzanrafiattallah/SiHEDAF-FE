@@ -9,8 +9,11 @@ import { DashboardTopbar } from "@/components/dashboard/DashboardTopbar";
 import { NotificationPanel } from "@/components/dashboard/NotificationPanel";
 import { ProfileProvider } from "@/features/profile/client/ProfileProvider";
 
+import type { UserProfile } from "@/features/profile/shared/ProfileTypes";
+
 type DashboardShellProps = Readonly<{
   children: React.ReactNode;
+  initialUser?: UserProfile | null;
 }>;
 
 const routeTitles: Record<string, string> = {
@@ -20,7 +23,7 @@ const routeTitles: Record<string, string> = {
   "/riwayat": "Riwayat",
 };
 
-export function DashboardShell({ children }: DashboardShellProps) {
+export function DashboardShell({ children, initialUser }: DashboardShellProps) {
   const pathname = usePathname();
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
@@ -34,7 +37,7 @@ export function DashboardShell({ children }: DashboardShellProps) {
   }, []);
 
   return (
-    <ProfileProvider>
+    <ProfileProvider initialUser={initialUser}>
       <div className="min-h-dvh bg-[#f7f7f8] text-[#171b20]">
       <div className="flex min-h-dvh">
         <button

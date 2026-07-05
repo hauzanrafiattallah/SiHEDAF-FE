@@ -25,10 +25,10 @@ type ProfileContextValue = {
 
 const ProfileContext = createContext<ProfileContextValue | null>(null);
 
-export function ProfileProvider({ children }: { children: ReactNode }) {
+export function ProfileProvider({ children, initialUser }: { children: ReactNode, initialUser?: UserProfile | null }) {
   const router = useRouter();
-  const [user, setUser] = useState<UserProfile | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [user, setUser] = useState<UserProfile | null>(initialUser ?? null);
+  const [isLoading, setIsLoading] = useState(!initialUser);
   const [error, setError] = useState<string | null>(null);
 
   const reload = useCallback(async () => {
@@ -52,6 +52,8 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
   }, [router]);
 
   useEffect(() => {
+    if (initialUser) return;
+
     let isActive = true;
 
     void fetchCurrentProfile().then((result) => {
@@ -75,7 +77,7 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
     return () => {
       isActive = false;
     };
-  }, [router]);
+  }, [router, initialUser]);
 
   const updateUser = useCallback(
     (changes: Partial<Pick<UserProfile, "fullname">>) => {
