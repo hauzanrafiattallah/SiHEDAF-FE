@@ -31,7 +31,7 @@ export function DashboardSidebar({
         className={`flex h-[72px] shrink-0 items-center overflow-hidden border-b border-[#edf0f3] ${
           collapsed ? "justify-center px-3" : "px-7"
         }`}
-        href="/"
+        href="/dashboard"
       >
         <Image alt="Logo SiHEDAF" height={27} priority src="/logo.png" width={27} />
         <span
