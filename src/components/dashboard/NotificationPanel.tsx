@@ -14,7 +14,7 @@ type NotificationPanelProps = {
 
 export function NotificationPanel({ onClose }: NotificationPanelProps) {
   return (
-    <aside className="h-full w-full border-t border-[#e5e8eb] bg-white px-6 py-7 xl:min-h-[calc(100dvh-72px)] xl:w-[320px] xl:border-l xl:border-t-0">
+    <aside className="h-full w-full overflow-y-auto border-t border-[#e5e8eb] bg-white px-6 py-7 xl:min-h-[calc(100dvh-72px)] xl:w-[320px] xl:border-l xl:border-t-0">
       <div className="flex items-center gap-2.5">
         <button
           aria-label="Sembunyikan notifikasi"

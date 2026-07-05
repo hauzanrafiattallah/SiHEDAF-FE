@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { PanelLeftClose, PanelLeftOpen, PanelRightOpen } from "lucide-react";
 
@@ -24,8 +24,14 @@ export function DashboardShell({ children }: DashboardShellProps) {
   const pathname = usePathname();
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
-  const [isNotificationsOpen, setIsNotificationsOpen] = useState(true);
+  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const isDashboardRoute = pathname === "/dashboard";
+
+  useEffect(() => {
+    if (window.innerWidth >= 1280) {
+      setIsNotificationsOpen(true);
+    }
+  }, []);
 
   return (
     <ProfileProvider>
@@ -105,17 +111,28 @@ export function DashboardShell({ children }: DashboardShellProps) {
             </main>
 
             {isDashboardRoute ? (
-              <div
-                aria-hidden={!isNotificationsOpen}
-                className={`self-stretch bg-white shrink-0 overflow-hidden transition-[width,opacity,max-height] duration-300 ease-out ${
-                  isNotificationsOpen
-                    ? "max-h-[1200px] w-full opacity-100 xl:max-h-none xl:w-[320px]"
-                    : "pointer-events-none max-h-0 w-full opacity-0 xl:max-h-none xl:w-0"
-                }`}
-                inert={!isNotificationsOpen}
-              >
-                <NotificationPanel onClose={() => setIsNotificationsOpen(false)} />
-              </div>
+              <>
+                <button
+                  aria-label="Tutup notifikasi"
+                  className={`fixed inset-0 z-30 bg-primary-900/30 backdrop-blur-[2px] transition-opacity duration-300 xl:hidden ${
+                    isNotificationsOpen ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0"
+                  }`}
+                  onClick={() => setIsNotificationsOpen(false)}
+                  tabIndex={isNotificationsOpen ? 0 : -1}
+                  type="button"
+                />
+                <div
+                  aria-hidden={!isNotificationsOpen}
+                  className={`fixed inset-y-0 right-0 z-40 bg-white shrink-0 overflow-hidden shadow-[-8px_0_28px_rgba(22,45,75,0.08)] transition-[transform,width,opacity] duration-300 ease-out xl:sticky xl:top-[72px] xl:h-[calc(100dvh-72px)] xl:shadow-none ${
+                    isNotificationsOpen
+                      ? "translate-x-0 w-full max-w-[320px] opacity-100 xl:w-[320px]"
+                      : "translate-x-full w-full max-w-[320px] opacity-0 xl:translate-x-0 xl:w-0"
+                  }`}
+                  inert={!isNotificationsOpen}
+                >
+                  <NotificationPanel onClose={() => setIsNotificationsOpen(false)} />
+                </div>
+              </>
             ) : null}
           </div>
         </div>
