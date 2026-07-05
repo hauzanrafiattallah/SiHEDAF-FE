@@ -1,16 +1,10 @@
 import { z } from "zod";
 
+import { createPasswordSchema } from "@/features/auth/shared/PasswordSchema";
+
 import type { RegisterResponse } from "./RegisterTypes";
 
-const passwordSchema = z
-  .string()
-  .min(8, "Kata sandi minimal 8 karakter.")
-  .max(64, "Kata sandi maksimal 64 karakter.")
-  .regex(/[A-Z]/, "Kata sandi harus memiliki huruf besar.")
-  .regex(/[a-z]/, "Kata sandi harus memiliki huruf kecil.")
-  .regex(/[0-9]/, "Kata sandi harus memiliki angka.")
-  .regex(/[^A-Za-z0-9\s]/, "Kata sandi harus memiliki simbol.")
-  .regex(/^\S+$/, "Kata sandi tidak boleh mengandung spasi.");
+const passwordSchema = createPasswordSchema();
 
 export const RegisterRequestSchema = z.object({
   fullname: z

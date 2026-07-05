@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+import { createPasswordSchema } from "@/features/auth/shared/PasswordSchema";
+
 import type {
   ProfileMutationResponse,
   ProfileResponse,
@@ -29,10 +31,7 @@ export const UpdatePasswordRequestSchema = z
       .string()
       .min(1, "Kata sandi saat ini wajib diisi.")
       .max(128, "Kata sandi saat ini maksimal 128 karakter."),
-    new_password: z
-      .string()
-      .min(8, "Kata sandi baru minimal 8 karakter.")
-      .max(128, "Kata sandi baru maksimal 128 karakter."),
+    new_password: createPasswordSchema("Kata sandi baru", 128),
     confirm_password: z.string().min(1, "Konfirmasi kata sandi wajib diisi."),
   })
   .strict()

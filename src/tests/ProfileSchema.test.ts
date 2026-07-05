@@ -70,3 +70,24 @@ test("requires matching, different password values", () => {
     );
   }
 });
+
+for (const [name, password] of [
+  ["uppercase", "user!1234"],
+  ["lowercase", "USER!1234"],
+  ["number", "User!Password"],
+  ["symbol", "User12345"],
+  ["whitespace", "User! 1234"],
+] as const) {
+  test("new password requires " + name, () => {
+    const result = UpdatePasswordRequestSchema.safeParse({
+      old_password: "OldUser!123",
+      new_password: password,
+      confirm_password: password,
+    });
+
+    assert.equal(result.success, false);
+    if (!result.success) {
+      assert.ok(result.error.flatten().fieldErrors.new_password);
+    }
+  });
+}
