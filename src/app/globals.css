@@ -116,8 +116,8 @@ footer[id] {
   color: #003171;
 }
 
-.rdp-range_start > .rdp-day_button,
-.rdp-range_end > .rdp-day_button {
+.rdp-range_start>.rdp-day_button,
+.rdp-range_end>.rdp-day_button {
   border-radius: 999px;
 }
 
@@ -143,6 +143,7 @@ footer[id] {
     opacity: 0;
     transform: translateY(22px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -159,6 +160,7 @@ footer[id] {
     opacity: 0;
     transform: translateY(8px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -170,6 +172,7 @@ footer[id] {
     opacity: 0;
     transform: translateY(12px);
   }
+
   to {
     opacity: 1;
     transform: none;
@@ -181,6 +184,7 @@ footer[id] {
     opacity: 0;
     transform: translateY(36px) scale(0.985);
   }
+
   to {
     opacity: 1;
     transform: translateY(0) scale(1);
@@ -191,6 +195,7 @@ footer[id] {
   from {
     stroke-dashoffset: 1800;
   }
+
   to {
     stroke-dashoffset: 0;
   }
@@ -201,6 +206,7 @@ footer[id] {
     opacity: 0;
     transform: translateX(5px);
   }
+
   to {
     opacity: 1;
     transform: translateX(0);
@@ -220,6 +226,7 @@ footer[id] {
     opacity: 0;
     transform: scale(0.96) translateY(6px);
   }
+
   to {
     opacity: 1;
     transform: scale(1) translateY(0);
@@ -230,6 +237,7 @@ footer[id] {
   from {
     opacity: 0;
   }
+
   to {
     opacity: 1;
   }
@@ -252,6 +260,7 @@ footer[id] {
     opacity: 0;
     transform: translateY(28px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);

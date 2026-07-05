@@ -31,7 +31,7 @@ const times = [
   "12:45 WIB",
 ];
 
-const historyRows: HistoryRow[] = Array.from({ length: 20 }, (_, index) => {
+const historyRows: HistoryRow[] = Array.from({ length: 30 }, (_, index) => {
   const status: HistoryStatus = index % 4 === 1 ? "af" : "normal";
 
   return {
@@ -174,51 +174,100 @@ export function HistoryView() {
             ) : null}
           </ScrollArea>
 
-          <div className="flex flex-col gap-4 border-t border-[#edf0f3] px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+          <div className="flex flex-col gap-5 border-t border-[#edf0f3] px-5 py-6 sm:flex-row sm:items-center sm:justify-between sm:py-4">
             <nav
               aria-label="Pagination riwayat"
-              className="grid w-full grid-cols-[1fr_auto_1fr] items-center gap-2 text-[12px] sm:flex sm:w-auto"
+              className="flex w-full items-center justify-between gap-1 text-[12px] sm:w-auto sm:justify-start sm:gap-2"
             >
               <button
-                className="h-9 justify-self-start rounded-full border border-[#e1e5e9] px-3 text-[#6f7680] transition-colors hover:border-primary-200 hover:text-primary-300 disabled:cursor-not-allowed disabled:text-[#b3b8bf] disabled:hover:border-[#e1e5e9] sm:h-8 sm:px-4"
+                className="flex h-8 items-center justify-center rounded-full border border-[#e1e5e9] px-3 text-[#6f7680] transition-colors hover:border-primary-200 hover:text-primary-300 disabled:cursor-not-allowed disabled:text-[#b3b8bf] disabled:hover:border-[#e1e5e9] sm:px-4"
                 disabled={currentPage === 1}
                 onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
                 type="button"
               >
-                ‹&nbsp; Sebelumnya
+                ‹<span className="hidden sm:inline">&nbsp; Sebelumnya</span>
               </button>
-              <span
-                aria-current="page"
-                className="min-w-12 text-center font-medium text-primary-800 sm:hidden"
-              >
-                {currentPage} / {totalPages}
-              </span>
-              <span className="hidden items-center gap-2 sm:flex">
-                {Array.from({ length: totalPages }, (_, index) => index + 1).map(
-                  (page) => (
-                    <button
-                      aria-current={page === currentPage ? "page" : undefined}
-                      className={`grid h-8 w-8 place-items-center rounded-full border transition-colors ${
-                        page === currentPage
-                          ? "border-primary-300 bg-primary-300 text-white"
-                          : "border-[#e1e5e9] text-[#6f7680] hover:border-primary-200"
-                      }`}
-                      key={page}
-                      onClick={() => setCurrentPage(page)}
-                      type="button"
-                    >
-                      {page}
-                    </button>
-                  ),
-                )}
-              </span>
+              
+              <div className="flex items-center gap-1 sm:gap-1.5 sm:mx-2">
+                {(() => {
+                  type PageItem = { val: number | "..."; hiddenOnMobile?: boolean };
+                  const pages: PageItem[] = [];
+                  
+                  if (totalPages <= 5) {
+                    for (let i = 1; i <= totalPages; i++) {
+                      pages.push({ 
+                        val: i, 
+                        hiddenOnMobile: (i === 3 || i === 4) && i !== currentPage && i !== 1 && i !== totalPages 
+                      });
+                    }
+                  } else {
+                    if (currentPage <= 3) {
+                      pages.push(
+                        { val: 1 }, 
+                        { val: 2 }, 
+                        { val: 3, hiddenOnMobile: currentPage !== 3 }, 
+                        { val: "..." }, 
+                        { val: totalPages }
+                      );
+                    } else if (currentPage >= totalPages - 2) {
+                      pages.push(
+                        { val: 1 }, 
+                        { val: "..." }, 
+                        { val: totalPages - 2, hiddenOnMobile: currentPage !== totalPages - 2 }, 
+                        { val: totalPages - 1 }, 
+                        { val: totalPages }
+                      );
+                    } else {
+                      pages.push(
+                        { val: 1 }, 
+                        { val: "..." }, 
+                        { val: currentPage }, 
+                        { val: "..." }, 
+                        { val: totalPages }
+                      );
+                    }
+                  }
+
+                  return pages.map((page, index) => {
+                    if (page.val === "...") {
+                      return (
+                        <span 
+                          key={`ellipsis-${index}`} 
+                          className={`px-0.5 text-[#9298a1] sm:px-1 ${page.hiddenOnMobile ? 'hidden sm:block' : 'block'}`}
+                        >
+                          ...
+                        </span>
+                      );
+                    }
+
+                    return (
+                      <button
+                        aria-current={page.val === currentPage ? "page" : undefined}
+                        className={`h-8 w-8 place-items-center rounded-full border transition-colors ${
+                          page.hiddenOnMobile ? 'hidden sm:grid' : 'grid'
+                        } ${
+                          page.val === currentPage
+                            ? "border-primary-300 bg-primary-300 text-white"
+                            : "border-transparent text-[#6f7680] hover:border-[#e1e5e9]"
+                        }`}
+                        key={page.val}
+                        onClick={() => setCurrentPage(page.val as number)}
+                        type="button"
+                      >
+                        {page.val}
+                      </button>
+                    );
+                  });
+                })()}
+              </div>
+
               <button
-                className="h-9 justify-self-end rounded-full border border-[#e1e5e9] px-3 text-[#6f7680] transition-colors hover:border-primary-200 hover:text-primary-300 disabled:cursor-not-allowed disabled:text-[#b3b8bf] disabled:hover:border-[#e1e5e9] sm:h-8 sm:px-4"
+                className="flex h-8 items-center justify-center rounded-full border border-[#e1e5e9] px-3 text-[#6f7680] transition-colors hover:border-primary-200 hover:text-primary-300 disabled:cursor-not-allowed disabled:text-[#b3b8bf] disabled:hover:border-[#e1e5e9] sm:px-4"
                 disabled={currentPage === totalPages}
                 onClick={() => setCurrentPage((page) => Math.min(totalPages, page + 1))}
                 type="button"
               >
-                Selanjutnya&nbsp; ›
+                <span className="hidden sm:inline">Selanjutnya &nbsp;</span>›
               </button>
             </nav>
 
@@ -226,11 +275,11 @@ export function HistoryView() {
               <span>Tampilkan</span>
               <select
                 aria-label="Jumlah riwayat per halaman"
-                className="h-8 rounded-full border border-[#e2e6ea] bg-white px-3 text-[#555c65] outline-none focus:border-primary-300 focus-visible:ring-2 focus-visible:ring-primary-200"
+                className="h-8 rounded-full border border-[#e2e6ea] bg-white px-3 pr-8 text-[#555c65] outline-none appearance-none focus:border-primary-300 focus-visible:ring-2 focus-visible:ring-primary-200 bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2212%22%20height%3D%2212%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%239aa0a9%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3C%2Fpolyline%3E%3C%2Fsvg%3E')] bg-no-repeat bg-[position:right_10px_center]"
                 onChange={(event) => handleItemsPerPageChange(Number(event.target.value))}
                 value={itemsPerPage}
               >
-                {[5, 10, 20].map((amount) => (
+                {[6, 12, 24].map((amount) => (
                   <option key={amount} value={amount}>
                     {amount}
                   </option>
