@@ -25,6 +25,8 @@ test("register UI uses the hook, shared validation, toast, and accessible errors
   assert.match(input, /aria-invalid/);
   assert.match(input, /aria-describedby/);
   assert.match(toaster, /from "sonner"/);
+  assert.match(toaster, /unstyled: true/);
+  assert.match(toaster, /theme="light"/);
   assert.match(layout, /<AppToaster/);
 });
 
