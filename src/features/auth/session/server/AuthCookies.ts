@@ -1,7 +1,10 @@
 import type { SessionTokens } from "../shared/SessionTypes";
+import {
+  ACCESS_TOKEN_COOKIE,
+  REFRESH_TOKEN_COOKIE,
+} from "../shared/SessionCookies";
 
-export const ACCESS_TOKEN_COOKIE = "sihedaf_access_token";
-export const REFRESH_TOKEN_COOKIE = "sihedaf_refresh_token";
+export { ACCESS_TOKEN_COOKIE, REFRESH_TOKEN_COOKIE };
 
 export type SessionCookie = {
   name: string;

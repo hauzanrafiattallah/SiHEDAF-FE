@@ -13,13 +13,15 @@ export const ProfileUserSchema: z.ZodType<UserProfile> = z.object({
   profileImage: z.string().min(1).nullable(),
 });
 
-export const UpdateProfileRequestSchema = z.object({
-  fullname: z
-    .string()
-    .trim()
-    .min(4, "Nama lengkap minimal 4 karakter.")
-    .max(100, "Nama lengkap maksimal 100 karakter."),
-});
+export const UpdateProfileRequestSchema = z
+  .object({
+    fullname: z
+      .string()
+      .trim()
+      .min(4, "Nama lengkap minimal 4 karakter.")
+      .max(100, "Nama lengkap maksimal 100 karakter."),
+  })
+  .strict();
 
 export const UpdatePasswordRequestSchema = z
   .object({
@@ -33,6 +35,7 @@ export const UpdatePasswordRequestSchema = z
       .max(128, "Kata sandi baru maksimal 128 karakter."),
     confirm_password: z.string().min(1, "Konfirmasi kata sandi wajib diisi."),
   })
+  .strict()
   .superRefine((values, context) => {
     if (values.new_password !== values.confirm_password) {
       context.addIssue({
