@@ -18,6 +18,10 @@ export type SessionCookieStore = {
   set(cookie: SessionCookie): void;
 };
 
+export type ReadableSessionCookieStore = SessionCookieStore & {
+  get(name: string): { value: string } | undefined;
+};
+
 const ACCESS_TOKEN_MAX_AGE = 86_400;
 const REFRESH_TOKEN_MAX_AGE = 31_536_000;
 
