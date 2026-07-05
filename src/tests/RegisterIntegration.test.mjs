@@ -26,3 +26,16 @@ test("register UI uses the hook, shared validation, toast, and accessible errors
   assert.match(toaster, /from "sonner"/);
   assert.match(layout, /<AppToaster/);
 });
+
+test("documents the backend URL as a server-only environment variable", async () => {
+  const envExample = await readFile(
+    path.resolve(source, "../.env.example"),
+    "utf8",
+  );
+
+  assert.match(
+    envExample,
+    /^SIHEDAF_API_BASE_URL=https:\/\/sihedaf\.xianly\.cloud$/m,
+  );
+  assert.doesNotMatch(envExample, /NEXT_PUBLIC/);
+});
