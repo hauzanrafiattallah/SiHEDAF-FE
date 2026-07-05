@@ -118,15 +118,6 @@ export function LoginForm() {
           </div>
         </div>
 
-        {error ? (
-          <p
-            className="rounded-2xl bg-[#FFE8EE] px-4 py-3 text-[12px] font-medium text-[#D72D55]"
-            role="alert"
-          >
-            {error.message}
-          </p>
-        ) : null}
-
         <button
           className={`h-14 w-full rounded-full text-[14px] font-semibold transition-[background-color,transform,box-shadow] duration-200 ${
             isValid && !isPending

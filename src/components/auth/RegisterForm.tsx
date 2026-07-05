@@ -145,17 +145,8 @@ export function RegisterForm() {
           )}
         />
 
-        {error ? (
-          <p
-            className="rounded-2xl bg-[#FFE8EE] px-4 py-3 text-[12px] font-medium text-[#D72D55]"
-            role="alert"
-          >
-            {error.message}
-          </p>
-        ) : null}
-
         <button
-          className={`mt-2 h-14 w-full rounded-full text-[14px] font-semibold transition-[background-color,transform,box-shadow] duration-200 ${
+          className={`h-14 w-full rounded-full text-[14px] font-semibold transition-[background-color,transform,box-shadow] duration-200 ${
             isValid && !isPending
               ? "bg-primary-300 text-white shadow-[0_10px_24px_rgba(0,110,251,0.16)] hover:bg-primary-400"
               : "cursor-not-allowed bg-[#e4e7eb] text-primary-900/30"
