@@ -108,7 +108,7 @@ test("implements active form states, password toggles, and fixed navigation", as
   assert.match(loginSource, /useLogin/);
   assert.match(loginSource, /zodResolver\(LoginRequestSchema\)/);
   assert.match(loginSource, /disabled={!isValid \|\| isPending}/);
-  assert.match(loginSource, /router\.replace\("\/hubungkan-perangkat"\)/);
+  assert.match(loginSource, /router\.replace\("\/dashboard"\)/);
   assert.match(registerSource, /useRegister/);
   assert.match(registerSource, /zodResolver\(RegisterFormSchema\)/);
   assert.match(registerSource, /disabled={!isValid \|\| isPending}/);

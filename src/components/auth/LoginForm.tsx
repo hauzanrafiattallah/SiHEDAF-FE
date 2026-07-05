@@ -53,7 +53,7 @@ export function LoginForm() {
     }
 
     toast.success("Berhasil masuk.");
-    router.replace("/hubungkan-perangkat");
+    router.replace("/dashboard");
   }
 
   return (

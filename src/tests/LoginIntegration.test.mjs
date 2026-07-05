@@ -16,7 +16,7 @@ test("login UI validates, submits, reports status, and redirects", async () => {
   assert.match(form, /zodResolver\(LoginRequestSchema\)/);
   assert.match(form, /toast\.success\("Berhasil masuk\."\)/);
   assert.match(form, /toast\.error/);
-  assert.match(form, /router\.replace\("\/hubungkan-perangkat"\)/);
+  assert.match(form, /router\.replace\("\/dashboard"\)/);
   assert.match(form, /Mencoba masuk\.\.\./);
   assert.match(form, /disabled={!isValid \|\| isPending}/);
   assert.match(form, /aria-busy={isPending}/);
