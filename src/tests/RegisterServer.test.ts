@@ -56,13 +56,18 @@ test("server service normalizes unavailable backend failures", async () => {
   );
 });
 
-test("server service preserves a safe backend rejection", async () => {
+test("server service hides backend details for duplicate accounts", async () => {
   await assert.rejects(
     registerUser(input, {
       baseUrl: "https://sihedaf.xianly.cloud",
       fetcher: async () =>
         Response.json(
-          { errors: { message: "Email sudah terdaftar." } },
+          {
+            errors: {
+              message:
+                "duplicate key value violates unique constraint users_email_key",
+            },
+          },
           { status: 409 },
         ),
     }),
