@@ -53,6 +53,12 @@ test("paginates history rows and lets users choose page size", async () => {
   assert.match(historySource, /setItemsPerPage/);
   assert.match(historySource, /\.slice\(/);
   assert.match(historySource, /aria-current/);
+  assert.match(historySource, /<ScrollArea/);
+  assert.match(historySource, /min-w-\[680px\]/);
+  assert.match(historySource, /{currentPage}\s*\/\s*{totalPages}/);
+  assert.match(historySource, /sm:hidden/);
+  assert.match(historySource, /hidden items-center gap-2 sm:flex/);
+  assert.doesNotMatch(historySource, /overflow-x-auto|min-w-\[900px\]/);
 });
 
 test("supports account modals, backend profile save, and authenticated logout", async () => {

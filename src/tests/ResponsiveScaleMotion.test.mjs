@@ -130,3 +130,13 @@ test("scales auth and dashboard shells without CSS zoom", async () => {
   assert.match(dashboardShell, /h-\[(?:68|72)px\]/);
   assert.doesNotMatch(globalStyles, /\bzoom\s*:/);
 });
+
+test("stacks history controls without page-level mobile overflow", async () => {
+  const history = await readSource("components/dashboard/HistoryView.tsx");
+
+  assert.match(history, /flex flex-col gap-4/);
+  assert.match(history, /sm:flex-row/);
+  assert.match(history, /grid w-full grid-cols-\[1fr_auto_1fr\]/);
+  assert.match(history, /sm:w-auto/);
+  assert.match(history, /viewportClassName="pb-2"/);
+});

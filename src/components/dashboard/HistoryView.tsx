@@ -6,6 +6,7 @@ import type { DateRange } from "@daypicker/react";
 import { DateRangePicker } from "@/components/dashboard/DateRangePicker";
 import { Sparkline } from "@/components/dashboard/Sparkline";
 import { StatusMark } from "@/components/dashboard/StatusMark";
+import { ScrollArea } from "@/components/ui/ScrollArea";
 
 type HistoryStatus = "af" | "normal";
 
@@ -116,12 +117,12 @@ export function HistoryView() {
         </div>
 
         <article className="mt-6 overflow-hidden rounded-[24px] border border-[#edf0f3] bg-white">
-          <div className="px-7 py-6">
+          <div className="px-5 py-5 sm:px-7 sm:py-6">
             <h2 className="text-[16px] font-semibold">Daftar Riwayat</h2>
           </div>
 
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[900px] border-collapse text-left">
+          <ScrollArea className="w-full" viewportClassName="pb-2">
+            <table className="w-full min-w-[680px] table-fixed border-collapse text-left">
               <thead>
                 <tr className="border-b border-[#edf0f3] text-[12px] font-medium text-[#6e7580]">
                   <th className="w-[38%] px-6 pb-3 font-medium">Waktu Analisis</th>
@@ -171,35 +172,48 @@ export function HistoryView() {
                 Tidak ada riwayat pada rentang tanggal ini.
               </p>
             ) : null}
-          </div>
+          </ScrollArea>
 
-          <div className="flex flex-wrap items-center justify-between gap-4 border-t border-[#edf0f3] px-6 py-4">
-            <nav aria-label="Pagination riwayat" className="flex items-center gap-2 text-[12px]">
+          <div className="flex flex-col gap-4 border-t border-[#edf0f3] px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+            <nav
+              aria-label="Pagination riwayat"
+              className="grid w-full grid-cols-[1fr_auto_1fr] items-center gap-2 text-[12px] sm:flex sm:w-auto"
+            >
               <button
-                className="h-8 rounded-full border border-[#e1e5e9] px-4 text-[#6f7680] transition-colors hover:border-primary-200 hover:text-primary-300 disabled:cursor-not-allowed disabled:text-[#b3b8bf] disabled:hover:border-[#e1e5e9]"
+                className="h-9 justify-self-start rounded-full border border-[#e1e5e9] px-3 text-[#6f7680] transition-colors hover:border-primary-200 hover:text-primary-300 disabled:cursor-not-allowed disabled:text-[#b3b8bf] disabled:hover:border-[#e1e5e9] sm:h-8 sm:px-4"
                 disabled={currentPage === 1}
                 onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
                 type="button"
               >
                 ‹&nbsp; Sebelumnya
               </button>
-              {Array.from({ length: totalPages }, (_, index) => index + 1).map((page) => (
-                <button
-                  aria-current={page === currentPage ? "page" : undefined}
-                  className={`grid h-8 w-8 place-items-center rounded-full border transition-colors ${
-                    page === currentPage
-                      ? "border-primary-300 bg-primary-300 text-white"
-                      : "border-[#e1e5e9] text-[#6f7680] hover:border-primary-200"
-                  }`}
-                  key={page}
-                  onClick={() => setCurrentPage(page)}
-                  type="button"
-                >
-                  {page}
-                </button>
-              ))}
+              <span
+                aria-current="page"
+                className="min-w-12 text-center font-medium text-primary-800 sm:hidden"
+              >
+                {currentPage} / {totalPages}
+              </span>
+              <span className="hidden items-center gap-2 sm:flex">
+                {Array.from({ length: totalPages }, (_, index) => index + 1).map(
+                  (page) => (
+                    <button
+                      aria-current={page === currentPage ? "page" : undefined}
+                      className={`grid h-8 w-8 place-items-center rounded-full border transition-colors ${
+                        page === currentPage
+                          ? "border-primary-300 bg-primary-300 text-white"
+                          : "border-[#e1e5e9] text-[#6f7680] hover:border-primary-200"
+                      }`}
+                      key={page}
+                      onClick={() => setCurrentPage(page)}
+                      type="button"
+                    >
+                      {page}
+                    </button>
+                  ),
+                )}
+              </span>
               <button
-                className="h-8 rounded-full border border-[#e1e5e9] px-4 text-[#6f7680] transition-colors hover:border-primary-200 hover:text-primary-300 disabled:cursor-not-allowed disabled:text-[#b3b8bf] disabled:hover:border-[#e1e5e9]"
+                className="h-9 justify-self-end rounded-full border border-[#e1e5e9] px-3 text-[#6f7680] transition-colors hover:border-primary-200 hover:text-primary-300 disabled:cursor-not-allowed disabled:text-[#b3b8bf] disabled:hover:border-[#e1e5e9] sm:h-8 sm:px-4"
                 disabled={currentPage === totalPages}
                 onClick={() => setCurrentPage((page) => Math.min(totalPages, page + 1))}
                 type="button"
@@ -208,7 +222,7 @@ export function HistoryView() {
               </button>
             </nav>
 
-            <label className="flex items-center gap-3 text-[12px] text-[#9aa0a9]">
+            <label className="flex w-full items-center justify-between gap-3 text-[12px] text-[#9aa0a9] sm:w-auto sm:justify-start">
               <span>Tampilkan</span>
               <select
                 aria-label="Jumlah riwayat per halaman"
