@@ -4,11 +4,15 @@ type TeamCardProps = {
   linkedInLabel?: string;
 };
 
+import { LinkedinIcon } from "@/components/ui/LinkedinIcon";
+
 export function TeamCard({
   role,
   name,
-  linkedInLabel = "LinkedIn",
+  linkedInLabel,
 }: TeamCardProps) {
+  const hasLinkedIn = Boolean(linkedInLabel && linkedInLabel.includes("http"));
+
   return (
     <article
       aria-label={`${role}: ${name}`}
@@ -23,9 +27,22 @@ export function TeamCard({
         <h2 className="text-[22px] leading-none font-medium tracking-[-0.035em]">
           {name}
         </h2>
-        <p className="mt-2.5 truncate text-[12px] font-medium tracking-[-0.01em] text-white/85">
-          {linkedInLabel}
-        </p>
+        {hasLinkedIn ? (
+          <a
+            className="mt-3.5 inline-flex h-9 items-center gap-2 rounded-full bg-primary-300 px-4 text-[13px] font-medium text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-primary-400 hover:shadow-[0_8px_16px_rgba(0,110,251,0.24)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-300"
+            href={linkedInLabel}
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            <LinkedinIcon aria-hidden="true" className="h-4 w-4" strokeWidth={2} />
+            <span>LinkedIn</span>
+          </a>
+        ) : (
+          <div className="mt-3.5 inline-flex h-9 items-center gap-2 rounded-full bg-primary-300/50 px-4 text-[13px] font-medium text-white/70">
+            <LinkedinIcon aria-hidden="true" className="h-4 w-4" strokeWidth={2} />
+            <span>LinkedIn</span>
+          </div>
+        )}
       </div>
     </article>
   );
