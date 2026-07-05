@@ -1,21 +1,59 @@
 "use client";
 
+import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { type FormEvent, useState } from "react";
+import { Controller, useForm } from "react-hook-form";
+import { toast } from "sonner";
 
 import { AuthInput } from "@/components/auth/AuthInput";
+import { useLogin } from "@/features/auth/session/client/hooks/UseLogin";
+import {
+  type LoginFormData,
+  type LoginFormInput,
+  type LoginRequest,
+  LoginRequestSchema,
+} from "@/features/auth/session/shared/SessionSchema";
+
+const defaultValues: LoginFormInput = {
+  email: "",
+  password: "",
+};
 
 export function LoginForm() {
   const router = useRouter();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const isComplete = email.trim() !== "" && password !== "";
+  const { login, isPending, error } = useLogin();
+  const {
+    control,
+    formState: { isValid },
+    handleSubmit,
+    setError,
+  } = useForm<LoginFormInput, unknown, LoginFormData>({
+    defaultValues,
+    mode: "onChange",
+    resolver: zodResolver(LoginRequestSchema),
+  });
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    if (!isComplete) return;
-    router.push("/hubungkan-perangkat");
+  async function onSubmit(data: LoginFormData) {
+    const result = await login(data);
+    if (!result) return;
+
+    if (!result.success) {
+      const fieldErrors = Object.entries(result.fieldErrors ?? {}) as [
+        keyof LoginRequest,
+        string[],
+      ][];
+
+      for (const [field, messages] of fieldErrors) {
+        setError(field, { type: "server", message: messages[0] });
+      }
+
+      toast.error(result.message);
+      return;
+    }
+
+    toast.success("Berhasil masuk.");
+    router.replace("/hubungkan-perangkat");
   }
 
   return (
@@ -27,27 +65,48 @@ export function LoginForm() {
         Masuk ke Akun
       </h1>
 
-      <form className="mt-10 space-y-7" onSubmit={handleSubmit}>
-        <AuthInput
-          autoComplete="email"
-          label="Email"
+      <form
+        aria-busy={isPending}
+        className="mt-10 space-y-7"
+        noValidate
+        onSubmit={handleSubmit(onSubmit)}
+      >
+        <Controller
+          control={control}
           name="email"
-          onChange={setEmail}
-          placeholder="Masukkan email"
-          required
-          type="email"
-          value={email}
+          render={({ field, fieldState }) => (
+            <AuthInput
+              autoComplete="email"
+              error={fieldState.error?.message}
+              inputRef={field.ref}
+              label="Email"
+              name={field.name}
+              onBlur={field.onBlur}
+              onChange={field.onChange}
+              placeholder="Masukkan email"
+              type="email"
+              value={field.value}
+            />
+          )}
         />
         <div>
-          <AuthInput
-            autoComplete="current-password"
-            label="Kata sandi"
+          <Controller
+            control={control}
             name="password"
-            onChange={setPassword}
-            placeholder="Masukkan kata sandi"
-            required
-            type="password"
-            value={password}
+            render={({ field, fieldState }) => (
+              <AuthInput
+                autoComplete="current-password"
+                error={fieldState.error?.message}
+                inputRef={field.ref}
+                label="Kata sandi"
+                name={field.name}
+                onBlur={field.onBlur}
+                onChange={field.onChange}
+                placeholder="Masukkan kata sandi"
+                type="password"
+                value={field.value}
+              />
+            )}
           />
           <div className="mt-3 text-right">
             <Link
@@ -59,16 +118,25 @@ export function LoginForm() {
           </div>
         </div>
 
+        {error ? (
+          <p
+            className="rounded-2xl bg-[#FFE8EE] px-4 py-3 text-[12px] font-medium text-[#D72D55]"
+            role="alert"
+          >
+            {error.message}
+          </p>
+        ) : null}
+
         <button
           className={`h-14 w-full rounded-full text-[14px] font-semibold transition-[background-color,transform,box-shadow] duration-200 ${
-            isComplete
+            isValid && !isPending
               ? "bg-primary-300 text-white shadow-[0_10px_24px_rgba(0,110,251,0.16)] hover:bg-primary-400"
               : "cursor-not-allowed bg-[#e4e7eb] text-primary-900/30"
           }`}
-          disabled={!isComplete}
+          disabled={!isValid || isPending}
           type="submit"
         >
-          Masuk
+          {isPending ? "Mencoba masuk..." : "Masuk"}
         </button>
       </form>
 
