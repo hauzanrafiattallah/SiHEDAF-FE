@@ -285,7 +285,7 @@ export function ProfileView() {
               </p>
             ) : null}
             <button
-              className="h-12 w-full rounded-full bg-primary-300 text-[13px] font-medium text-white transition-colors hover:bg-primary-400 disabled:cursor-not-allowed disabled:bg-[#dfe3e7]"
+              className="h-12 w-full rounded-full bg-primary-300 text-[13px] font-medium text-white transition-colors hover:bg-primary-400 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-primary-300"
               disabled={!isValid || isPasswordPending}
               type="submit"
             >
