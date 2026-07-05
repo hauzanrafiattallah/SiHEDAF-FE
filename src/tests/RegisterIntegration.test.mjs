@@ -19,6 +19,7 @@ test("register UI uses the hook, shared validation, toast, and accessible errors
   assert.match(form, /RegisterRequestSchema\.parse\(data\)/);
   assert.match(form, /toast\.success/);
   assert.match(form, /toast\.error/);
+  assert.doesNotMatch(form, /description: result\.message/);
   assert.match(form, /router\.replace\("\/login"\)/);
   assert.match(form, /Mendaftarkan\.\.\./);
   assert.match(input, /aria-invalid/);

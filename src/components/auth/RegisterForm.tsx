@@ -56,9 +56,7 @@ export function RegisterForm() {
       return;
     }
 
-    toast.success("Akun berhasil dibuat. Silakan masuk.", {
-      description: result.message,
-    });
+    toast.success("Akun berhasil dibuat. Silakan masuk.");
     router.replace("/login");
   }
 
