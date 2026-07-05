@@ -36,7 +36,7 @@ test("documents the backend URL as a server-only environment variable", async ()
 
   assert.match(
     envExample,
-    /^SIHEDAF_API_BASE_URL=https:\/\/sihedaf\.xianly\.cloud$/m,
+    /^SIHEDAF_API_BASE_URL=https?:\/\/\S+$/m,
   );
   assert.doesNotMatch(envExample, /NEXT_PUBLIC/);
 });

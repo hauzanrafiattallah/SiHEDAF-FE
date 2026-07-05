@@ -1,5 +1,10 @@
 import { z } from "zod";
 
+import {
+  BackendConfigurationError,
+  buildBackendApiUrl,
+} from "@/features/auth/shared/server/BackendUrl";
+
 import type { RegisterRequest } from "../../shared/RegisterSchema";
 
 const BACKEND_UNAVAILABLE =
@@ -40,25 +45,27 @@ export async function registerUser(
   input: RegisterRequest,
   options: RegisterServiceOptions = {},
 ): Promise<{ message: string }> {
-  const baseUrl = options.baseUrl ?? process.env.SIHEDAF_API_BASE_URL;
-  if (!baseUrl) {
-    throw new RegisterServiceError(BACKEND_UNAVAILABLE, 500);
-  }
-
   const fetcher = options.fetcher ?? fetch;
   let response: Response;
+  let url: string;
 
   try {
-    response = await fetcher(
-      baseUrl.replace(/\/+$/, "") + "/api/v1/auth/register",
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(input),
-        cache: "no-store",
-        signal: options.signal ?? AbortSignal.timeout(10_000),
-      },
-    );
+    url = buildBackendApiUrl("auth/register", options.baseUrl);
+  } catch (error) {
+    if (error instanceof BackendConfigurationError) {
+      throw new RegisterServiceError(BACKEND_UNAVAILABLE, 500);
+    }
+    throw error;
+  }
+
+  try {
+    response = await fetcher(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(input),
+      cache: "no-store",
+      signal: options.signal ?? AbortSignal.timeout(10_000),
+    });
   } catch {
     throw new RegisterServiceError(BACKEND_UNAVAILABLE, 502);
   }
