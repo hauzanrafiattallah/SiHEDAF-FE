@@ -127,7 +127,7 @@ export function HistoryView() {
               <thead>
                 <tr className="border-b border-[#edf0f3] text-[12px] font-medium text-[#6e7580]">
                   <th className="w-[38%] px-6 pb-3 font-medium">Waktu Analisis</th>
-                  <th className="w-[34%] px-4 pb-3 font-medium">Hasil Klasifikasi ↕</th>
+                  <th className="w-[34%] px-4 pb-3 font-medium">Hasil Klasifikasi</th>
                   <th className="w-[28%] px-6 pb-3 font-medium">Detail Hasil</th>
                 </tr>
               </thead>
