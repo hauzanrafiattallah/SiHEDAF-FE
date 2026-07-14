@@ -9,13 +9,17 @@ import { useProfile } from "@/features/profile/client/ProfileProvider";
 import { DashboardIcon } from "@/components/dashboard/DashboardIcon";
 import { SignalChart } from "@/components/dashboard/SignalChart";
 import { StatusMark } from "@/components/dashboard/StatusMark";
+import { formatDistanceToNow } from "date-fns";
+import { id as localeId } from "date-fns/locale";
 
 export function DashboardOverview() {
   const { user } = useProfile();
-  const [isMonitoringActive, setIsMonitoringActive] = useState(true);
+  const [isMonitoringActive, setIsMonitoringActive] = useState(false);
   const [monitoringRange, setMonitoringRange] = useState("12");
+  const [isTogglingAction, setIsTogglingAction] = useState(false);
   
   const [deviceData, setDeviceData] = useState<any>(null);
+  const [latestData, setLatestData] = useState<any>(null);
 
   useEffect(() => {
     async function fetchDevice() {
@@ -29,8 +33,42 @@ export function DashboardOverview() {
         console.error("Gagal memuat status perangkat:", e);
       }
     }
+    async function fetchLatest() {
+      try {
+        const res = await fetch("/api/v1/measurement/latest");
+        const json = await res.json();
+        if (json.code === 200 && json.data) {
+          setLatestData(json.data);
+          // If there is an IN_PROGRESS measurement, we might set isMonitoringActive(true)
+          if (json.data.status === "IN_PROGRESS") {
+            setIsMonitoringActive(true);
+          }
+        }
+      } catch (e) {
+        console.error("Gagal memuat data terakhir:", e);
+      }
+    }
     fetchDevice();
+    fetchLatest();
   }, []);
+
+  async function handleToggleMonitoring() {
+    setIsTogglingAction(true);
+    try {
+      const endpoint = isMonitoringActive ? "/api/v1/measurement/stop" : "/api/v1/measurement/start";
+      const res = await fetch(endpoint, { method: "POST" });
+      const json = await res.json();
+      if (json.code === 200) {
+        setIsMonitoringActive(!isMonitoringActive);
+      } else {
+        alert(json.message || "Gagal mengubah status monitoring");
+      }
+    } catch (e) {
+      alert("Terjadi kesalahan saat mengubah status monitoring");
+    } finally {
+      setIsTogglingAction(false);
+    }
+  }
 
   const firstName = user?.fullname ? user.fullname.split(" ")[0] : "Pengguna";
 
@@ -48,19 +86,21 @@ export function DashboardOverview() {
 
           <article className="mt-6 flex min-h-[184px] items-center gap-9 rounded-[24px] bg-[linear-gradient(105deg,#f5fbff_0%,#e0eeff_100%)] px-7 py-7 sm:px-11">
             <div className="ml-2 grid h-[110px] w-[110px] shrink-0 place-items-center rounded-full border border-primary-200/60 bg-white/45 sm:ml-4">
-              <StatusMark size="large" status="normal" />
+              <StatusMark size="large" status={latestData?.resultLabel?.toLowerCase().includes("normal") ? "normal" : (latestData ? "af" : "normal")} />
             </div>
             <div className="min-w-0">
               <p className="text-[13px] font-medium text-primary-300">Hasil Analisis Terakhir</p>
-              <h2 className="mt-3 text-[18px] font-semibold text-[#161b20]">Normal Rhythm</h2>
+              <h2 className="mt-3 text-[18px] font-semibold text-[#161b20]">
+                {latestData ? (latestData.resultLabel?.toLowerCase().includes("normal") ? "Normal Rhythm" : "Terdeteksi AF") : "Belum ada data"}
+              </h2>
               <p className="mt-1.5 text-[14px] text-[#343b43]">
-                Tidak ditemukan pola AF pada analisis terakhir
+                {latestData ? (latestData.resultLabel?.toLowerCase().includes("normal") ? "Tidak ditemukan pola AF pada analisis terakhir" : "Pola AF teridentifikasi pada analisis terakhir") : "Silakan mulai monitoring"}
               </p>
               <p className="mt-5 flex items-center gap-2.5 text-[12px] text-[#8e949d]">
                 <span className="grid h-4 w-4 place-items-center rounded-full border border-[#a7afb8]">
                   <span className="h-1.5 w-px bg-[#929aa4]" />
                 </span>
-                Diperbarui 3 menit yang lalu
+                {latestData?.updatedAt ? `Diperbarui ${formatDistanceToNow(new Date(latestData.updatedAt), { locale: localeId, addSuffix: true })}` : "-"}
               </p>
             </div>
           </article>
@@ -113,15 +153,18 @@ export function DashboardOverview() {
                 </label>
                 <button
                   aria-pressed={isMonitoringActive}
-                  className={`flex h-10 items-center gap-2 rounded-full border px-5 text-[12px] font-medium transition-[color,background-color,border-color,box-shadow,transform] duration-200 active:scale-[0.98] ${
+                  disabled={isTogglingAction || !deviceData || deviceData?.status !== "ONLINE"}
+                  className={`flex h-10 items-center gap-2 rounded-full border px-5 text-[12px] font-medium transition-[color,background-color,border-color,box-shadow,transform] duration-200 active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed ${
                     isMonitoringActive
                       ? "border-primary-300 bg-white text-primary-300 hover:bg-primary-50"
                       : "border-primary-300 bg-primary-300 text-white shadow-[0_8px_20px_rgba(0,110,251,0.2)] hover:bg-primary-400"
                   }`}
-                  onClick={() => setIsMonitoringActive((current) => !current)}
+                  onClick={handleToggleMonitoring}
                   type="button"
                 >
-                  {isMonitoringActive ? (
+                  {isTogglingAction ? (
+                    <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                  ) : isMonitoringActive ? (
                     <Pause aria-hidden="true" size={16} strokeWidth={2} />
                   ) : (
                     <Play aria-hidden="true" fill="currentColor" size={16} strokeWidth={2} />
@@ -130,27 +173,28 @@ export function DashboardOverview() {
                 </button>
               </div>
             </div>
-            <SignalChart isActive={isMonitoringActive} />
+            <SignalChart isActive={isMonitoringActive} data={latestData?.ppgResult?.rawPpgData} />
           </article>
 
           <div className="mt-6 grid gap-6 lg:grid-cols-2">
             <article className="rounded-[24px] border border-[#edf0f3] bg-white px-6 py-6">
               <h2 className="text-[16px] font-semibold">Monitoring Terakhir</h2>
               <div className="mt-4 divide-y divide-[#edf0f3]">
-                <div className="flex items-center gap-3 pb-3">
-                  <StatusMark size="small" status="af" />
-                  <div>
-                    <p className="text-[12px] text-[#9b9fa7]">2 Juni 2026&nbsp; • &nbsp;12:45 WIB</p>
-                    <p className="mt-1 text-[13px] font-medium text-[#ff4572]">Terdeteksi AF</p>
+                {latestData ? (
+                  <div className="flex items-center gap-3 py-3">
+                    <StatusMark size="small" status={latestData.resultLabel?.toLowerCase().includes("normal") ? "normal" : "af"} />
+                    <div>
+                      <p className="text-[12px] text-[#9b9fa7]">
+                        {new Intl.DateTimeFormat("id-ID", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" }).format(new Date(latestData.createdAt))} WIB
+                      </p>
+                      <p className={`mt-1 text-[13px] font-medium ${latestData.resultLabel?.toLowerCase().includes("normal") ? "text-[#43b957]" : "text-[#ff4572]"}`}>
+                        {latestData.resultLabel?.toLowerCase().includes("normal") ? "Normal Rythm" : "Terdeteksi AF"}
+                      </p>
+                    </div>
                   </div>
-                </div>
-                <div className="flex items-center gap-3 py-3">
-                  <StatusMark size="small" status="normal" />
-                  <div>
-                    <p className="text-[12px] text-[#9b9fa7]">2 Juni 2026&nbsp; • &nbsp;09:45 WIB</p>
-                    <p className="mt-1 text-[13px] font-medium text-[#43b957]">Normal Rythm</p>
-                  </div>
-                </div>
+                ) : (
+                  <p className="py-6 text-center text-[12px] text-[#9b9fa7]">Belum ada riwayat terbaru.</p>
+                )}
               </div>
               <Link
                 className="mt-5 flex h-10 items-center justify-center rounded-full border border-primary-300 text-[12px] font-medium text-primary-300 transition-colors hover:bg-primary-50"
