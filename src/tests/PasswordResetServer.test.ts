@@ -91,6 +91,21 @@ test("verifies a URL-encoded reset token", async () => {
   assert.deepEqual(result, { message: "Tautan reset kata sandi valid." });
 });
 
+test("accepts the backend direct reset redirect as a valid token", async () => {
+  const result = await verifyResetPasswordToken(token, {
+    baseUrl,
+    fetcher: async () =>
+      new Response(null, {
+        status: 302,
+        headers: {
+          location: `https://si-hedaf-fe.vercel.app/reset-password?token=${encodeURIComponent(token)}`,
+        },
+      }),
+  });
+
+  assert.deepEqual(result, { message: "Tautan reset kata sandi valid." });
+});
+
 test("resets password with body and bearer token", async () => {
   const input = {
     new_password: "User!12345",

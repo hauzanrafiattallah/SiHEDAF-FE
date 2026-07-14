@@ -57,6 +57,16 @@ function createUrl(path: string, baseUrl?: string) {
   }
 }
 
+function isSuccessfulResetRedirect(location: string, token: string) {
+  if (location.includes("verify=success")) return true;
+
+  const redirectUrl = new URL(location, "http://localhost");
+  return (
+    redirectUrl.pathname === "/reset-password" &&
+    redirectUrl.searchParams.get("token") === token
+  );
+}
+
 async function performRequest(
   url: string,
   init: RequestInit,
@@ -134,12 +144,11 @@ export async function verifyResetPasswordToken(
     options,
   );
 
-  // BE returns 3xx redirect for both success and failure:
-  //   success → Location: FE_URL/#/reset-password?verify=success&token=...
-  //   failure → Location: FE_URL/#/reset-password?verify=failed&message=...
+  // BE returns 3xx redirect for both success and failure. Support the legacy
+  // hash redirect and the newer direct FE reset route while the BE settles.
   if (response.status >= 300 && response.status < 400) {
     const location = response.headers.get("location") ?? "";
-    if (location.includes("verify=success")) {
+    if (isSuccessfulResetRedirect(location, token)) {
       return { message: "Tautan reset kata sandi valid." };
     }
     throw new PasswordResetServiceError(INVALID_RESET_TOKEN, 400);
