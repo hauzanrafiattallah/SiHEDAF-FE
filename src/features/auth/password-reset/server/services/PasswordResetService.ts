@@ -124,12 +124,28 @@ export async function verifyResetPasswordToken(
     `auth/verify-reset-password/${encodeURIComponent(token)}`,
     options.baseUrl,
   );
+
+  // The BE verify endpoint returns a 302 redirect, not JSON.
+  // Use redirect: "manual" so fetch does not follow it, then
+  // inspect the Location header to determine success/failure.
   const response = await performRequest(
     url,
-    { method: "GET" },
+    { method: "GET", redirect: "manual" },
     options,
   );
 
+  // BE returns 3xx redirect for both success and failure:
+  //   success → Location: FE_URL/#/reset-password?verify=success&token=...
+  //   failure → Location: FE_URL/#/reset-password?verify=failed&message=...
+  if (response.status >= 300 && response.status < 400) {
+    const location = response.headers.get("location") ?? "";
+    if (location.includes("verify=success")) {
+      return { message: "Tautan reset kata sandi valid." };
+    }
+    throw new PasswordResetServiceError(INVALID_RESET_TOKEN, 400);
+  }
+
+  // Fallback: if BE returns a non-redirect response (JSON)
   if (invalidTokenStatuses.has(response.status)) {
     throw new PasswordResetServiceError(INVALID_RESET_TOKEN, 400);
   }
