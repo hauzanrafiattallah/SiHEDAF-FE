@@ -5,6 +5,7 @@ export type AuthFieldErrors = Partial<
 export type AuthSuccess = {
   success: true;
   message: string;
+  hasDeviceBound?: boolean;
 };
 
 export type AuthFailure = {

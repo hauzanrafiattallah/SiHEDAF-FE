@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { DateRange } from "@daypicker/react";
+import { format } from "date-fns";
 
 import { DateRangePicker } from "@/components/dashboard/DateRangePicker";
 import { Sparkline } from "@/components/dashboard/Sparkline";
@@ -10,76 +11,70 @@ import { ScrollArea } from "@/components/ui/ScrollArea";
 
 type HistoryStatus = "af" | "normal";
 
-type HistoryRow = {
-  date: Date;
-  id: number;
-  status: HistoryStatus;
-  time: string;
-  tone: "blue" | "pink";
-};
-
-const times = [
-  "06:45 WIB",
-  "07:18 WIB",
-  "08:02 WIB",
-  "08:42 WIB",
-  "09:12 WIB",
-  "09:39 WIB",
-  "09:42 WIB",
-  "10:15 WIB",
-  "11:08 WIB",
-  "12:45 WIB",
-];
-
-const historyRows: HistoryRow[] = Array.from({ length: 20 }, (_, index) => {
-  const status: HistoryStatus = index % 4 === 1 ? "af" : "normal";
-
-  return {
-    date: new Date(2026, 5, index < 10 ? 1 : 2),
-    id: index + 1,
-    status,
-    time: times[index % times.length],
-    tone: status === "normal" ? "blue" : "pink",
-  };
-});
-
-const dateFormatter = new Intl.DateTimeFormat("id-ID", {
-  day: "numeric",
-  month: "long",
-  year: "numeric",
-});
-
-function isDateInRange(date: Date, range: DateRange) {
-  if (!range.from) return true;
-
-  const start = new Date(range.from);
-  start.setHours(0, 0, 0, 0);
-  const end = new Date(range.to ?? range.from);
-  end.setHours(23, 59, 59, 999);
-
-  return date >= start && date <= end;
-}
-
 export function HistoryView() {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(5);
-  const [dateRange, setDateRange] = useState<DateRange>({
-    from: new Date(2026, 5, 1),
-    to: new Date(2026, 5, 2),
+  const [dateRange, setDateRange] = useState<DateRange | undefined>({
+    from: new Date(),
+    to: new Date(),
   });
+  
+  const [historyData, setHistoryData] = useState<any[]>([]);
+  const [totalPages, setTotalPages] = useState(1);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  
+  const [summaries, setSummaries] = useState([
+    { label: "Total jumlah monitoring", value: 0 },
+    { label: "Terdeteksi AF", value: 0 },
+    { label: "Ritme Normal", value: 0 },
+  ]);
 
-  const filteredRows = historyRows.filter((row) => isDateInRange(row.date, dateRange));
-  const totalPages = Math.max(1, Math.ceil(filteredRows.length / itemsPerPage));
-  const pageStart = (currentPage - 1) * itemsPerPage;
-  const visibleRows = filteredRows.slice(pageStart, pageStart + itemsPerPage);
-  const afCount = filteredRows.filter((row) => row.status === "af").length;
-  const summaries = [
-    { label: "Total jumlah monitoring", value: filteredRows.length },
-    { label: "Terdeteksi AF", value: afCount },
-    { label: "Ritme Normal", value: filteredRows.length - afCount },
-  ];
+  useEffect(() => {
+    async function fetchHistory() {
+      setIsLoading(true);
+      setError(null);
+      try {
+        const params = new URLSearchParams({
+          page: currentPage.toString(),
+          limit: itemsPerPage.toString(),
+        });
+        
+        if (dateRange?.from) {
+          // Add hours to avoid timezone offset issue
+          const fromDate = new Date(dateRange.from.getTime() - dateRange.from.getTimezoneOffset() * 60000);
+          params.append("startDate", fromDate.toISOString().split("T")[0]);
+        }
+        if (dateRange?.to) {
+          const toDate = new Date(dateRange.to.getTime() - dateRange.to.getTimezoneOffset() * 60000);
+          params.append("endDate", toDate.toISOString().split("T")[0]);
+        }
 
-  function handleRangeChange(range: DateRange) {
+        const res = await fetch(`/api/v1/measurement/history?${params.toString()}`);
+        if (!res.ok) throw new Error("Gagal mengambil data");
+        const json = await res.json();
+        
+        if (json.code === 200 && json.data) {
+          setHistoryData(json.data.data || []);
+          setTotalPages(json.data.metadata?.totalPages || 1);
+          setSummaries([
+            { label: "Total jumlah monitoring", value: json.data.summary?.totalData || 0 },
+            { label: "Terdeteksi AF", value: json.data.summary?.totalAfib || 0 },
+            { label: "Ritme Normal", value: json.data.summary?.totalNormal || 0 },
+          ]);
+        }
+      } catch (err: any) {
+        setError(err.message || "Terjadi kesalahan");
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    
+    // Slight debounce or just direct call
+    fetchHistory();
+  }, [currentPage, itemsPerPage, dateRange]);
+
+  function handleRangeChange(range: DateRange | undefined) {
     setDateRange(range);
     setCurrentPage(1);
   }
@@ -88,6 +83,12 @@ export function HistoryView() {
     setItemsPerPage(value);
     setCurrentPage(1);
   }
+
+  const dateFormatter = new Intl.DateTimeFormat("id-ID", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
 
   return (
     <section className="px-4 py-7 sm:px-7 lg:px-9 lg:py-9">
@@ -99,7 +100,7 @@ export function HistoryView() {
               Lihat semua riwayat analisis dan hasil monitoring perangkat SiHEDAF kamu
             </p>
           </div>
-          <DateRangePicker onChange={handleRangeChange} value={dateRange} />
+          <DateRangePicker onChange={handleRangeChange} value={dateRange as DateRange} />
         </div>
 
         <div className="mt-7 grid gap-5 sm:grid-cols-3">
@@ -131,43 +132,61 @@ export function HistoryView() {
                 </tr>
               </thead>
               <tbody>
-                {visibleRows.map((row) => {
-                  const isNormal = row.status === "normal";
+                {isLoading ? (
+                  <tr>
+                    <td colSpan={3} className="px-6 py-12 text-center text-[13px] text-[#9298a1]">
+                      Memuat riwayat...
+                    </td>
+                  </tr>
+                ) : error ? (
+                  <tr>
+                    <td colSpan={3} className="px-6 py-12 text-center text-[13px] text-red-500">
+                      {error}
+                    </td>
+                  </tr>
+                ) : (
+                  historyData.map((row) => {
+                    const isNormal = row.resultLabel?.toLowerCase().includes("normal");
+                    const statusVal = isNormal ? "normal" : "af";
+                    const tone = isNormal ? "blue" : "pink";
+                    const reqDate = new Date(row.requestedAt);
+                    const timeStr = reqDate.toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" }) + " WIB";
 
-                  return (
-                    <tr
-                      className="stagger-item border-b border-[#f0f2f4] last:border-b-0"
-                      key={row.id}
-                    >
-                      <td className="px-6 py-4 text-[12px] text-[#989da5]">
-                        {dateFormatter.format(row.date)}&nbsp; • &nbsp;{row.time}
-                      </td>
-                      <td className="px-4 py-2.5">
-                        <div className="flex items-center gap-3">
-                          <StatusMark size="small" status={row.status} />
-                          <div>
-                            <p
-                              className={`text-[12px] font-medium ${
-                                isNormal ? "text-[#43b956]" : "text-[#ff4572]"
-                              }`}
-                            >
-                              {isNormal ? "Normal Rythm" : "Terdeteksi AF"}
-                            </p>
-                            <p className="mt-1 text-[12px] text-[#a1a6ae]">
-                              {isNormal ? "Tidak ditemukan pola AF" : "Pola AF teridentifikasi"}
-                            </p>
+                    return (
+                      <tr
+                        className="stagger-item border-b border-[#f0f2f4] last:border-b-0"
+                        key={row.id}
+                      >
+                        <td className="px-6 py-4 text-[12px] text-[#989da5]">
+                          {dateFormatter.format(reqDate)}&nbsp; • &nbsp;{timeStr}
+                        </td>
+                        <td className="px-4 py-2.5">
+                          <div className="flex items-center gap-3">
+                            <StatusMark size="small" status={statusVal} />
+                            <div>
+                              <p
+                                className={`text-[12px] font-medium ${
+                                  isNormal ? "text-[#43b956]" : "text-[#ff4572]"
+                                }`}
+                              >
+                                {isNormal ? "Normal Rythm" : "Terdeteksi AF"}
+                              </p>
+                              <p className="mt-1 text-[12px] text-[#a1a6ae]">
+                                {isNormal ? "Tidak ditemukan pola AF" : "Pola AF teridentifikasi"}
+                              </p>
+                            </div>
                           </div>
-                        </div>
-                      </td>
-                      <td className="px-6 py-2.5">
-                        <Sparkline tone={row.tone} />
-                      </td>
-                    </tr>
-                  );
-                })}
+                        </td>
+                        <td className="px-6 py-2.5">
+                          <Sparkline tone={tone} data={row.ppgResult?.rawPpgData} />
+                        </td>
+                      </tr>
+                    );
+                  })
+                )}
               </tbody>
             </table>
-            {visibleRows.length === 0 ? (
+            {!isLoading && !error && historyData.length === 0 ? (
               <p className="px-6 py-12 text-center text-[13px] text-[#9298a1]">
                 Tidak ada riwayat pada rentang tanggal ini.
               </p>

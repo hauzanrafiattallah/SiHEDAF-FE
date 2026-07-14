@@ -8,6 +8,7 @@ import {
 import { loginUser } from "@/features/auth/session/server/services/LoginService";
 import { LoginRequestSchema } from "@/features/auth/session/shared/SessionSchema";
 import type { AuthResponse } from "@/features/auth/session/shared/SessionTypes";
+import { checkDeviceBound } from "@/features/device/server/services/DeviceService";
 
 function json(body: AuthResponse, status: number) {
   return Response.json(body, { status });
@@ -42,7 +43,9 @@ export async function POST(request: Request) {
     const cookieStore = await cookies();
     writeSessionCookies(cookieStore, tokens);
 
-    return json({ success: true, message: "Berhasil masuk." }, 200);
+    const hasDeviceBound = await checkDeviceBound(tokens.accessToken);
+
+    return json({ success: true, message: "Berhasil masuk.", hasDeviceBound }, 200);
   } catch (error) {
     if (error instanceof SessionServiceError) {
       return json({ success: false, message: error.message }, error.status);

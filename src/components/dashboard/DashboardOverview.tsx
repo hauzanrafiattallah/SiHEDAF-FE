@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Pause, Play } from "lucide-react";
@@ -14,6 +14,23 @@ export function DashboardOverview() {
   const { user } = useProfile();
   const [isMonitoringActive, setIsMonitoringActive] = useState(true);
   const [monitoringRange, setMonitoringRange] = useState("12");
+  
+  const [deviceData, setDeviceData] = useState<any>(null);
+
+  useEffect(() => {
+    async function fetchDevice() {
+      try {
+        const res = await fetch("/api/v1/measurement/my-device");
+        const json = await res.json();
+        if (json.code === 200 && json.data) {
+          setDeviceData(json.data);
+        }
+      } catch (e) {
+        console.error("Gagal memuat status perangkat:", e);
+      }
+    }
+    fetchDevice();
+  }, []);
 
   const firstName = user?.fullname ? user.fullname.split(" ")[0] : "Pengguna";
 
@@ -154,19 +171,27 @@ export function DashboardOverview() {
                   width={63}
                 />
                 <div className="min-w-0 flex-1">
-                  <p className="flex items-center gap-2 text-[12px] text-[#4abb59]">
-                    <span className="h-3 w-3 rounded-full bg-[#45bb59]" />
-                    Terhubung
+                  <p className={`flex items-center gap-2 text-[12px] ${deviceData?.status === "ONLINE" ? "text-[#4abb59]" : "text-[#9ca2aa]"}`}>
+                    <span className={`h-3 w-3 rounded-full ${deviceData?.status === "ONLINE" ? "bg-[#45bb59]" : "bg-[#9ca2aa]"}`} />
+                    {deviceData?.status === "ONLINE" ? "Terhubung" : (deviceData ? "Terputus" : "Memuat...")}
                   </p>
                   <h3 className="mt-2 text-[16px] font-semibold">SiHEDAF Wristband</h3>
                   <dl className="mt-5 grid grid-cols-2 gap-x-4 gap-y-3">
                     <div>
                       <dt className="text-[12px] text-[#9ca2aa]">Device ID</dt>
-                      <dd className="mt-1 text-[12px] font-semibold">PPG001</dd>
+                      <dd className="mt-1 text-[12px] font-semibold">{deviceData?.deviceNumber || "-"}</dd>
                     </div>
                     <div>
                       <dt className="text-[12px] text-[#9ca2aa]">Waktu Sinkronisasi</dt>
-                      <dd className="mt-1 whitespace-nowrap text-[12px] font-semibold">20 Mei 2026, 14:00</dd>
+                      <dd className="mt-1 whitespace-nowrap text-[12px] font-semibold">
+                        {deviceData?.lastSeen ? new Intl.DateTimeFormat("id-ID", {
+                          day: "numeric",
+                          month: "short",
+                          year: "numeric",
+                          hour: "2-digit",
+                          minute: "2-digit"
+                        }).format(new Date(deviceData.lastSeen)) : "-"}
+                      </dd>
                     </div>
                     <div className="col-span-2 flex items-center justify-between">
                       <div>
