@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 
+import { HashRouteRedirect } from "@/components/auth/HashRouteRedirect";
 import { AppToaster } from "@/components/ui/AppToaster";
 
 import "./globals.css";
@@ -27,6 +28,7 @@ export default function RootLayout({
     <html lang="id" className={`${switzer.variable} h-full antialiased`} suppressHydrationWarning>
       <body className="min-h-full flex flex-col" suppressHydrationWarning>
         {children}
+        <HashRouteRedirect />
         <AppToaster />
       </body>
     </html>
