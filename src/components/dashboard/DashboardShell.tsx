@@ -27,6 +27,7 @@ export function DashboardShell({ children, initialUser }: DashboardShellProps) {
   const pathname = usePathname();
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
+  const [hasUnread, setHasUnread] = useState(false);
   
   // null = use CSS responsive defaults, true = user forced open, false = user forced closed
   const [notifState, setNotifState] = useState<boolean | null>(null);
@@ -93,6 +94,7 @@ export function DashboardShell({ children, initialUser }: DashboardShellProps) {
             <DashboardTopbar
               showNotificationLink={!isDashboardRoute}
               title={routeTitles[pathname] ?? "Dashboard"}
+              hasUnread={hasUnread}
             />
           </header>
 
@@ -108,6 +110,9 @@ export function DashboardShell({ children, initialUser }: DashboardShellProps) {
                 type="button"
               >
                 <PanelRightOpen aria-hidden="true" size={19} strokeWidth={1.7} />
+                {hasUnread && (
+                  <span className="absolute right-[9px] top-[9px] h-2 w-2 rounded-full bg-primary-300 ring-2 ring-white"></span>
+                )}
               </button>
             ) : null}
 
@@ -135,7 +140,7 @@ export function DashboardShell({ children, initialUser }: DashboardShellProps) {
                     isNotifOpenDesktop ? "xl:w-[320px] xl:opacity-100 xl:visible" : "xl:w-0 xl:opacity-0 xl:invisible"
                   }`}
                 >
-                  <NotificationPanel onClose={() => setNotifState(false)} />
+                  <NotificationPanel onClose={() => setNotifState(false)} onUnreadChange={setHasUnread} />
                 </div>
               </>
             ) : null}

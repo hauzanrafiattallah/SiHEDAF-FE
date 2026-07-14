@@ -13,6 +13,7 @@ import { useProfile } from "@/features/profile/client/ProfileProvider";
 type DashboardTopbarProps = {
   showNotificationLink: boolean;
   title: string;
+  hasUnread?: boolean;
 };
 
 const notificationButtonClassName =
@@ -21,6 +22,7 @@ const notificationButtonClassName =
 export function DashboardTopbar({
   showNotificationLink,
   title,
+  hasUnread = false,
 }: DashboardTopbarProps) {
   const { user } = useProfile();
   const fullname = user?.fullname ?? "Akun";
@@ -33,10 +35,13 @@ export function DashboardTopbar({
         {showNotificationLink ? (
           <Link
             aria-label="Buka notifikasi di dashboard"
-            className={notificationButtonClassName}
+            className={`${notificationButtonClassName} relative`}
             href="/dashboard"
           >
             <Bell aria-hidden="true" size={19} strokeWidth={1.7} />
+            {hasUnread && (
+              <span className="absolute right-[9px] top-[9px] h-2 w-2 rounded-full bg-primary-300 ring-2 ring-white"></span>
+            )}
           </Link>
         ) : null}
         <Link
