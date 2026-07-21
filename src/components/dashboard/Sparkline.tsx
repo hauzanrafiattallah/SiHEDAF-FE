@@ -7,9 +7,12 @@ export function Sparkline({ tone = "blue", data }: SparklineProps) {
   let d = "M1 18h6l3-7 4 14 4-9 4 3h8l3-4 3 5h5l3-12 5 18 4-9 4 3h9l3-6 4 7 5-2 4-12 5 20 4-10 4 3h8l4-7 4 8 5-2 4-12 5 20 5-11 4 4h7l4-8 5 8 4-2 4-11 5 18 4-8 4 3h8";
 
   if (data && data.length > 0) {
-    // downsample or draw directly (since max width is 190)
-    const maxVal = Math.max(...data);
-    const minVal = Math.min(...data);
+    let maxVal = -Infinity;
+    let minVal = Infinity;
+    for (let i = 0; i < data.length; i++) {
+      if (data[i] > maxVal) maxVal = data[i];
+      if (data[i] < minVal) minVal = data[i];
+    }
     const range = maxVal - minVal || 1; // avoid division by zero
     
     // Map X from 0 to 190

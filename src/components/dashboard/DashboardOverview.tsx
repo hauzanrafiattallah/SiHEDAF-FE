@@ -65,8 +65,21 @@ export function DashboardOverview() {
         console.error("Gagal memuat data sinyal:", e);
       }
     }
+    
+    // Ambil data pertama kali
     fetchSignals();
-  }, [monitoringRange]);
+
+    // Jika monitoring aktif, lakukan polling setiap 3 detik
+    let intervalId: NodeJS.Timeout;
+    if (isMonitoringActive) {
+      intervalId = setInterval(fetchSignals, 3000);
+    }
+
+    // Bersihkan interval ketika komponen unmount atau dependency berubah
+    return () => {
+      if (intervalId) clearInterval(intervalId);
+    };
+  }, [monitoringRange, isMonitoringActive]);
 
   async function handleToggleMonitoring() {
     setIsTogglingAction(true);
