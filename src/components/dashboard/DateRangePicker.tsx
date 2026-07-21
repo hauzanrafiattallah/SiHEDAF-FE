@@ -6,8 +6,8 @@ import { id } from "@daypicker/react/locale";
 import { CalendarDays } from "lucide-react";
 
 type DateRangePickerProps = Readonly<{
-  onChange: (range: DateRange) => void;
-  value: DateRange;
+  onChange: (range: DateRange | undefined) => void;
+  value: DateRange | undefined;
 }>;
 
 const dateFormatter = new Intl.DateTimeFormat("id-ID", {
@@ -16,8 +16,8 @@ const dateFormatter = new Intl.DateTimeFormat("id-ID", {
   year: "numeric",
 });
 
-function formatRange(range: DateRange) {
-  if (!range.from) return "Pilih rentang tanggal";
+function formatRange(range: DateRange | undefined) {
+  if (!range || !range.from) return "Pilih rentang tanggal";
   if (!range.to) return dateFormatter.format(range.from);
   return `${dateFormatter.format(range.from)} - ${dateFormatter.format(range.to)}`;
 }
@@ -87,10 +87,14 @@ export function DateRangePicker({ onChange, value }: DateRangePickerProps) {
           <div className="mt-3 grid grid-cols-2 gap-2 border-t border-[#edf0f3] pt-4">
             <button
               className="h-10 rounded-full border border-[#dfe4e8] text-[12px] text-[#707781] transition-colors hover:bg-[#f6f8fa]"
-              onClick={() => setIsOpen(false)}
+              onClick={() => {
+                setDraftRange(undefined);
+                onChange(undefined);
+                setIsOpen(false);
+              }}
               type="button"
             >
-              Batal
+              Reset Filter
             </button>
             <button
               className="h-10 rounded-full bg-primary-300 text-[12px] font-medium text-white transition-colors hover:bg-primary-400 disabled:cursor-not-allowed disabled:bg-[#dfe3e7]"

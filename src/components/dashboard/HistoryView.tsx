@@ -14,10 +14,7 @@ type HistoryStatus = "af" | "normal";
 export function HistoryView() {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(5);
-  const [dateRange, setDateRange] = useState<DateRange | undefined>({
-    from: new Date(),
-    to: new Date(),
-  });
+  const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
   
   const [historyData, setHistoryData] = useState<any[]>([]);
   const [totalPages, setTotalPages] = useState(1);
@@ -100,7 +97,7 @@ export function HistoryView() {
               Lihat semua riwayat analisis dan hasil monitoring perangkat SiHEDAF kamu
             </p>
           </div>
-          <DateRangePicker onChange={handleRangeChange} value={dateRange as DateRange} />
+          <DateRangePicker onChange={handleRangeChange} value={dateRange} />
         </div>
 
         <div className="mt-7 grid gap-5 sm:grid-cols-3">
