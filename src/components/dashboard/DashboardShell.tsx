@@ -69,7 +69,12 @@ export function DashboardShell({ children, initialUser }: DashboardShellProps) {
               aria-expanded={isMobileOpen}
               aria-label={isMobileOpen ? "Sembunyikan sidebar" : "Tampilkan sidebar"}
               className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-[#e0e4e8] bg-white text-[#303740] transition-[color,background-color,transform] duration-200 hover:bg-primary-50 hover:text-primary-400 active:scale-95 focus-visible:outline-2 focus-visible:outline-primary-300 lg:hidden"
-              onClick={() => setIsMobileOpen((current) => !current)}
+              onClick={() => {
+                if (!isMobileOpen) {
+                  setNotifState(false);
+                }
+                setIsMobileOpen(!isMobileOpen);
+              }}
               type="button"
             >
               {isMobileOpen ? (
@@ -102,10 +107,17 @@ export function DashboardShell({ children, initialUser }: DashboardShellProps) {
             {isDashboardRoute ? (
               <button
                 aria-label="Tampilkan notifikasi"
-                className={`fixed right-5 top-[100px] z-30 h-10 w-10 items-center justify-center rounded-xl border border-[#d7dce2] bg-white text-[#303740] transition-[color,border-color,background-color,transform] duration-200 hover:border-primary-200 hover:bg-primary-50 hover:text-primary-400 active:scale-95 focus-visible:outline-2 focus-visible:outline-primary-300 sm:right-7 ${
+                className={`fixed right-5 top-[100px] z-30 h-10 w-10 items-center justify-center rounded-xl border border-[#d7dce2] bg-white text-[#303740] transition-all duration-200 sm:right-7 ${
                   isNotifOpenMobile ? "hidden" : "flex"
-                } ${isNotifOpenDesktop ? "xl:hidden" : "xl:flex"}`}
-                onClick={() => setNotifState(true)}
+                } ${isNotifOpenDesktop ? "xl:hidden" : "xl:flex"} ${
+                  isMobileOpen 
+                    ? "opacity-40 blur-[1px] pointer-events-none" 
+                    : "hover:border-primary-200 hover:bg-primary-50 hover:text-primary-400 active:scale-95 focus-visible:outline-2 focus-visible:outline-primary-300"
+                }`}
+                onClick={() => {
+                  setNotifState(true);
+                  setIsMobileOpen(false);
+                }}
                 title="Tampilkan notifikasi"
                 type="button"
               >
