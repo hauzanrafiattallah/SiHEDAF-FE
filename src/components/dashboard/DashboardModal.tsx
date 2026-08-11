@@ -18,7 +18,7 @@ export function DashboardModal({
   onClose,
   open,
   title,
-  showCloseButton = true,
+  showCloseButton = false,
 }: DashboardModalProps) {
   const titleId = useId();
   const descriptionId = useId();

@@ -13,14 +13,32 @@ import { AiResultModal } from "@/components/dashboard/AiResultModal";
 import { formatDistanceToNow } from "date-fns";
 import { id as localeId } from "date-fns/locale";
 
+type MeasurementDevice = {
+  status?: string;
+  deviceNumber?: string;
+  lastSeen?: string;
+};
+
+type MeasurementData = {
+  id?: number;
+  resultLabel?: string;
+  resultClass?: number;
+  confidenceLevel?: number;
+  completedAt?: string;
+  updatedAt?: string;
+  createdAt?: string;
+  status?: string;
+  deviceId?: string;
+};
+
 export function DashboardOverview() {
   const { user } = useProfile();
   const [isMonitoringActive, setIsMonitoringActive] = useState(false);
   const [monitoringRange, setMonitoringRange] = useState("12");
   const [isTogglingAction, setIsTogglingAction] = useState(false);
 
-  const [deviceData, setDeviceData] = useState<any>(null);
-  const [latestData, setLatestData] = useState<any>(null);
+  const [deviceData, setDeviceData] = useState<MeasurementDevice | null>(null);
+  const [latestData, setLatestData] = useState<MeasurementData | null>(null);
   const [signalsData, setSignalsData] = useState<number[]>([]);
   const [isAiModalOpen, setIsAiModalOpen] = useState(false);
 
@@ -105,7 +123,7 @@ export function DashboardOverview() {
       } else {
         alert(json.message || "Gagal mengubah status monitoring");
       }
-    } catch (e) {
+    } catch {
       alert("Terjadi kesalahan saat mengubah status monitoring");
     } finally {
       setIsTogglingAction(false);
@@ -246,7 +264,7 @@ export function DashboardOverview() {
                   <StatusMark size="small" status={latestData.resultLabel?.toLowerCase().includes("normal") ? "normal" : "af"} />
                   <div>
                     <p className="text-[12px] text-[#9b9fa7]">
-                      {new Intl.DateTimeFormat("id-ID", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" }).format(new Date(latestData.createdAt))} WIB
+                      {latestData.createdAt ? `${new Intl.DateTimeFormat("id-ID", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" }).format(new Date(latestData.createdAt))} WIB` : "-"}
                     </p>
                     <p className={`mt-1 text-[13px] font-medium ${latestData.resultLabel?.toLowerCase().includes("normal") ? "text-[#43b957]" : "text-[#ff4572]"}`}>
                       {latestData.resultLabel?.toLowerCase().includes("normal") ? "Normal Rythm" : "Terdeteksi AF"}

@@ -284,13 +284,23 @@ export function ProfileView() {
                 {passwordMutationError.message}
               </p>
             ) : null}
-            <button
-              className="h-12 w-full rounded-full bg-primary-300 text-[13px] font-medium text-white transition-colors hover:bg-primary-400 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-primary-300"
-              disabled={!isValid || isPasswordPending}
-              type="submit"
-            >
-              {isPasswordPending ? "Menyimpan..." : "Simpan kata sandi"}
-            </button>
+            <div className="mt-7 grid grid-cols-2 gap-3">
+              <button
+                className="h-12 cursor-pointer rounded-full border border-[#dfe4e8] text-[13px] font-medium text-[#707781] transition-colors hover:bg-[#f6f8fa] hover:text-[#252b31]"
+                disabled={isPasswordPending}
+                onClick={closeModal}
+                type="button"
+              >
+                Batal
+              </button>
+              <button
+                className="h-12 cursor-pointer rounded-full bg-primary-300 text-[13px] font-medium text-white transition-colors hover:bg-primary-400 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-primary-300"
+                disabled={!isValid || isPasswordPending}
+                type="submit"
+              >
+                {isPasswordPending ? "Menyimpan..." : "Simpan kata sandi"}
+              </button>
+            </div>
           </form>
         )}
       </DashboardModal>
@@ -312,7 +322,7 @@ export function ProfileView() {
           ) : null}
           <div className="mt-7 grid grid-cols-2 gap-3">
             <button
-              className="h-12 rounded-full border border-[#dfe4e8] text-[13px] text-[#707781] transition-colors hover:bg-[#f6f8fa]"
+              className="h-12 cursor-pointer rounded-full border border-[#dfe4e8] text-[13px] font-medium text-[#707781] transition-colors hover:bg-[#f6f8fa] hover:text-[#252b31]"
               disabled={isLogoutPending}
               onClick={closeModal}
               type="button"
@@ -320,7 +330,7 @@ export function ProfileView() {
               Batal
             </button>
             <button
-              className="h-12 rounded-full bg-[#ff3768] text-[13px] font-medium text-white transition-colors hover:bg-[#e92a59] disabled:cursor-not-allowed disabled:opacity-60"
+              className="h-12 cursor-pointer rounded-full bg-[#ff3768] text-[13px] font-medium text-white transition-colors hover:bg-[#e92a59] disabled:cursor-not-allowed disabled:opacity-60"
               disabled={isLogoutPending}
               onClick={() => void handleLogout()}
               type="button"

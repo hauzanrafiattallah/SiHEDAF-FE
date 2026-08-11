@@ -74,7 +74,7 @@ export async function bindDevice(
     let errorMessage = DEVICE_SERVICE_UNAVAILABLE;
 
     if (body && typeof body === "object" && body !== null) {
-      const errObj = (body as any).errors;
+      const errObj = (body as Record<string, unknown>).errors as { message?: string } | undefined;
       if (errObj && typeof errObj.message === "string") {
         errorMessage = errObj.message;
       }

@@ -2,21 +2,29 @@
 
 import { useEffect, useState } from "react";
 import type { DateRange } from "@daypicker/react";
-import { format } from "date-fns";
 
 import { DateRangePicker } from "@/components/dashboard/DateRangePicker";
 import { Sparkline } from "@/components/dashboard/Sparkline";
 import { StatusMark } from "@/components/dashboard/StatusMark";
 import { ScrollArea } from "@/components/ui/ScrollArea";
 
-type HistoryStatus = "af" | "normal";
+type HistoryItem = {
+  id?: number;
+  resultLabel?: string;
+  resultClass?: number;
+  confidenceLevel?: number;
+  requestedAt?: string;
+  deviceId?: string;
+  ppgData?: number[];
+  ppgResult?: { rawPpgData?: number[] };
+};
 
 export function HistoryView() {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(5);
   const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
   
-  const [historyData, setHistoryData] = useState<any[]>([]);
+  const [historyData, setHistoryData] = useState<HistoryItem[]>([]);
   const [totalPages, setTotalPages] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -60,8 +68,9 @@ export function HistoryView() {
             { label: "Ritme Normal", value: json.data.summary?.totalNormal || 0 },
           ]);
         }
-      } catch (err: any) {
-        setError(err.message || "Terjadi kesalahan");
+      } catch (err: unknown) {
+        const message = err instanceof Error ? err.message : "Terjadi kesalahan";
+        setError(message);
       } finally {
         setIsLoading(false);
       }
@@ -146,7 +155,7 @@ export function HistoryView() {
                     const isNormal = row.resultLabel?.toLowerCase().includes("normal");
                     const statusVal = isNormal ? "normal" : "af";
                     const tone = isNormal ? "blue" : "pink";
-                    const reqDate = new Date(row.requestedAt);
+                    const reqDate = row.requestedAt ? new Date(row.requestedAt) : new Date();
                     const timeStr = reqDate.toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" }) + " WIB";
 
                     return (

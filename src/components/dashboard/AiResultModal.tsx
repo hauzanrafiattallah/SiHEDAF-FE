@@ -97,20 +97,20 @@ export function AiResultModal({ data, onClose, open }: AiResultModalProps) {
         </div>
 
         {/* Action Buttons */}
-        <div className="mt-6 flex w-full flex-col-reverse gap-2 sm:flex-row">
+        <div className="mt-6 flex w-full flex-col-reverse gap-2.5 sm:flex-row">
           <button
-            className="flex h-11 flex-1 items-center justify-center rounded-full border border-[#cbd5e1] text-[13px] font-medium text-[#334155] transition-colors hover:bg-[#f1f5f9]"
+            className="flex h-11 flex-1 cursor-pointer items-center justify-center rounded-full border border-[#cbd5e1] text-[13px] font-medium text-[#334155] transition-colors hover:bg-[#f1f5f9] hover:text-[#0f172a]"
             onClick={onClose}
             type="button"
           >
             Tutup
           </button>
           <Link
-            className="flex h-11 flex-1 items-center justify-center rounded-full bg-primary-300 text-[13px] font-medium text-white shadow-[0_4px_14px_rgba(0,110,251,0.25)] transition-colors hover:bg-primary-400"
+            className="flex h-11 flex-1 cursor-pointer items-center justify-center rounded-full bg-primary-300 text-[13px] font-medium text-white shadow-[0_4px_14px_rgba(0,110,251,0.25)] transition-colors hover:bg-primary-400"
             href="/riwayat"
             onClick={onClose}
           >
-            Lihat Riwayat Lengkap
+            Lihat Riwayat
           </Link>
         </div>
       </div>

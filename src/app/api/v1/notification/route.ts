@@ -2,7 +2,7 @@ import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import { buildBackendApiUrl } from "@/features/auth/shared/server/BackendUrl";
 
-export async function GET(request: Request) {
+export async function GET() {
   try {
     const cookieStore = await cookies();
     const accessToken = cookieStore.get("sihedaf_access_token")?.value;
