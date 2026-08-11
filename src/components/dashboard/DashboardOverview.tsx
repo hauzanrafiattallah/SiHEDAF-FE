@@ -151,7 +151,7 @@ export function DashboardOverview() {
           <SignalChart isActive={isMonitoringActive} data={signalsData} />
         </article>
 
-        <div className="mt-6 grid gap-6 lg:grid-cols-2">
+        <div className="mt-6 grid items-start gap-6 lg:grid-cols-2">
           <article className="flex flex-col justify-between rounded-[24px] border border-[#edf0f3] bg-white p-6">
             <div>
               <h2 className="text-[16px] font-semibold text-[#171c21]">Monitoring Terakhir</h2>
@@ -223,7 +223,7 @@ export function DashboardOverview() {
                                 ? "blue"
                                 : "pink"
                             }
-                            data={signalsData}
+                            data={latestData.ppgResult?.rawPpgData}
                           />
                         </dd>
                       </div>
@@ -274,7 +274,7 @@ export function DashboardOverview() {
                       : "Memuat..."}
                   </p>
                   <h3 className="mt-2 text-[16px] font-semibold text-[#171c21]">SiHEDAF Wristband</h3>
-                  <dl className="mt-5 grid grid-cols-2 gap-x-4 gap-y-3">
+                  <dl className="mt-5 grid grid-cols-3 gap-x-4 gap-y-3">
                     <div>
                       <dt className="text-[12px] text-[#9ca2aa]">Device ID</dt>
                       <dd className="mt-1 truncate text-[12px] font-semibold text-[#171c21]">
@@ -295,7 +295,7 @@ export function DashboardOverview() {
                           : "-"}
                       </dd>
                     </div>
-                    <div className="col-span-2">
+                    <div>
                       <dt className="text-[12px] text-[#9ca2aa]">Baterai</dt>
                       <dd className="mt-1 flex items-center gap-2 text-[12px] font-semibold text-[#171c21]">
                         <DashboardIcon className="h-3.5 w-3.5 text-primary-300" name="battery" />
