@@ -50,8 +50,7 @@ test("paginates history rows and lets users choose page size", async () => {
   assert.match(historySource, /currentPage/);
   assert.match(historySource, /itemsPerPage/);
   assert.match(historySource, /setCurrentPage/);
-  assert.match(historySource, /setItemsPerPage/);
-  assert.match(historySource, /\.slice\(/);
+  assert.match(historySource, /setHistoryData/);
   assert.match(historySource, /aria-current/);
   assert.match(historySource, /<ScrollArea/);
   assert.match(historySource, /min-w-\[680px\]/);

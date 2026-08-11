@@ -9,6 +9,7 @@ type DashboardModalProps = Readonly<{
   onClose: () => void;
   open: boolean;
   title: string;
+  showCloseButton?: boolean;
 }>;
 
 export function DashboardModal({
@@ -17,6 +18,7 @@ export function DashboardModal({
   onClose,
   open,
   title,
+  showCloseButton = true,
 }: DashboardModalProps) {
   const titleId = useId();
   const descriptionId = useId();
@@ -56,14 +58,16 @@ export function DashboardModal({
         className="modal-enter relative z-10 w-full max-w-[460px] rounded-[24px] bg-white p-6 text-[#171c22] shadow-[0_0_0_1px_rgba(0,0,0,0.04),0_4px_16px_rgba(0,20,60,0.08),0_24px_64px_rgba(0,20,60,0.14)] sm:p-8"
         role="dialog"
       >
-        <button
-          aria-label="Tutup"
-          className="absolute right-5 top-5 grid h-8 w-8 place-items-center rounded-full text-[#a0a7b0] transition-all hover:bg-[#f0f2f5] hover:text-[#505962] focus-visible:outline-2 focus-visible:outline-primary-300"
-          onClick={onClose}
-          type="button"
-        >
-          <X aria-hidden="true" size={16} strokeWidth={2} />
-        </button>
+        {showCloseButton ? (
+          <button
+            aria-label="Tutup"
+            className="absolute right-5 top-5 grid h-8 w-8 place-items-center rounded-full text-[#a0a7b0] transition-all hover:bg-[#f0f2f5] hover:text-[#505962] focus-visible:outline-2 focus-visible:outline-primary-300"
+            onClick={onClose}
+            type="button"
+          >
+            <X aria-hidden="true" size={16} strokeWidth={2} />
+          </button>
+        ) : null}
 
         <h2 className="pr-12 text-[21px] font-semibold tracking-[-0.035em]" id={titleId}>
           {title}

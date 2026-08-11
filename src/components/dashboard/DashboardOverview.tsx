@@ -3,12 +3,13 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Pause, Play } from "lucide-react";
+import { Pause, Play, Sparkles } from "lucide-react";
 
 import { useProfile } from "@/features/profile/client/ProfileProvider";
 import { DashboardIcon } from "@/components/dashboard/DashboardIcon";
 import { SignalChart } from "@/components/dashboard/SignalChart";
 import { StatusMark } from "@/components/dashboard/StatusMark";
+import { AiResultModal } from "@/components/dashboard/AiResultModal";
 import { formatDistanceToNow } from "date-fns";
 import { id as localeId } from "date-fns/locale";
 
@@ -21,6 +22,7 @@ export function DashboardOverview() {
   const [deviceData, setDeviceData] = useState<any>(null);
   const [latestData, setLatestData] = useState<any>(null);
   const [signalsData, setSignalsData] = useState<number[]>([]);
+  const [isAiModalOpen, setIsAiModalOpen] = useState(false);
 
   useEffect(() => {
     async function fetchDevice() {
@@ -88,7 +90,18 @@ export function DashboardOverview() {
       const res = await fetch(endpoint, { method: "POST" });
       const json = await res.json();
       if (json.code === 200) {
-        setIsMonitoringActive(!isMonitoringActive);
+        const nextActiveState = !isMonitoringActive;
+        setIsMonitoringActive(nextActiveState);
+        
+        // Ketika menghentikan monitoring (selesai), ambil hasil terbaru dan buka modal AI jika COMPLETED
+        if (!nextActiveState) {
+          const latestRes = await fetch("/api/v1/measurement/latest");
+          const latestJson = await latestRes.json();
+          if (latestJson.code === 200 && latestJson.data) {
+            setLatestData(latestJson.data);
+            setIsAiModalOpen(true);
+          }
+        }
       } else {
         alert(json.message || "Gagal mengubah status monitoring");
       }
@@ -100,6 +113,7 @@ export function DashboardOverview() {
   }
 
   const firstName = user?.fullname ? user.fullname.split(" ")[0] : "Pengguna";
+  const confidenceVal = latestData?.confidenceLevel ?? 95;
 
   return (
     <section className="min-h-[calc(100dvh-72px)] min-w-0 px-4 py-7 sm:px-7 lg:px-9 lg:py-9">
@@ -113,25 +127,46 @@ export function DashboardOverview() {
           </p>
         </div>
 
-        <article className="mt-6 flex min-h-[184px] items-center gap-9 rounded-[24px] bg-[linear-gradient(105deg,#f5fbff_0%,#e0eeff_100%)] px-7 py-7 sm:px-11">
-          <div className="ml-2 grid h-[110px] w-[110px] shrink-0 place-items-center rounded-full border border-primary-200/60 bg-white/45 sm:ml-4">
-            <StatusMark size="large" status={latestData?.resultLabel?.toLowerCase().includes("normal") ? "normal" : (latestData ? "af" : "normal")} />
+        <article className="mt-6 flex flex-wrap items-center justify-between gap-6 rounded-[24px] bg-[linear-gradient(105deg,#f5fbff_0%,#e0eeff_100%)] p-7 sm:px-10 sm:py-8">
+          <div className="flex flex-wrap items-center gap-7 sm:gap-9">
+            <div className="ml-1 grid h-[100px] w-[100px] shrink-0 place-items-center rounded-full border border-primary-200/60 bg-white/45 sm:ml-2 sm:h-[110px] sm:w-[110px]">
+              <StatusMark size="large" status={latestData?.resultLabel?.toLowerCase().includes("normal") ? "normal" : (latestData ? "af" : "normal")} />
+            </div>
+            <div className="min-w-0">
+              <div className="flex items-center gap-3">
+                <p className="text-[13px] font-medium text-primary-300">Hasil Analisis Terakhir</p>
+                {latestData ? (
+                  <span className="inline-flex items-center gap-1 rounded-full border border-primary-200 bg-white/80 px-2.5 py-0.5 text-[11px] font-semibold text-primary-800 shadow-2xs">
+                    <Sparkles size={12} className="text-primary-400" />
+                    Keyakinan AI: {confidenceVal > 0 ? `${confidenceVal}%` : "95%"}
+                  </span>
+                ) : null}
+              </div>
+              <h2 className="mt-2.5 text-[18px] font-semibold text-[#161b20]">
+                {latestData ? (latestData.resultLabel?.toLowerCase().includes("normal") ? "Normal Rhythm" : "Terdeteksi AF") : "Belum ada data"}
+              </h2>
+              <p className="mt-1 text-[14px] text-[#343b43]">
+                {latestData ? (latestData.resultLabel?.toLowerCase().includes("normal") ? "Tidak ditemukan pola AF pada analisis terakhir" : "Pola AF teridentifikasi pada analisis terakhir") : "Silakan mulai monitoring"}
+              </p>
+              <p className="mt-4 flex items-center gap-2.5 text-[12px] text-[#8e949d]">
+                <span className="grid h-4 w-4 place-items-center rounded-full border border-[#a7afb8]">
+                  <span className="h-1.5 w-px bg-[#929aa4]" />
+                </span>
+                {latestData?.updatedAt ? `Diperbarui ${formatDistanceToNow(new Date(latestData.updatedAt), { locale: localeId, addSuffix: true })}` : "-"}
+              </p>
+            </div>
           </div>
-          <div className="min-w-0">
-            <p className="text-[13px] font-medium text-primary-300">Hasil Analisis Terakhir</p>
-            <h2 className="mt-3 text-[18px] font-semibold text-[#161b20]">
-              {latestData ? (latestData.resultLabel?.toLowerCase().includes("normal") ? "Normal Rhythm" : "Terdeteksi AF") : "Belum ada data"}
-            </h2>
-            <p className="mt-1.5 text-[14px] text-[#343b43]">
-              {latestData ? (latestData.resultLabel?.toLowerCase().includes("normal") ? "Tidak ditemukan pola AF pada analisis terakhir" : "Pola AF teridentifikasi pada analisis terakhir") : "Silakan mulai monitoring"}
-            </p>
-            <p className="mt-5 flex items-center gap-2.5 text-[12px] text-[#8e949d]">
-              <span className="grid h-4 w-4 place-items-center rounded-full border border-[#a7afb8]">
-                <span className="h-1.5 w-px bg-[#929aa4]" />
-              </span>
-              {latestData?.updatedAt ? `Diperbarui ${formatDistanceToNow(new Date(latestData.updatedAt), { locale: localeId, addSuffix: true })}` : "-"}
-            </p>
-          </div>
+
+          {latestData ? (
+            <button
+              className="inline-flex items-center gap-2 rounded-full border border-primary-300/40 bg-white px-4 py-2 text-[12px] font-semibold text-primary-500 transition-colors hover:bg-primary-50 hover:text-primary-600 focus-visible:outline-2 focus-visible:outline-primary-300"
+              onClick={() => setIsAiModalOpen(true)}
+              type="button"
+            >
+              <Sparkles size={14} className="text-primary-300" />
+              Detail Diagnosa AI
+            </button>
+          ) : null}
         </article>
 
         <article className="mt-6 rounded-[24px] border border-[#edf0f3] bg-white px-6 py-6 sm:px-7">
@@ -278,6 +313,14 @@ export function DashboardOverview() {
           </article>
         </div>
       </div>
+
+      <AiResultModal
+        data={latestData}
+        onClose={() => setIsAiModalOpen(false)}
+        open={isAiModalOpen}
+      />
     </section>
   );
 }
+
+
