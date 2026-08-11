@@ -44,7 +44,11 @@ test("connects dashboard profile and monitoring range controls", async () => {
 });
 
 test("paginates history rows and lets users choose page size", async () => {
-  const historySource = await readSource("components/dashboard/HistoryView.tsx");
+  const [historyComponent, historyHook] = await Promise.all([
+    readSource("components/dashboard/HistoryView.tsx"),
+    readSource("components/dashboard/hooks/UseHistoryView.ts"),
+  ]);
+  const historySource = `${historyComponent}\n${historyHook}`;
 
   assert.match(historySource, /^"use client";/);
   assert.match(historySource, /currentPage/);

@@ -12,10 +12,13 @@ async function readSource(relativePath) {
 }
 
 test("verifies AiResultModal component structure and theme integration", async () => {
-  const [modalSource, overviewSource] = await Promise.all([
+  const [modalSource, overviewComponent, overviewHook] = await Promise.all([
     readSource("components/dashboard/AiResultModal.tsx"),
     readSource("components/dashboard/DashboardOverview.tsx"),
+    readSource("components/dashboard/hooks/UseDashboardOverview.ts"),
   ]);
+
+  const overviewSource = `${overviewComponent}\n${overviewHook}`;
 
   // Modal checks
   assert.match(modalSource, /^["']use client["'];/);

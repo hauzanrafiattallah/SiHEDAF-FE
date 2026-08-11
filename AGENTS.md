@@ -171,9 +171,8 @@ src/
 - Gunakan PascalCase untuk nama file dan exported React component.
 - Pengecualian hanya file convention Next.js seperti `page.tsx`, `layout.tsx`, dan file framework lain yang wajib lowercase.
 - Gunakan alias import `@/` untuk source internal.
-- Utamakan Server Components. Tambahkan `"use client"` hanya saat component membutuhkan state, event handler, router client, atau browser API.
-- Gunakan `next/link` untuk navigasi internal dan `next/image` untuk image assets.
 - Pisahkan component berdasarkan section atau satu tanggung jawab yang jelas.
+- Pisahkan logika komponen (state, data fetching, polling, event handlers) ke dalam custom React hook (misalnya `useDashboardOverview`, `useHistoryView`) agar file komponen UI tetap bersih dan hanya berfokus pada deklarasi JSX template.
 - Pertahankan shared dashboard shell pada route group `(dashboard)` agar state collapse tidak reset saat berpindah halaman.
 - Jangan menambahkan dependency chart hanya untuk grafik sederhana; lanjutkan pola inline SVG yang sudah ada.
 - Gunakan `DateRangePicker.tsx` sebagai boundary calendar; view menerima `DateRange` terkontrol sehingga integrasi backend cukup memetakan `from` dan `to` ke query API.

@@ -1,137 +1,33 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Pause, Play, Sparkles } from "lucide-react";
+import { formatDistanceToNow } from "date-fns";
+import { id as localeId } from "date-fns/locale";
 
-import { useProfile } from "@/features/profile/client/ProfileProvider";
 import { DashboardIcon } from "@/components/dashboard/DashboardIcon";
 import { SignalChart } from "@/components/dashboard/SignalChart";
 import { StatusMark } from "@/components/dashboard/StatusMark";
 import { AiResultModal } from "@/components/dashboard/AiResultModal";
-import { formatDistanceToNow } from "date-fns";
-import { id as localeId } from "date-fns/locale";
-
-type MeasurementDevice = {
-  status?: string;
-  deviceNumber?: string;
-  lastSeen?: string;
-};
-
-type MeasurementData = {
-  id?: number;
-  resultLabel?: string;
-  resultClass?: number;
-  confidenceLevel?: number;
-  completedAt?: string;
-  updatedAt?: string;
-  createdAt?: string;
-  status?: string;
-  deviceId?: string;
-};
+import { Sparkline } from "@/components/dashboard/Sparkline";
+import { useDashboardOverview } from "@/components/dashboard/hooks/UseDashboardOverview";
 
 export function DashboardOverview() {
-  const { user } = useProfile();
-  const [isMonitoringActive, setIsMonitoringActive] = useState(false);
-  const [monitoringRange, setMonitoringRange] = useState("12");
-  const [isTogglingAction, setIsTogglingAction] = useState(false);
-
-  const [deviceData, setDeviceData] = useState<MeasurementDevice | null>(null);
-  const [latestData, setLatestData] = useState<MeasurementData | null>(null);
-  const [signalsData, setSignalsData] = useState<number[]>([]);
-  const [isAiModalOpen, setIsAiModalOpen] = useState(false);
-
-  useEffect(() => {
-    async function fetchDevice() {
-      try {
-        const res = await fetch("/api/v1/measurement/my-device");
-        const json = await res.json();
-        if (json.code === 200 && json.data) {
-          setDeviceData(json.data);
-        }
-      } catch (e) {
-        console.error("Gagal memuat status perangkat:", e);
-      }
-    }
-    async function fetchLatest() {
-      try {
-        const res = await fetch("/api/v1/measurement/latest");
-        const json = await res.json();
-        if (json.code === 200 && json.data) {
-          setLatestData(json.data);
-          // If there is an IN_PROGRESS measurement, we might set isMonitoringActive(true)
-          if (json.data.status === "IN_PROGRESS") {
-            setIsMonitoringActive(true);
-          }
-        }
-      } catch (e) {
-        console.error("Gagal memuat data terakhir:", e);
-      }
-    }
-    fetchDevice();
-    fetchLatest();
-  }, []);
-
-  useEffect(() => {
-    async function fetchSignals() {
-      try {
-        const res = await fetch(`/api/v1/measurement/signals?minutes=${monitoringRange}`);
-        const json = await res.json();
-        if (json.code === 200 && json.data) {
-          setSignalsData(json.data.rawPpgData || []);
-        }
-      } catch (e) {
-        console.error("Gagal memuat data sinyal:", e);
-      }
-    }
-    
-    // Ambil data pertama kali
-    fetchSignals();
-
-    // Jika monitoring aktif, lakukan polling setiap 3 detik
-    let intervalId: NodeJS.Timeout;
-    if (isMonitoringActive) {
-      intervalId = setInterval(fetchSignals, 3000);
-    }
-
-    // Bersihkan interval ketika komponen unmount atau dependency berubah
-    return () => {
-      if (intervalId) clearInterval(intervalId);
-    };
-  }, [monitoringRange, isMonitoringActive]);
-
-  async function handleToggleMonitoring() {
-    setIsTogglingAction(true);
-    try {
-      const endpoint = isMonitoringActive ? "/api/v1/measurement/stop" : "/api/v1/measurement/start";
-      const res = await fetch(endpoint, { method: "POST" });
-      const json = await res.json();
-      if (json.code === 200) {
-        const nextActiveState = !isMonitoringActive;
-        setIsMonitoringActive(nextActiveState);
-        
-        // Ketika menghentikan monitoring (selesai), ambil hasil terbaru dan buka modal AI jika COMPLETED
-        if (!nextActiveState) {
-          const latestRes = await fetch("/api/v1/measurement/latest");
-          const latestJson = await latestRes.json();
-          if (latestJson.code === 200 && latestJson.data) {
-            setLatestData(latestJson.data);
-            setIsAiModalOpen(true);
-          }
-        }
-      } else {
-        alert(json.message || "Gagal mengubah status monitoring");
-      }
-    } catch {
-      alert("Terjadi kesalahan saat mengubah status monitoring");
-    } finally {
-      setIsTogglingAction(false);
-    }
-  }
-
-  const firstName = user?.fullname ? user.fullname.split(" ")[0] : "Pengguna";
-  const confidenceVal = latestData?.confidenceLevel ?? 95;
+  const {
+    firstName,
+    deviceData,
+    latestData,
+    signalsData,
+    confidenceVal,
+    isMonitoringActive,
+    monitoringRange,
+    setMonitoringRange,
+    isTogglingAction,
+    handleToggleMonitoring,
+    isAiModalOpen,
+    setIsAiModalOpen,
+  } = useDashboardOverview();
 
   return (
     <section className="min-h-[calc(100dvh-72px)] min-w-0 px-4 py-7 sm:px-7 lg:px-9 lg:py-9">
@@ -256,76 +152,158 @@ export function DashboardOverview() {
         </article>
 
         <div className="mt-6 grid gap-6 lg:grid-cols-2">
-          <article className="rounded-[24px] border border-[#edf0f3] bg-white px-6 py-6">
-            <h2 className="text-[16px] font-semibold">Monitoring Terakhir</h2>
-            <div className="mt-4 divide-y divide-[#edf0f3]">
-              {latestData ? (
-                <div className="flex items-center gap-3 py-3">
-                  <StatusMark size="small" status={latestData.resultLabel?.toLowerCase().includes("normal") ? "normal" : "af"} />
+          <article className="flex flex-col justify-between rounded-[24px] border border-[#edf0f3] bg-white p-6">
+            <div>
+              <h2 className="text-[16px] font-semibold text-[#171c21]">Monitoring Terakhir</h2>
+              <div className="mt-4">
+                {latestData ? (
                   <div>
-                    <p className="text-[12px] text-[#9b9fa7]">
-                      {latestData.createdAt ? `${new Intl.DateTimeFormat("id-ID", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" }).format(new Date(latestData.createdAt))} WIB` : "-"}
+                    <p
+                      className={`flex items-center gap-2 text-[12px] ${
+                        latestData.resultLabel?.toLowerCase().includes("normal")
+                          ? "text-[#4abb59]"
+                          : "text-[#ff4572]"
+                      }`}
+                    >
+                      <StatusMark
+                        size="small"
+                        status={
+                          latestData.resultLabel?.toLowerCase().includes("normal")
+                            ? "normal"
+                            : "af"
+                        }
+                      />
+                      <span className="font-medium">
+                        {latestData.resultLabel?.toLowerCase().includes("normal")
+                          ? "Normal Rhythm"
+                          : "Terdeteksi Potensi AF"}
+                      </span>
                     </p>
-                    <p className={`mt-1 text-[13px] font-medium ${latestData.resultLabel?.toLowerCase().includes("normal") ? "text-[#43b957]" : "text-[#ff4572]"}`}>
-                      {latestData.resultLabel?.toLowerCase().includes("normal") ? "Normal Rythm" : "Terdeteksi AF"}
-                    </p>
+
+                    <h3 className="mt-2 text-[16px] font-semibold text-[#171c21]">
+                      {latestData.resultLabel?.toLowerCase().includes("normal")
+                        ? "Irama Jantung Normal & Stabil"
+                        : "Indikasi Anomali Irama Jantung"}
+                    </h3>
+
+                    <dl className="mt-5 grid grid-cols-2 gap-x-4 gap-y-3 sm:grid-cols-3">
+                      <div>
+                        <dt className="text-[12px] text-[#9ca2aa]">Waktu Pengukuran</dt>
+                        <dd className="mt-1 whitespace-nowrap text-[12px] font-semibold text-[#171c21]">
+                          {latestData.createdAt
+                            ? `${new Intl.DateTimeFormat("id-ID", {
+                                day: "numeric",
+                                month: "short",
+                                year: "numeric",
+                                hour: "2-digit",
+                                minute: "2-digit",
+                              }).format(new Date(latestData.createdAt))} WIB`
+                            : "-"}
+                        </dd>
+                      </div>
+
+                      <div>
+                        <dt className="text-[12px] text-[#9ca2aa]">Keyakinan AI</dt>
+                        <dd className="mt-1 flex items-center gap-1.5 text-[12px] font-semibold text-primary-500">
+                          <Sparkles size={13} className="text-primary-400" />
+                          {confidenceVal > 0
+                            ? confidenceVal <= 1
+                              ? `${(confidenceVal * 100).toFixed(1)}%`
+                              : `${confidenceVal}%`
+                            : "95%"}
+                        </dd>
+                      </div>
+
+                      <div className="col-span-2 sm:col-span-1">
+                        <dt className="text-[12px] text-[#9ca2aa]">Grafik Sinyal</dt>
+                        <dd className="mt-1 flex items-center">
+                          <Sparkline
+                            tone={
+                              latestData.resultLabel?.toLowerCase().includes("normal")
+                                ? "blue"
+                                : "pink"
+                            }
+                            data={signalsData}
+                          />
+                        </dd>
+                      </div>
+                    </dl>
                   </div>
-                </div>
-              ) : (
-                <p className="py-6 text-center text-[12px] text-[#9b9fa7]">Belum ada riwayat terbaru.</p>
-              )}
+                ) : (
+                  <p className="py-8 text-center text-[12px] text-[#9b9fa7]">
+                    Belum ada riwayat terbaru.
+                  </p>
+                )}
+              </div>
             </div>
+
             <Link
-              className="mt-5 flex h-10 items-center justify-center rounded-full border border-primary-300 text-[12px] font-medium text-primary-300 transition-colors hover:bg-primary-50"
+              className="mt-6 flex h-10 w-full items-center justify-center rounded-full border border-primary-300 text-[12px] font-medium text-primary-300 transition-colors hover:bg-primary-50"
               href="/riwayat"
             >
               Lihat semua riwayat
             </Link>
           </article>
 
-          <article className="rounded-[24px] border border-[#edf0f3] bg-white px-6 py-6">
-            <h2 className="text-[16px] font-semibold">Status Perangkat</h2>
-            <div className="mt-4 flex items-center gap-6">
-              <Image
-                alt="SiHEDAF Wristband"
-                className="h-[152px] w-auto shrink-0 object-contain"
-                height={218}
-                src="/watch2.png"
-                width={63}
-              />
-              <div className="min-w-0 flex-1">
-                <p className={`flex items-center gap-2 text-[12px] ${deviceData?.status === "ONLINE" ? "text-[#4abb59]" : "text-[#9ca2aa]"}`}>
-                  <span className={`h-3 w-3 rounded-full ${deviceData?.status === "ONLINE" ? "bg-[#45bb59]" : "bg-[#9ca2aa]"}`} />
-                  {deviceData?.status === "ONLINE" ? "Terhubung" : (deviceData ? "Terputus" : "Memuat...")}
-                </p>
-                <h3 className="mt-2 text-[16px] font-semibold">SiHEDAF Wristband</h3>
-                <dl className="mt-5 grid grid-cols-2 gap-x-4 gap-y-3">
-                  <div>
-                    <dt className="text-[12px] text-[#9ca2aa]">Device ID</dt>
-                    <dd className="mt-1 text-[12px] font-semibold">{deviceData?.deviceNumber || "-"}</dd>
-                  </div>
-                  <div>
-                    <dt className="text-[12px] text-[#9ca2aa]">Waktu Sinkronisasi</dt>
-                    <dd className="mt-1 whitespace-nowrap text-[12px] font-semibold">
-                      {deviceData?.lastSeen ? new Intl.DateTimeFormat("id-ID", {
-                        day: "numeric",
-                        month: "short",
-                        year: "numeric",
-                        hour: "2-digit",
-                        minute: "2-digit"
-                      }).format(new Date(deviceData.lastSeen)) : "-"}
-                    </dd>
-                  </div>
-                  <div className="col-span-2 flex items-center justify-between">
+          <article className="flex flex-col justify-between rounded-[24px] border border-[#edf0f3] bg-white p-6">
+            <div>
+              <h2 className="text-[16px] font-semibold text-[#171c21]">Status Perangkat</h2>
+              <div className="mt-4 flex items-center gap-6">
+                <Image
+                  alt="SiHEDAF Wristband"
+                  className="h-[140px] w-auto shrink-0 object-contain"
+                  height={218}
+                  src="/watch2.png"
+                  width={63}
+                />
+                <div className="min-w-0 flex-1">
+                  <p
+                    className={`flex items-center gap-2 text-[12px] ${
+                      deviceData?.status === "ONLINE" ? "text-[#4abb59]" : "text-[#9ca2aa]"
+                    }`}
+                  >
+                    <span
+                      className={`h-3 w-3 rounded-full ${
+                        deviceData?.status === "ONLINE" ? "bg-[#45bb59]" : "bg-[#9ca2aa]"
+                      }`}
+                    />
+                    {deviceData?.status === "ONLINE"
+                      ? "Terhubung"
+                      : deviceData
+                      ? "Terputus"
+                      : "Memuat..."}
+                  </p>
+                  <h3 className="mt-2 text-[16px] font-semibold text-[#171c21]">SiHEDAF Wristband</h3>
+                  <dl className="mt-5 grid grid-cols-2 gap-x-4 gap-y-3">
                     <div>
+                      <dt className="text-[12px] text-[#9ca2aa]">Device ID</dt>
+                      <dd className="mt-1 truncate text-[12px] font-semibold text-[#171c21]">
+                        {deviceData?.deviceNumber || "-"}
+                      </dd>
+                    </div>
+                    <div>
+                      <dt className="text-[12px] text-[#9ca2aa]">Waktu Sinkronisasi</dt>
+                      <dd className="mt-1 whitespace-nowrap text-[12px] font-semibold text-[#171c21]">
+                        {deviceData?.lastSeen
+                          ? new Intl.DateTimeFormat("id-ID", {
+                              day: "numeric",
+                              month: "short",
+                              year: "numeric",
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            }).format(new Date(deviceData.lastSeen))
+                          : "-"}
+                      </dd>
+                    </div>
+                    <div className="col-span-2">
                       <dt className="text-[12px] text-[#9ca2aa]">Baterai</dt>
-                      <dd className="mt-1 flex items-center gap-2 text-[12px] font-semibold">
+                      <dd className="mt-1 flex items-center gap-2 text-[12px] font-semibold text-[#171c21]">
                         <DashboardIcon className="h-3.5 w-3.5 text-primary-300" name="battery" />
                         92%
                       </dd>
                     </div>
-                  </div>
-                </dl>
+                  </dl>
+                </div>
               </div>
             </div>
           </article>

@@ -44,10 +44,13 @@ test("keeps static dashboard cards free from hover-motion hooks", async () => {
 });
 
 test("toggles monitoring between pause and play states with matching UI", async () => {
-  const [overviewSource, chartSource] = await Promise.all([
+  const [overviewComponent, overviewHook, chartSource] = await Promise.all([
     readSource("components/dashboard/DashboardOverview.tsx"),
+    readSource("components/dashboard/hooks/UseDashboardOverview.ts"),
     readSource("components/dashboard/SignalChart.tsx"),
   ]);
+
+  const overviewSource = `${overviewComponent}\n${overviewHook}`;
 
   assert.match(overviewSource, /^["']use client["'];/);
   assert.match(overviewSource, /useState/);
