@@ -16,7 +16,9 @@ const teamMembers = [
   },
   {
     role: "Backend Developer",
-    name: "Nama",
+    name: "Muhammad Rifki Anandita",
+    linkedInLabel: "https://www.linkedin.com/in/muhammad-rifki-anandita-32b481287/",
+    imageSrc: "/team/rifki.png",
   },
   {
     role: "AI Developer",
