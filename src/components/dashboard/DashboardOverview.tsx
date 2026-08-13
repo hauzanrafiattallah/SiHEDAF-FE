@@ -131,8 +131,8 @@ export function DashboardOverview() {
                 aria-pressed={isMonitoringActive}
                 disabled={isTogglingAction || !deviceData || deviceData?.status !== "ONLINE"}
                 className={`flex h-10 items-center gap-2 rounded-full border px-5 text-[12px] font-medium transition-[color,background-color,border-color,box-shadow,transform] duration-200 active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed ${isMonitoringActive
-                    ? "border-primary-300 bg-white text-primary-300 hover:bg-primary-50"
-                    : "border-primary-300 bg-primary-300 text-white shadow-[0_8px_20px_rgba(0,110,251,0.2)] hover:bg-primary-400"
+                  ? "border-primary-300 bg-white text-primary-300 hover:bg-primary-50"
+                  : "border-primary-300 bg-primary-300 text-white shadow-[0_8px_20px_rgba(0,110,251,0.2)] hover:bg-primary-400"
                   }`}
                 onClick={handleToggleMonitoring}
                 type="button"
@@ -151,19 +151,33 @@ export function DashboardOverview() {
           <SignalChart isActive={isMonitoringActive} data={signalsData} />
         </article>
 
-        <div className="mt-6 grid items-start gap-6 lg:grid-cols-2">
-          <article className="flex flex-col justify-between rounded-[24px] border border-[#edf0f3] bg-white p-6">
+        <div className="mt-6 grid items-stretch gap-6 lg:grid-cols-2">
+          <article className="flex h-full flex-col justify-between rounded-[24px] border border-[#edf0f3] bg-white p-6">
             <div>
-              <h2 className="text-[16px] font-semibold text-[#171c21]">Monitoring Terakhir</h2>
+              <div className="flex items-start justify-between">
+                <h2 className="text-[16px] font-semibold text-[#171c21]">Monitoring Terakhir</h2>
+                {latestData && (
+                  <div className="flex flex-col items-end">
+                    <span className="text-[11px] text-[#9ca2aa]">Keyakinan AI</span>
+                    <span className="mt-0.5 flex items-center gap-1 text-[12px] font-semibold text-primary-500">
+                      <Sparkles size={12} className="text-primary-400" />
+                      {confidenceVal > 0
+                        ? confidenceVal <= 1
+                          ? `${(confidenceVal * 100).toFixed(1)}%`
+                          : `${confidenceVal}%`
+                        : "95%"}
+                    </span>
+                  </div>
+                )}
+              </div>
               <div className="mt-4">
                 {latestData ? (
                   <div>
                     <p
-                      className={`flex items-center gap-2 text-[12px] ${
-                        latestData.resultLabel?.toLowerCase().includes("normal")
+                      className={`flex items-center gap-2 text-[12px] ${latestData.resultLabel?.toLowerCase().includes("normal")
                           ? "text-[#4abb59]"
                           : "text-[#ff4572]"
-                      }`}
+                        }`}
                     >
                       <StatusMark
                         size="small"
@@ -186,35 +200,23 @@ export function DashboardOverview() {
                         : "Indikasi Anomali Irama Jantung"}
                     </h3>
 
-                    <dl className="mt-5 grid grid-cols-2 gap-x-4 gap-y-3 sm:grid-cols-3">
+                    <dl className="mt-5 grid grid-cols-2 gap-x-4 gap-y-3">
                       <div>
                         <dt className="text-[12px] text-[#9ca2aa]">Waktu Pengukuran</dt>
                         <dd className="mt-1 whitespace-nowrap text-[12px] font-semibold text-[#171c21]">
                           {latestData.createdAt
                             ? `${new Intl.DateTimeFormat("id-ID", {
-                                day: "numeric",
-                                month: "short",
-                                year: "numeric",
-                                hour: "2-digit",
-                                minute: "2-digit",
-                              }).format(new Date(latestData.createdAt))} WIB`
+                              day: "numeric",
+                              month: "short",
+                              year: "numeric",
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            }).format(new Date(latestData.createdAt))} WIB`
                             : "-"}
                         </dd>
                       </div>
 
                       <div>
-                        <dt className="text-[12px] text-[#9ca2aa]">Keyakinan AI</dt>
-                        <dd className="mt-1 flex items-center gap-1.5 text-[12px] font-semibold text-primary-500">
-                          <Sparkles size={13} className="text-primary-400" />
-                          {confidenceVal > 0
-                            ? confidenceVal <= 1
-                              ? `${(confidenceVal * 100).toFixed(1)}%`
-                              : `${confidenceVal}%`
-                            : "95%"}
-                        </dd>
-                      </div>
-
-                      <div className="col-span-2 sm:col-span-1">
                         <dt className="text-[12px] text-[#9ca2aa]">Grafik Sinyal</dt>
                         <dd className="mt-1 flex items-center">
                           <Sparkline
@@ -245,43 +247,53 @@ export function DashboardOverview() {
             </Link>
           </article>
 
-          <article className="flex flex-col justify-between rounded-[24px] border border-[#edf0f3] bg-white p-6">
-            <div>
-              <h2 className="text-[16px] font-semibold text-[#171c21]">Status Perangkat</h2>
-              <div className="mt-4 flex items-center gap-6">
+          <article className="flex h-full flex-col rounded-[24px] border border-[#edf0f3] bg-white p-6">
+            <h2 className="text-[16px] font-semibold text-[#171c21]">Status Perangkat</h2>
+            <div className="mt-4 flex flex-1 flex-col justify-center">
+              <div className="flex items-stretch gap-6">
                 <Image
                   alt="SiHEDAF Wristband"
-                  className="h-[140px] w-auto shrink-0 object-contain"
+                  className="h-[160px] w-auto shrink-0 object-contain sm:h-[170px]"
                   height={218}
                   src="/watch2.png"
                   width={63}
                 />
-                <div className="min-w-0 flex-1">
-                  <p
-                    className={`flex items-center gap-2 text-[12px] ${
-                      deviceData?.status === "ONLINE" ? "text-[#4abb59]" : "text-[#9ca2aa]"
-                    }`}
-                  >
-                    <span
-                      className={`h-3 w-3 rounded-full ${
-                        deviceData?.status === "ONLINE" ? "bg-[#45bb59]" : "bg-[#9ca2aa]"
+                <div className="flex flex-1 flex-col justify-between min-w-0 pt-1 pb-6">
+                  <div>
+                    <p
+                      className={`flex items-center gap-2 text-[12px] ${
+                        deviceData?.status === "ONLINE" ? "text-[#4abb59]" : "text-[#9ca2aa]"
                       }`}
-                    />
-                    {deviceData?.status === "ONLINE"
-                      ? "Terhubung"
-                      : deviceData
-                      ? "Terputus"
-                      : "Memuat..."}
-                  </p>
-                  <h3 className="mt-2 text-[16px] font-semibold text-[#171c21]">SiHEDAF Wristband</h3>
-                  <dl className="mt-5 grid grid-cols-3 gap-x-4 gap-y-3">
-                    <div>
+                    >
+                      <span
+                        className={`h-3 w-3 rounded-full ${
+                          deviceData?.status === "ONLINE" ? "bg-[#45bb59]" : "bg-[#9ca2aa]"
+                        }`}
+                      />
+                      {deviceData?.status === "ONLINE"
+                        ? "Terhubung"
+                        : deviceData
+                        ? "Terputus"
+                        : "Memuat..."}
+                    </p>
+                    <h3 className="mt-1 text-[16px] font-semibold text-[#171c21]">SiHEDAF Wristband</h3>
+                  </div>
+
+                  <dl className="grid grid-cols-2 gap-x-4 gap-y-3 sm:grid-cols-3">
+                    <div className="col-span-1">
                       <dt className="text-[12px] text-[#9ca2aa]">Device ID</dt>
                       <dd className="mt-1 truncate text-[12px] font-semibold text-[#171c21]">
                         {deviceData?.deviceNumber || "-"}
                       </dd>
                     </div>
-                    <div>
+                    <div className="col-span-1">
+                      <dt className="text-[12px] text-[#9ca2aa]">Baterai</dt>
+                      <dd className="mt-1 flex items-center gap-2 text-[12px] font-semibold text-[#171c21]">
+                        <DashboardIcon className="h-3.5 w-3.5 text-primary-300" name="battery" />
+                        92%
+                      </dd>
+                    </div>
+                    <div className="col-span-2 sm:col-span-1">
                       <dt className="text-[12px] text-[#9ca2aa]">Waktu Sinkronisasi</dt>
                       <dd className="mt-1 whitespace-nowrap text-[12px] font-semibold text-[#171c21]">
                         {deviceData?.lastSeen
@@ -293,13 +305,6 @@ export function DashboardOverview() {
                               minute: "2-digit",
                             }).format(new Date(deviceData.lastSeen))
                           : "-"}
-                      </dd>
-                    </div>
-                    <div>
-                      <dt className="text-[12px] text-[#9ca2aa]">Baterai</dt>
-                      <dd className="mt-1 flex items-center gap-2 text-[12px] font-semibold text-[#171c21]">
-                        <DashboardIcon className="h-3.5 w-3.5 text-primary-300" name="battery" />
-                        92%
                       </dd>
                     </div>
                   </dl>

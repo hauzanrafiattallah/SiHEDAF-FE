@@ -6,10 +6,13 @@ const teamMembers = [
     role: "UI/UX Designer",
     name: "Casta Garneta",
     linkedInLabel: "https://www.linkedin.com/in/castagarneta/",
+    imageSrc: "/team/casta.jpeg",
   },
   {
     role: "Frontend Developer",
-    name: "Nama",
+    name: "Hauzan Rafi Attallah",
+    linkedInLabel: "https://www.linkedin.com/in/hauzan-rafi/",
+    imageSrc: "/team/hauzan.png",
   },
   {
     role: "Backend Developer",
