@@ -34,6 +34,8 @@ export function HistoryView() {
   }
 
   const dateFormatter = new Intl.DateTimeFormat("id-ID", {
+
+    timeZone: "Asia/Jakarta",
     day: "numeric",
     month: "long",
     year: "numeric",
@@ -98,8 +100,11 @@ export function HistoryView() {
                     const isNormal = row.resultLabel?.toLowerCase().includes("normal");
                     const statusVal = isNormal ? "normal" : "af";
                     const tone = isNormal ? "blue" : "pink";
-                    const reqDate = row.requestedAt ? new Date(row.requestedAt) : new Date();
-                    const timeStr = reqDate.toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" }) + " WIB";
+                    const hasDate = Boolean(row.requestedAt);
+                    const reqDate = hasDate ? new Date(row.requestedAt!) : null;
+                    const formattedDateStr = reqDate
+                      ? `${dateFormatter.format(reqDate)}\u00A0 • \u00A0${reqDate.toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit", timeZone: "Asia/Jakarta" })} WIB`
+                      : "-";
 
                     return (
                       <tr
@@ -107,7 +112,7 @@ export function HistoryView() {
                         key={row.id}
                       >
                         <td className="px-6 py-4 text-[12px] text-[#989da5]">
-                          {dateFormatter.format(reqDate)}&nbsp; • &nbsp;{timeStr}
+                          {formattedDateStr}
                         </td>
                         <td className="px-4 py-2.5">
                           <div className="flex items-center gap-3">

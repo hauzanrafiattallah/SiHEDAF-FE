@@ -206,6 +206,7 @@ export function DashboardOverview() {
                         <dd className="mt-1 whitespace-nowrap text-[12px] font-semibold text-[#171c21]">
                           {latestData.createdAt
                             ? `${new Intl.DateTimeFormat("id-ID", {
+                              timeZone: "Asia/Jakarta",
                               day: "numeric",
                               month: "short",
                               year: "numeric",
@@ -221,93 +222,94 @@ export function DashboardOverview() {
                         <dd className="mt-1 flex items-center">
                           <Sparkline
                             tone={
-                              latestData.resultLabel?.toLowerCase().includes("normal")
-                                ? "blue"
-                                : "pink"
-                            }
-                            data={latestData.ppgResult?.rawPpgData}
-                          />
-                        </dd>
-                      </div>
-                    </dl>
-                  </div>
-                ) : (
-                  <p className="py-8 text-center text-[12px] text-[#9b9fa7]">
-                    Belum ada riwayat terbaru.
-                  </p>
-                )}
-              </div>
-            </div>
-
-            <Link
-              className="mt-6 flex h-10 w-full items-center justify-center rounded-full border border-primary-300 text-[12px] font-medium text-primary-300 transition-colors hover:bg-primary-50"
-              href="/riwayat"
-            >
-              Lihat semua riwayat
-            </Link>
-          </article>
-
-          <article className="flex h-full flex-col rounded-[24px] border border-[#edf0f3] bg-white p-6">
-            <h2 className="text-[16px] font-semibold text-[#171c21]">Status Perangkat</h2>
-            <div className="mt-4 flex flex-1 flex-col justify-center">
-              <div className="flex items-stretch gap-6">
-                <Image
-                  alt="SiHEDAF Wristband"
-                  className="h-[160px] w-auto shrink-0 object-contain sm:h-[170px]"
-                  height={218}
-                  src="/watch2.png"
-                  width={63}
-                />
-                <div className="flex flex-1 flex-col justify-between min-w-0 pt-1 pb-6">
-                  <div>
-                    <p
-                      className={`flex items-center gap-2 text-[12px] ${
-                        deviceData?.status === "ONLINE" ? "text-[#4abb59]" : "text-[#9ca2aa]"
-                      }`}
-                    >
-                      <span
-                        className={`h-3 w-3 rounded-full ${
-                          deviceData?.status === "ONLINE" ? "bg-[#45bb59]" : "bg-[#9ca2aa]"
-                        }`}
-                      />
-                      {deviceData?.status === "ONLINE"
-                        ? "Terhubung"
-                        : deviceData
-                        ? "Terputus"
-                        : "Memuat..."}
-                    </p>
-                    <h3 className="mt-1 text-[16px] font-semibold text-[#171c21]">SiHEDAF Wristband</h3>
-                  </div>
-
-                  <dl className="grid grid-cols-2 gap-x-4 gap-y-3 sm:grid-cols-3">
-                    <div className="col-span-1">
-                      <dt className="text-[12px] text-[#9ca2aa]">Device ID</dt>
-                      <dd className="mt-1 truncate text-[12px] font-semibold text-[#171c21]">
-                        {deviceData?.deviceNumber || "-"}
-                      </dd>
-                    </div>
-                    <div className="col-span-1">
-                      <dt className="text-[12px] text-[#9ca2aa]">Baterai</dt>
-                      <dd className="mt-1 flex items-center gap-2 text-[12px] font-semibold text-[#171c21]">
-                        <DashboardIcon className="h-3.5 w-3.5 text-primary-300" name="battery" />
-                        92%
-                      </dd>
-                    </div>
-                    <div className="col-span-2 sm:col-span-1">
-                      <dt className="text-[12px] text-[#9ca2aa]">Waktu Sinkronisasi</dt>
-                      <dd className="mt-1 whitespace-nowrap text-[12px] font-semibold text-[#171c21]">
-                        {deviceData?.lastSeen
-                          ? new Intl.DateTimeFormat("id-ID", {
-                              day: "numeric",
-                              month: "short",
-                              year: "numeric",
-                              hour: "2-digit",
-                              minute: "2-digit",
-                            }).format(new Date(deviceData.lastSeen))
-                          : "-"}
+                            latestData.resultLabel?.toLowerCase().includes("normal")
+                              ? "blue"
+                              : "pink"
+                          }
+                          data={latestData.ppgResult?.rawPpgData}
+                        />
                       </dd>
                     </div>
                   </dl>
+                </div>
+              ) : (
+                <p className="py-8 text-center text-[12px] text-[#9b9fa7]">
+                  Belum ada riwayat terbaru.
+                </p>
+              )}
+            </div>
+          </div>
+
+          <Link
+            className="mt-6 flex h-10 w-full items-center justify-center rounded-full border border-primary-300 text-[12px] font-medium text-primary-300 transition-colors hover:bg-primary-50"
+            href="/riwayat"
+          >
+            Lihat semua riwayat
+          </Link>
+        </article>
+
+        <article className="flex h-full flex-col rounded-[24px] border border-[#edf0f3] bg-white p-6">
+          <h2 className="text-[16px] font-semibold text-[#171c21]">Status Perangkat</h2>
+          <div className="mt-4 flex flex-1 flex-col justify-center">
+            <div className="flex items-stretch gap-6">
+              <Image
+                alt="SiHEDAF Wristband"
+                className="h-[160px] w-auto shrink-0 object-contain sm:h-[170px]"
+                height={218}
+                src="/watch2.png"
+                width={63}
+              />
+              <div className="flex flex-1 flex-col justify-between min-w-0 pt-1 pb-6">
+                <div>
+                  <p
+                    className={`flex items-center gap-2 text-[12px] ${
+                      deviceData?.status === "ONLINE" ? "text-[#4abb59]" : "text-[#9ca2aa]"
+                    }`}
+                  >
+                    <span
+                      className={`h-3 w-3 rounded-full ${
+                        deviceData?.status === "ONLINE" ? "bg-[#45bb59]" : "bg-[#9ca2aa]"
+                      }`}
+                    />
+                    {deviceData?.status === "ONLINE"
+                      ? "Terhubung"
+                      : deviceData
+                      ? "Terputus"
+                      : "Memuat..."}
+                  </p>
+                  <h3 className="mt-1 text-[16px] font-semibold text-[#171c21]">SiHEDAF Wristband</h3>
+                </div>
+
+                <dl className="grid grid-cols-2 gap-x-4 gap-y-3 sm:grid-cols-3">
+                  <div className="col-span-1">
+                    <dt className="text-[12px] text-[#9ca2aa]">Device ID</dt>
+                    <dd className="mt-1 truncate text-[12px] font-semibold text-[#171c21]">
+                      {deviceData?.deviceNumber || "-"}
+                    </dd>
+                  </div>
+                  <div className="col-span-1">
+                    <dt className="text-[12px] text-[#9ca2aa]">Baterai</dt>
+                    <dd className="mt-1 flex items-center gap-2 text-[12px] font-semibold text-[#171c21]">
+                      <DashboardIcon className="h-3.5 w-3.5 text-primary-300" name="battery" />
+                      92%
+                    </dd>
+                  </div>
+                  <div className="col-span-2 sm:col-span-1">
+                    <dt className="text-[12px] text-[#9ca2aa]">Waktu Sinkronisasi</dt>
+                    <dd className="mt-1 whitespace-nowrap text-[12px] font-semibold text-[#171c21]">
+                      {deviceData?.lastSeen
+                        ? new Intl.DateTimeFormat("id-ID", {
+                            timeZone: "Asia/Jakarta",
+                            day: "numeric",
+                            month: "short",
+                            year: "numeric",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          }).format(new Date(deviceData.lastSeen))
+                        : "-"}
+                    </dd>
+                  </div>
+                </dl>
                 </div>
               </div>
             </div>
