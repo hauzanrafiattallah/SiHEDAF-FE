@@ -17,7 +17,8 @@ const teamMembers = [
   {
     role: "Backend Developer",
     name: "Muhammad Rifki Anandita",
-    linkedInLabel: "https://www.linkedin.com/in/muhammad-rifki-anandita-32b481287/",
+    linkedInLabel:
+      "https://www.linkedin.com/in/muhammad-rifki-anandita-32b481287/",
     imageSrc: "/team/rifki.png",
   },
   {
@@ -26,33 +27,41 @@ const teamMembers = [
     linkedInLabel: "https://www.linkedin.com/in/agung-ramadhan08/",
     imageSrc: "/team/agung.png",
   },
+  // Placeholder cards until the real members, roles, and photos are provided.
+  { role: "Peran Anggota 5", name: "Nama Anggota 5" },
+  { role: "Peran Anggota 6", name: "Nama Anggota 6" },
+  { role: "Peran Anggota 7", name: "Nama Anggota 7" },
+  { role: "Peran Anggota 8", name: "Nama Anggota 8" },
+  { role: "Peran Anggota 9", name: "Nama Anggota 9" },
+  { role: "Peran Anggota 10", name: "Nama Anggota 10" },
 ];
 
 export function TeamSection() {
   return (
     <section
       aria-labelledby="team-title"
-      className="section-reveal w-full bg-[#fbfbfb] pt-16 pb-24 lg:pt-20 lg:pb-32"
+      className="section-reveal w-full bg-paper pt-16 pb-24 lg:pt-20 lg:pb-32"
     >
-      <div className="text-center">
+      <div className="mx-auto w-[calc(100%-40px)] max-w-[1440px] sm:w-[calc(100%-64px)]">
         <SectionLabel>Tim Kami</SectionLabel>
-        <h1
-          className="mx-auto mt-6 max-w-[620px] text-[clamp(2.5rem,3.5vw,3.75rem)] leading-[1.04] font-medium tracking-[-0.055em] text-primary-900"
-          id="team-title"
-        >
-          Tim Pengembang
-          <span className="block">
-            dibalik{" "}
-            <span className="font-serif font-normal italic text-primary-300">
-              SiHEDAF
-            </span>
-          </span>
-        </h1>
+        <div className="mt-8 grid gap-6 lg:grid-cols-12 lg:items-end">
+          <h1
+            className="text-[clamp(2.6rem,5vw,5rem)] leading-[0.95] tracking-[-0.05em] text-primary-900 lg:col-span-8"
+            id="team-title"
+          >
+            <span className="font-bold">Tim pengembang</span>{" "}
+            <span className="font-extralight">di balik SiHEDAF.</span>
+          </h1>
+          <p className="max-w-[420px] text-[1.125rem] leading-[1.6] text-primary-900/80 lg:col-span-4">
+            Tim yang merancang antarmuka, membangun sistem, dan melatih model AI
+            pendeteksi Atrial Fibrillation.
+          </p>
+        </div>
       </div>
 
-      <div className="mx-auto mt-14 grid w-[calc(100%-32px)] max-w-[1440px] grid-cols-1 gap-5 sm:w-[calc(100%-64px)] sm:grid-cols-2 md:grid-cols-4">
-        {teamMembers.map((member) => (
-          <TeamCard key={member.role} {...member} />
+      <div className="mx-auto mt-14 grid w-[calc(100%-40px)] max-w-[1440px] grid-cols-1 gap-5 sm:w-[calc(100%-64px)] sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5">
+        {teamMembers.map((member, index) => (
+          <TeamCard eager={index < 4} key={member.name} {...member} />
         ))}
       </div>
     </section>

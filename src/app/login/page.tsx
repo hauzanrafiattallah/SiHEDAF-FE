@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 
 import { AuthShell } from "@/components/auth/AuthShell";
+import { SessionExpiredNotice } from "@/components/auth/SessionExpiredNotice";
 import { LoginForm } from "@/components/auth/LoginForm";
 
 export const metadata: Metadata = {
@@ -11,11 +13,14 @@ export const metadata: Metadata = {
 export default function LoginPage() {
   return (
     <AuthShell
-      accent="Stroke"
-      description="Pantau irama jantungmu dengan teknologi wearable dan dukungan AI untuk mencegah stroke."
-      titleLabel="Deteksi Dini Risiko Stroke"
-      titleLines={["Deteksi Dini", "Risiko"]}
+      description="Masuk untuk melihat hasil pemantauan irama jantungmu dan riwayat analisis AI."
+      illustration="heart"
+      journeyStep={1}
+      title={{ strong: "Selamat datang", light: "kembali." }}
     >
+      <Suspense fallback={null}>
+        <SessionExpiredNotice />
+      </Suspense>
       <LoginForm />
     </AuthShell>
   );

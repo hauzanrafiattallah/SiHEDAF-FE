@@ -1,20 +1,35 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import {
+  describeCaughtError,
+  type DataError,
+  HttpError,
+} from "@/components/ui/FetchError";
+import { useOnlineStatus } from "@/components/ui/hooks/UseOnlineStatus";
 import type { DateRange } from "@daypicker/react";
+import {
+  apiFetch,
+  SessionExpiredError,
+} from "@/features/auth/session/client/ApiFetch";
 
 export type HistoryItem = {
   id?: number;
+  status?: string;
   resultLabel?: string;
   resultClass?: number;
   confidenceLevel?: number;
   requestedAt?: string;
+  completedAt?: string;
+  /** Internal device UUID: never shown; the paired ID is device.deviceNumber. */
   deviceId?: string;
+  device?: { deviceNumber?: string } | null;
   ppgData?: number[];
   ppgResult?: { rawPpgData?: number[] };
 };
 
 export function useHistoryView() {
+  const { reconnectCount } = useOnlineStatus();
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(5);
   const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
@@ -22,7 +37,9 @@ export function useHistoryView() {
   const [historyData, setHistoryData] = useState<HistoryItem[]>([]);
   const [totalPages, setTotalPages] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<DataError | null>(null);
+  const [selectedItem, setSelectedItem] = useState<HistoryItem | null>(null);
+  const [reloadCount, setReloadCount] = useState(0);
 
   const [summaries, setSummaries] = useState([
     { label: "Total jumlah monitoring", value: 0 },
@@ -41,37 +58,58 @@ export function useHistoryView() {
         });
 
         if (dateRange?.from) {
-          const fromDate = new Date(dateRange.from.getTime() - dateRange.from.getTimezoneOffset() * 60000);
+          const fromDate = new Date(
+            dateRange.from.getTime() -
+              dateRange.from.getTimezoneOffset() * 60000,
+          );
           params.append("startDate", fromDate.toISOString().split("T")[0]);
         }
         if (dateRange?.to) {
-          const toDate = new Date(dateRange.to.getTime() - dateRange.to.getTimezoneOffset() * 60000);
+          const toDate = new Date(
+            dateRange.to.getTime() - dateRange.to.getTimezoneOffset() * 60000,
+          );
           params.append("endDate", toDate.toISOString().split("T")[0]);
         }
 
-        const res = await fetch(`/api/v1/measurement/history?${params.toString()}`);
-        if (!res.ok) throw new Error("Gagal mengambil data");
+        const res = await apiFetch(
+          `/api/v1/measurement/history?${params.toString()}`,
+        );
+        if (!res.ok) throw new HttpError(res.status);
         const json = await res.json();
 
         if (json.code === 200 && json.data) {
           setHistoryData(json.data.data || []);
           setTotalPages(json.data.metadata?.totalPages || 1);
           setSummaries([
-            { label: "Total jumlah monitoring", value: json.data.summary?.totalData || 0 },
-            { label: "Terdeteksi AF", value: json.data.summary?.totalAfib || 0 },
-            { label: "Ritme Normal", value: json.data.summary?.totalNormal || 0 },
+            {
+              label: "Total jumlah monitoring",
+              value: json.data.summary?.totalData || 0,
+            },
+            {
+              label: "Terdeteksi AF",
+              value: json.data.summary?.totalAfib || 0,
+            },
+            {
+              label: "Ritme Normal",
+              value: json.data.summary?.totalNormal || 0,
+            },
           ]);
         }
       } catch (err: unknown) {
-        const message = err instanceof Error ? err.message : "Terjadi kesalahan";
-        setError(message);
-      } finally {
-        setIsLoading(false);
+        if (err instanceof SessionExpiredError) return;
+        console.error("Gagal mengambil riwayat:", err);
+        setError(
+          describeCaughtError(
+            err,
+            err instanceof HttpError ? err.status : undefined,
+          ),
+        );
       }
+      setIsLoading(false);
     }
 
     fetchHistory();
-  }, [currentPage, itemsPerPage, dateRange]);
+  }, [currentPage, itemsPerPage, dateRange, reloadCount, reconnectCount]);
 
   return {
     currentPage,
@@ -85,5 +123,8 @@ export function useHistoryView() {
     isLoading,
     error,
     summaries,
+    reload: () => setReloadCount((count) => count + 1),
+    selectedItem,
+    setSelectedItem,
   };
 }

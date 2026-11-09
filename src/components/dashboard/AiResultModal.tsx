@@ -1,119 +1,321 @@
 "use client";
 
 import Link from "next/link";
-import { format } from "date-fns";
-import { id as localeId } from "date-fns/locale";
-import { Sparkles, ShieldCheck, AlertTriangle } from "lucide-react";
+import { Clock } from "lucide-react";
+import { useId } from "react";
 
+import {
+  formatConfidence,
+  formatWib,
+} from "@/components/dashboard/DashboardFormat";
 import { DashboardModal } from "@/components/dashboard/DashboardModal";
+import type { MeasurementData } from "@/components/dashboard/hooks/UseDashboardOverview";
+import {
+  analysisStatusLabel,
+  type RestartAction,
+  type ResultModalView,
+} from "@/components/dashboard/MonitoringSession";
+import {
+  classifyResult,
+  isAlertKind,
+  RESULT_COPY,
+} from "@/components/dashboard/ResultKind";
+import { PpgTrace } from "@/components/dashboard/PpgTrace";
+import {
+  recordingDuration,
+  SAMPLE_RATE_HZ,
+} from "@/components/dashboard/Signal";
+import {
+  rangeEndingOn,
+  reportHref,
+} from "@/components/dashboard/ReportRange";
 import { StatusMark } from "@/components/dashboard/StatusMark";
-
-type AiResultData = {
-  id?: number;
-  resultLabel?: string;
-  resultClass?: number;
-  confidenceLevel?: number;
-  completedAt?: string;
-  updatedAt?: string;
-  deviceId?: string;
-};
+import { PulseLoader } from "@/components/ui/PulseLoader";
 
 type AiResultModalProps = Readonly<{
-  data: AiResultData | null;
+  /** The wristband ended the session after 3 minutes; the user did not press Stop. */
+  autoFinished: boolean;
+  data: MeasurementData | null;
   onClose: () => void;
+  onRestart: () => void;
   open: boolean;
+  /** "Mulai monitoring lagi": hidden while a session runs; disabled (with a reason) when busy, offline or unknown. */
+  restart: RestartAction;
+  view: ResultModalView;
 }>;
 
-export function AiResultModal({ data, onClose, open }: AiResultModalProps) {
-  if (!data) return null;
+// One column on phones, two from sm; with an odd number of actions the first
+// (primary) one spans both columns. Grid, not flex-grow: a zero flex-basis in a
+// column flexbox collapses the buttons below their 48px height.
+const actionsClassName =
+  "grid gap-3 sm:grid-cols-2 sm:[&>:first-child:nth-last-child(odd)]:col-span-2";
+const actionClassName =
+  "flex h-12 items-center justify-center whitespace-nowrap rounded-full px-5 text-center text-[0.9375rem] font-semibold focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-300";
+const primaryActionClassName = `btn-primary ${actionClassName} bg-primary-900 text-white`;
+const secondaryActionClassName = `${actionClassName} border-[1.5px] border-primary-900/20 text-primary-900 transition-colors hover:bg-paper-deep disabled:cursor-not-allowed disabled:border-primary-900/15 disabled:text-primary-900/70 disabled:hover:bg-transparent`;
 
-  const isNormal = data.resultLabel?.toLowerCase().includes("normal") ?? true;
-  const confidence = data.confidenceLevel ?? 95; // Default fallback fallback if 0/null in mock
+export function AiResultModal({
+  autoFinished,
+  data,
+  onClose,
+  onRestart,
+  open,
+  restart,
+  view,
+}: AiResultModalProps) {
+  const kind = data ? classifyResult(data) : "pending";
+  const title =
+    view === "analysing"
+      ? "Menganalisis rekaman"
+      : view === "timeout"
+        ? "Hasil belum tersedia"
+        : RESULT_COPY[kind].title;
 
-  const formattedDate = data.completedAt || data.updatedAt
-    ? format(new Date(data.completedAt || data.updatedAt!), "d MMMM yyyy, HH:mm", { locale: localeId }) + " WIB"
-    : "-";
-
+  // Each view is a fresh dialog element (contentKey), so focus moves into it
+  // and the new title is announced when the result arrives in an open modal;
+  // the backdrop stays and focus still returns to the original opener.
   return (
     <DashboardModal
-      description="Sistem AI SiHEDAF telah selesai menganalisis rekaman sinyal PPG terbaru Anda."
+      contentKey={view}
       onClose={onClose}
       open={open}
       showCloseButton={false}
-      title="Hasil Analisis AI Selesai"
+      size="wide"
+      title={title}
     >
-      <div className="flex flex-col items-center text-center">
-        {/* Status Badge & Icon */}
-        <div className="relative mt-1 grid place-items-center">
-          <StatusMark size="large" status={isNormal ? "normal" : "af"} />
-          <span className="absolute -bottom-2 flex items-center gap-1 rounded-full bg-primary-900 px-3 py-0.5 text-[11px] font-medium text-white shadow-sm">
-            <Sparkles size={12} className="text-primary-200" />
-            AI Diagnostic
-          </span>
-        </div>
-
-        {/* Diagnosis Heading */}
-        <h3 className="mt-6 text-[20px] font-semibold text-[#161b20]">
-          {isNormal ? "Irama Jantung Normal" : "Terdeteksi Potensi AF (Atrial Fibrillation)"}
-        </h3>
-
-        <p className="mt-1.5 text-[13px] text-[#6b7280]">
-          {isNormal
-            ? "Sinyal PPG menunjukkan irama denyut jantung teratur dan stabil."
-            : "Terdeteksi anomali pada ritme PPG. Disarankan untuk memantau ulang atau berkonsultasi dengan dokter."}
-        </p>
-
-        {/* Confidence & Details Card */}
-        <div className="mt-5 w-full rounded-2xl border border-[#edf0f3] bg-[#f8fafc] p-4 text-left">
-          <div className="flex items-center justify-between border-b border-[#e2e8f0] pb-3">
-            <span className="flex items-center gap-2 text-[12px] font-medium text-[#475569]">
-              {isNormal ? (
-                <ShieldCheck size={16} className="text-[#38b952]" />
-              ) : (
-                <AlertTriangle size={16} className="text-[#ff4572]" />
-              )}
-              Tingkat Keyakinan AI
-            </span>
-            <span
-              className={`rounded-full px-2.5 py-0.5 text-[12px] font-bold ${isNormal
-                  ? "bg-[#e6f7e9] text-[#2e7d32]"
-                  : "bg-[#ffe8ee] text-[#c62828]"
-                }`}
-            >
-              {confidence > 0 ? `${confidence}%` : "95% (Estimasi)"}
-            </span>
-          </div>
-
-          <div className="mt-3 grid grid-cols-2 gap-2 text-[12px]">
-            <div>
-              <span className="text-[#94a3b8]">Waktu Pengukuran</span>
-              <p className="mt-0.5 font-medium text-[#1e293b]">{formattedDate}</p>
-            </div>
-            <div>
-              <span className="text-[#94a3b8]">Status Analisis</span>
-              <p className="mt-0.5 font-medium text-primary-500">Selesai (COMPLETED)</p>
-            </div>
-          </div>
-        </div>
-
-        {/* Action Buttons */}
-        <div className="mt-6 flex w-full flex-col-reverse gap-2.5 sm:flex-row">
-          <button
-            className="flex h-11 flex-1 cursor-pointer items-center justify-center rounded-full border border-[#cbd5e1] text-[13px] font-medium text-[#334155] transition-colors hover:bg-[#f1f5f9] hover:text-[#0f172a]"
-            onClick={onClose}
-            type="button"
-          >
-            Tutup
-          </button>
-          <Link
-            className="flex h-11 flex-1 cursor-pointer items-center justify-center rounded-full bg-primary-300 text-[13px] font-medium text-white shadow-[0_4px_14px_rgba(0,110,251,0.25)] transition-colors hover:bg-primary-400"
-            href="/riwayat"
-            onClick={onClose}
-          >
-            Lihat Riwayat
-          </Link>
-        </div>
-      </div>
+      {view === "analysing" ? (
+        <AnalysingBody onClose={onClose} />
+      ) : view === "timeout" ? (
+        <TimeoutBody onClose={onClose} />
+      ) : (
+        <ResultBody
+          autoFinished={autoFinished}
+          data={data}
+          onClose={onClose}
+          onRestart={onRestart}
+          restart={restart}
+        />
+      )}
     </DashboardModal>
+  );
+}
+
+function AnalysingBody({ onClose }: Readonly<{ onClose: () => void }>) {
+  return (
+    <div className="flex flex-col items-center text-center">
+      <PulseLoader className="mt-2" label="Sedang dianalisis…" />
+      <p className="mt-5 max-w-[520px] text-[1rem] leading-[1.55] text-primary-900/80">
+        AI sedang membaca sinyal PPG dari sesi ini. Kamu boleh menutup jendela
+        ini; hasilnya akan muncul di dashboard dan Riwayat.
+      </p>
+      <div className={`mt-7 w-full ${actionsClassName}`}>
+        <button
+          className={secondaryActionClassName}
+          onClick={onClose}
+          type="button"
+        >
+          Tutup
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function TimeoutBody({ onClose }: Readonly<{ onClose: () => void }>) {
+  return (
+    <>
+      <p className="text-[1rem] leading-[1.55] text-primary-900/80">
+        Analisis mungkin masih berjalan. Cek Riwayat beberapa saat lagi.
+      </p>
+      <div className={`mt-7 ${actionsClassName}`}>
+        <Link
+          className={primaryActionClassName}
+          href="/riwayat"
+          onClick={onClose}
+        >
+          Buka Riwayat
+        </Link>
+        <button
+          className={secondaryActionClassName}
+          onClick={onClose}
+          type="button"
+        >
+          Tutup
+        </button>
+      </div>
+    </>
+  );
+}
+
+function ResultBody({
+  autoFinished,
+  data,
+  onClose,
+  onRestart,
+  restart,
+}: Readonly<{
+  autoFinished: boolean;
+  data: MeasurementData | null;
+  onClose: () => void;
+  onRestart: () => void;
+  restart: RestartAction;
+}>) {
+  const restartHintId = useId();
+  const kind = data ? classifyResult(data) : "pending";
+  const isAlert = isAlertKind(kind);
+  const isNeutral = !isAlert && kind !== "normal";
+  const confidence = formatConfidence(data?.confidenceLevel);
+  const measuredAt = formatWib(
+    data?.completedAt ?? data?.updatedAt ?? data?.createdAt,
+  );
+  const duration = recordingDuration(data?.ppgResult?.rawPpgData);
+
+  const historyLink = (
+    <Link
+      className={secondaryActionClassName}
+      href="/riwayat"
+      onClick={onClose}
+    >
+      Lihat Riwayat
+    </Link>
+  );
+  // Offered with a result only once no session runs, never while recording.
+  // Pending has nothing to redo; a short or failed recording is fixed by a new one.
+  const offersRestart = kind !== "pending" && restart !== "hidden";
+  const restartHint =
+    restart === "no-network"
+      ? "Tidak ada koneksi internet."
+      : restart === "device-unknown"
+        ? "Status perangkat belum bisa dimuat."
+        : restart === "offline"
+          ? "Perangkat belum terhubung."
+          : null;
+  const restartButton = offersRestart ? (
+    <button
+      aria-describedby={restartHint ? restartHintId : undefined}
+      className={secondaryActionClassName}
+      disabled={restart !== "ready"}
+      onClick={onRestart}
+      type="button"
+    >
+      Mulai monitoring lagi
+    </button>
+  ) : null;
+  const closeButton = (
+    <button
+      className={
+        kind === "normal" ? primaryActionClassName : secondaryActionClassName
+      }
+      onClick={onClose}
+      type="button"
+    >
+      Tutup
+    </button>
+  );
+
+  return (
+    <div className="flex flex-col gap-5">
+      {autoFinished ? (
+        <p
+          className="flex items-center gap-2.5 rounded-[14px] bg-primary-50 px-4 py-3 text-[0.9375rem] font-medium text-primary-900"
+          role="note"
+        >
+          <Clock
+            aria-hidden="true"
+            className="size-4 shrink-0 text-primary-500"
+            strokeWidth={2.25}
+          />
+          Rekaman selesai otomatis setelah 3 menit.
+        </p>
+      ) : null}
+      <div className="flex items-start gap-4">
+        {isNeutral ? null : (
+          <div className="shrink-0">
+            <StatusMark
+              label={RESULT_COPY[kind].label}
+              size="large"
+              status={isAlert ? "af" : "normal"}
+            />
+          </div>
+        )}
+        <p className="text-[1rem] leading-[1.55] text-primary-900/80">
+          {RESULT_COPY[kind].sentence}
+        </p>
+      </div>
+
+      <PpgTrace
+        className="h-36 w-full rounded-[18px] bg-paper"
+        data={data?.ppgResult?.rawPpgData}
+        label="Grafik sinyal PPG"
+        sampleRate={SAMPLE_RATE_HZ}
+        tone={isAlert ? "pink" : "blue"}
+      />
+
+      <dl className="grid gap-4 rounded-[18px] bg-paper p-5 text-[0.9375rem] sm:grid-cols-2">
+        <div>
+          <dt className="text-primary-900/75">Waktu</dt>
+          <dd className="mt-1 font-semibold text-primary-900">
+            {measuredAt ?? "—"}
+          </dd>
+        </div>
+        <div>
+          <dt className="text-primary-900/75">Durasi rekaman</dt>
+          <dd className="mt-1 font-semibold tabular-nums text-primary-900">
+            {duration ?? "—"}
+          </dd>
+        </div>
+        <div>
+          <dt className="text-primary-900/75">Keyakinan AI</dt>
+          <dd className="mt-1 font-semibold tabular-nums text-primary-900">
+            {confidence ?? "Tidak tersedia"}
+          </dd>
+        </div>
+        <div>
+          <dt className="text-primary-900/75">Status analisis</dt>
+          <dd className="mt-1 font-semibold text-primary-900">
+            {analysisStatusLabel(data?.status)}
+          </dd>
+        </div>
+      </dl>
+
+      <div className={actionsClassName}>
+        {isAlert ? (
+          <>
+            <Link
+              className={primaryActionClassName}
+              href={reportHref(
+                rangeEndingOn(data?.completedAt ?? data?.createdAt),
+              )}
+              onClick={onClose}
+            >
+              Buat laporan dokter
+            </Link>
+            {historyLink}
+            {restartButton}
+            {closeButton}
+          </>
+        ) : kind === "normal" ? (
+          <>
+            {closeButton}
+            {historyLink}
+            {restartButton}
+          </>
+        ) : (
+          <>
+            {restartButton}
+            {historyLink}
+            {closeButton}
+          </>
+        )}
+      </div>
+      {offersRestart && restartHint ? (
+        <p
+          className="-mt-2 text-[0.875rem] text-primary-900/75"
+          id={restartHintId}
+        >
+          {restartHint}
+        </p>
+      ) : null}
+    </div>
   );
 }

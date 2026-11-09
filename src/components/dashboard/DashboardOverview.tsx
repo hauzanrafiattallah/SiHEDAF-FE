@@ -2,117 +2,283 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { Pause, Play, Sparkles } from "lucide-react";
-import { formatDistanceToNow } from "date-fns";
-import { id as localeId } from "date-fns/locale";
+import {
+  ArrowRight,
+  ChevronDown,
+  Clock,
+  Hand,
+  Pause,
+  Play,
+  TriangleAlert,
+} from "lucide-react";
 
-import { DashboardIcon } from "@/components/dashboard/DashboardIcon";
-import { SignalChart } from "@/components/dashboard/SignalChart";
-import { StatusMark } from "@/components/dashboard/StatusMark";
 import { AiResultModal } from "@/components/dashboard/AiResultModal";
+import {
+  formatConfidence,
+  formatWib,
+} from "@/components/dashboard/DashboardFormat";
+import {
+  isAlertKind,
+  RESULT_COPY,
+} from "@/components/dashboard/ResultKind";
+import { DataErrorState } from "@/components/ui/DataErrorState";
+import { DeviceOfflineCard } from "@/components/dashboard/DeviceOfflineCard";
+import { FirstRunGuide } from "@/components/dashboard/FirstRunGuide";
+import { SignalChart } from "@/components/dashboard/SignalChart";
 import { Sparkline } from "@/components/dashboard/Sparkline";
+import { StatusMark } from "@/components/dashboard/StatusMark";
 import { useDashboardOverview } from "@/components/dashboard/hooks/UseDashboardOverview";
+
+const panelClassName = "rounded-[24px] border border-primary-900/15 bg-white";
+const labelClassName = "text-[0.875rem] font-medium text-primary-900/75";
+const toggleHintId = "monitoring-toggle-hint";
+const stalledHintId = "monitoring-stalled-hint";
+const valueClassName = "mt-1 text-[1rem] font-semibold text-primary-900";
 
 export function DashboardOverview() {
   const {
     firstName,
     deviceData,
+    deviceStatus,
+    deviceStatusLabel,
+    deviceStatusLive,
+    deviceError,
+    isDeviceRefreshing,
+    reloadDevice,
     latestData,
+    hasLoadedLatest,
+    latestError,
+    reloadLatest,
+    showFirstRun,
+    firstRunGuideSteps,
     signalsData,
-    confidenceVal,
+    signalsError,
+    reloadSignals,
+    isSignalsRetrying,
+    result,
     isMonitoringActive,
+    phase,
+    clock,
+    autoFinished,
     monitoringRange,
     setMonitoringRange,
     isTogglingAction,
     handleToggleMonitoring,
     isAiModalOpen,
-    setIsAiModalOpen,
+    modalView,
+    openAiResult,
+    closeAiModal,
+    restartMonitoring,
+    restartState,
+    toggleBlocked,
   } = useDashboardOverview();
 
+  const isAnalysing = phase === "analysing";
+  const isAlert = isAlertKind(result);
+  const isNeutral = result === "pending" || result === "short" || result === "unavailable";
+  const copy = RESULT_COPY[result];
+
+  const confidence = formatConfidence(latestData?.confidenceLevel);
+  const analysedAt = formatWib(
+    latestData?.completedAt ?? latestData?.updatedAt,
+  );
+  const measuredAt = formatWib(latestData?.createdAt);
+  const toggleHint =
+    toggleBlocked === "no-network"
+      ? "Tidak ada koneksi internet."
+      : toggleBlocked === "device-unknown"
+        ? "Status perangkat belum bisa dimuat."
+        : null;
+  // Overtime for more than 30 s without a result: only Stop finishes it now.
+  const isStalled = isMonitoringActive && clock.overtime && clock.stalled;
+  const toggleDescribedBy =
+    [toggleHint ? toggleHintId : null, isStalled ? stalledHintId : null]
+      .filter(Boolean)
+      .join(" ") || undefined;
+
   return (
-    <section className="min-h-[calc(100dvh-72px)] min-w-0 px-4 py-7 sm:px-7 lg:px-9 lg:py-9">
-      <div className="mx-auto max-w-[1280px]">
-        <div>
-          <h1 className="text-[22px] font-semibold tracking-[-0.035em] text-[#151a20]">
-            Selamat Datang, {firstName}!
-          </h1>
-          <p className="mt-2 text-[13px] text-[#9298a1]">
-            Pantau kondisi dan hasil analisis perangkat SiHEDAF
-          </p>
-        </div>
+    <section className="min-h-[calc(100dvh-72px)] min-w-0 px-4 py-8 sm:px-7 lg:px-10 lg:py-10">
+      <div className="mx-auto max-w-[1180px]">
+        <p className="text-[1rem] font-semibold text-primary-500">
+          Selamat Datang, {firstName}
+        </p>
 
-        <article className="mt-6 flex flex-wrap items-center justify-between gap-6 rounded-[24px] bg-[linear-gradient(105deg,#f5fbff_0%,#e0eeff_100%)] p-7 sm:px-10 sm:py-8">
-          <div className="flex flex-wrap items-center gap-7 sm:gap-9">
-            <div className="ml-1 grid h-[100px] w-[100px] shrink-0 place-items-center rounded-full border border-primary-200/60 bg-white/45 sm:ml-2 sm:h-[110px] sm:w-[110px]">
-              <StatusMark size="large" status={latestData?.resultLabel?.toLowerCase().includes("normal") ? "normal" : (latestData ? "af" : "normal")} />
-            </div>
-            <div className="min-w-0">
-              <div className="flex items-center gap-3">
-                <p className="text-[13px] font-medium text-primary-300">Hasil Analisis Terakhir</p>
-                {latestData ? (
-                  <span className="inline-flex items-center gap-1 rounded-full border border-primary-200 bg-white/80 px-2.5 py-0.5 text-[11px] font-semibold text-primary-800 shadow-2xs">
-                    <Sparkles size={12} className="text-primary-400" />
-                    Keyakinan AI: {confidenceVal > 0 ? `${confidenceVal}%` : "95%"}
-                  </span>
-                ) : null}
-              </div>
-              <h2 className="mt-2.5 text-[18px] font-semibold text-[#161b20]">
-                {latestData ? (latestData.resultLabel?.toLowerCase().includes("normal") ? "Normal Rhythm" : "Terdeteksi AF") : "Belum ada data"}
-              </h2>
-              <p className="mt-1 text-[14px] text-[#343b43]">
-                {latestData ? (latestData.resultLabel?.toLowerCase().includes("normal") ? "Tidak ditemukan pola AF pada analisis terakhir" : "Pola AF teridentifikasi pada analisis terakhir") : "Silakan mulai monitoring"}
-              </p>
-              <p className="mt-4 flex items-center gap-2.5 text-[12px] text-[#8e949d]">
-                <span className="grid h-4 w-4 place-items-center rounded-full border border-[#a7afb8]">
-                  <span className="h-1.5 w-px bg-[#929aa4]" />
+        <h1 className="mt-3 max-w-[900px] text-[clamp(2.3rem,4.4vw,4rem)] leading-[0.98] tracking-[-0.05em] text-primary-900">
+          {!hasLoadedLatest ? (
+            <span className="font-bold">Memuat hasil terakhir</span>
+          ) : latestError && !latestData ? (
+            <span className="font-bold">Hasil terakhir belum bisa dimuat.</span>
+          ) : result === "pending" && isMonitoringActive ? (
+            <span className="font-bold">Monitoring sedang berjalan.</span>
+          ) : result === "pending" ? (
+            <span className="font-bold">Belum ada hasil analisis.</span>
+          ) : result === "short" || result === "unavailable" ? (
+            <span className="font-bold">Rekaman terakhir belum bisa dianalisis.</span>
+          ) : (
+            <>
+              <span className="font-extralight">Irama terakhirmu</span>{" "}
+              <span
+                className={`font-bold ${result === "normal" ? "text-primary-300" : "text-af-500"}`}
+              >
+                {result === "normal" ? "normal." : "tidak teratur."}
+              </span>
+            </>
+          )}
+        </h1>
+
+        {latestError && !latestData ? (
+          <DataErrorState
+            {...latestError}
+            className="mt-6 items-start text-left"
+            onRetry={reloadLatest}
+          />
+        ) : null}
+
+        {showFirstRun ? (
+          <FirstRunGuide steps={firstRunGuideSteps} />
+        ) : null}
+
+        {latestData ? (
+          <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-3">
+            <p className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[0.9375rem] text-primary-900/80">
+              {isNeutral ? null : (
+                <StatusMark
+                  label={copy.label}
+                  size="small"
+                  status={isAlert ? "af" : "normal"}
+                />
+              )}
+              <span className="font-semibold text-primary-900">
+                Hasil Analisis Terakhir
+              </span>
+              {isNeutral ? (
+                <span className="font-semibold text-primary-900/70">
+                  {copy.label}
                 </span>
-                {latestData?.updatedAt ? `Diperbarui ${formatDistanceToNow(new Date(latestData.updatedAt), { locale: localeId, addSuffix: true })}` : "-"}
-              </p>
-            </div>
-          </div>
-
-          {latestData ? (
+              ) : null}
+              {analysedAt ? <span>{analysedAt}</span> : null}
+              {confidence ? (
+                <span>
+                  Keyakinan AI{" "}
+                  <span className="font-semibold text-primary-900">
+                    {confidence}
+                  </span>
+                </span>
+              ) : null}
+            </p>
             <button
-              className="inline-flex items-center gap-2 rounded-full border border-primary-300/40 bg-white px-4 py-2 text-[12px] font-semibold text-primary-500 transition-colors hover:bg-primary-50 hover:text-primary-600 focus-visible:outline-2 focus-visible:outline-primary-300"
-              onClick={() => setIsAiModalOpen(true)}
+              className="inline-flex h-11 items-center gap-2 rounded-full border-[1.5px] border-primary-900/20 bg-white px-5 text-[0.9375rem] font-semibold text-primary-900 transition-colors hover:bg-paper-deep focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-300"
+              onClick={openAiResult}
               type="button"
             >
-              <Sparkles size={14} className="text-primary-300" />
-              Detail Diagnosa AI
+              Detail Hasil AI
+              <ArrowRight
+                aria-hidden="true"
+                className="size-4"
+                strokeWidth={2.25}
+              />
             </button>
-          ) : null}
-        </article>
+          </div>
+        ) : null}
 
-        <article className="mt-6 rounded-[24px] border border-[#edf0f3] bg-white px-6 py-6 sm:px-7">
+        {isAlert ? (
+          <div
+            className="mt-6 flex max-w-[760px] gap-3 rounded-[18px] bg-af-50 p-5 text-[1rem] leading-[1.55] text-primary-900"
+            role="note"
+          >
+            <TriangleAlert
+              aria-hidden="true"
+              className="mt-0.5 size-5 shrink-0 text-af-700"
+              strokeWidth={2.25}
+            />
+            <p>
+              {result === "flutter"
+                ? "AI menemukan pola yang mirip Atrial Flutter."
+                : "AI menemukan pola yang mirip Atrial Fibrillation."}{" "}
+              Hasil ini bukan
+              diagnosis; pertimbangkan konsultasi ke dokter, terutama jika kamu
+              merasakan keluhan seperti jantung berdebar atau pusing.
+            </p>
+          </div>
+        ) : null}
+
+        <DeviceOfflineCard
+          error={deviceError}
+          lastSeen={deviceData?.lastSeen}
+          onRetry={reloadDevice}
+          refreshing={isDeviceRefreshing}
+          state={deviceStatus}
+        />
+
+        <article
+          className={`mt-10 scroll-mt-24 ${panelClassName} px-5 pt-6 pb-5 sm:px-7`}
+          id="monitor"
+        >
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div>
-              <h2 className="text-[16px] font-semibold text-[#171c21]">Sinyal PPG Terbaru</h2>
-              <div
-                aria-live="polite"
-                className="mt-3 flex flex-wrap items-center gap-x-5 gap-y-2 text-[12px]"
-              >
-                <span
-                  className={`flex items-center gap-2 ${isMonitoringActive ? "text-[#38b952]" : "text-[#9298a1]"
-                    }`}
-                >
-                  <span
-                    className={`h-2.5 w-2.5 rounded-full transition-colors ${isMonitoringActive ? "bg-[#43bd59]" : "bg-[#b6bbc3]"
-                      }`}
-                  />
-                  {isMonitoringActive ? "Monitoring aktif" : "Monitoring dijeda"}
+              <h2 className="text-[1.375rem] font-bold tracking-[-0.03em] text-primary-900">
+                Sinyal PPG Terbaru
+              </h2>
+              <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-[0.9375rem]">
+                <span className="flex items-center gap-2 font-semibold text-primary-900">
+                  {isMonitoringActive ? (
+                    <span
+                      aria-hidden="true"
+                      className="live-dot !bg-primary-300"
+                    />
+                  ) : (
+                    <span
+                      aria-hidden="true"
+                      className="h-2.5 w-2.5 rounded-full border-2 border-primary-900/40"
+                    />
+                  )}
+                  {/* Only the phase word is live; the timer would be read every second. */}
+                  <span aria-live="polite">
+                    {isMonitoringActive
+                      ? clock.overtime
+                        ? "Menunggu hasil dari wristband…"
+                        : "Merekam"
+                      : isAnalysing
+                        ? "Menganalisis rekaman…"
+                        : "Monitoring dijeda"}
+                  </span>
+                  {/* From 03:00 the wristband has stopped: the waiting text replaces the clock. */}
+                  {isMonitoringActive && !clock.overtime ? (
+                    <>
+                      <span aria-hidden="true">·</span>
+                      <span
+                        aria-label={`Lama perekaman ${clock.elapsed} dari ${clock.limit}`}
+                        aria-live="off"
+                        className="tabular-nums"
+                        role="timer"
+                      >
+                        {clock.text}
+                      </span>
+                    </>
+                  ) : null}
                 </span>
-                <span className="text-[#a4a9b1]">
+                {/* /signals only holds finished recordings: never imply live data. */}
+                <span className="text-primary-900/75">
                   {isMonitoringActive
-                    ? `Pembaruan otomatis selama ${monitoringRange} menit`
+                    ? "Grafik menampilkan rekaman yang sudah selesai; rekaman ini tampil setelah selesai."
                     : "Pembaruan dihentikan sementara"}
                 </span>
               </div>
+              {/* Not live: it appears once and is tied to the Stop button instead. */}
+              {isStalled ? (
+                <p
+                  className="mt-2 max-w-[560px] text-[0.9375rem] leading-[1.55] font-medium text-primary-900/80"
+                  id={stalledHintId}
+                >
+                  {"Belum ada hasil dari wristband. Tekan Hentikan Monitoring untuk menyelesaikan rekaman."}
+                </p>
+              ) : null}
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2.5">
               <label className="relative block">
                 <span className="sr-only">Rentang waktu monitoring</span>
                 <select
-                  className="h-10 appearance-none rounded-full border border-[#222831] bg-white pl-5 pr-10 text-[12px] text-[#20252b] outline-none transition-colors hover:border-primary-300 focus:border-primary-300 focus-visible:ring-2 focus-visible:ring-primary-200"
+                  className="h-11 appearance-none rounded-full border-[1.5px] border-primary-900/20 bg-white pr-10 pl-5 text-[0.9375rem] font-medium text-primary-900 outline-none transition-colors hover:border-primary-900/40 focus:border-primary-300 focus-visible:ring-4 focus-visible:ring-primary-100"
                   onChange={(event) => setMonitoringRange(event.target.value)}
                   value={monitoringRange}
                 >
@@ -122,195 +288,229 @@ export function DashboardOverview() {
                     </option>
                   ))}
                 </select>
-                <DashboardIcon
-                  className="pointer-events-none absolute right-4 top-1/2 h-3 w-3 -translate-y-1/2 rotate-90 text-[#20252b]"
-                  name="chevron"
+                <ChevronDown
+                  aria-hidden="true"
+                  className="pointer-events-none absolute top-1/2 right-4 size-4 -translate-y-1/2 text-primary-900"
+                  strokeWidth={2.25}
                 />
               </label>
               <button
                 aria-pressed={isMonitoringActive}
-                disabled={isTogglingAction || !deviceData || deviceData?.status !== "ONLINE"}
-                className={`flex h-10 items-center gap-2 rounded-full border px-5 text-[12px] font-medium transition-[color,background-color,border-color,box-shadow,transform] duration-200 active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed ${isMonitoringActive
-                  ? "border-primary-300 bg-white text-primary-300 hover:bg-primary-50"
-                  : "border-primary-300 bg-primary-300 text-white shadow-[0_8px_20px_rgba(0,110,251,0.2)] hover:bg-primary-400"
-                  }`}
+                className={`flex h-11 items-center gap-2 rounded-full px-5 text-[0.9375rem] font-semibold transition-[color,background-color,border-color,transform] duration-200 active:scale-[0.98] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-300 ${
+                  isMonitoringActive
+                    ? "border-[1.5px] border-primary-900/20 bg-white text-primary-900 hover:bg-paper-deep"
+                    : "btn-primary bg-primary-900 text-white"
+                }`}
+                aria-describedby={toggleDescribedBy}
+                disabled={
+                  toggleBlocked !== null || isTogglingAction || isAnalysing
+                }
                 onClick={handleToggleMonitoring}
                 type="button"
               >
-                {isTogglingAction ? (
+                {isTogglingAction || isAnalysing ? (
                   <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
                 ) : isMonitoringActive ? (
-                  <Pause aria-hidden="true" size={16} strokeWidth={2} />
+                  <Pause aria-hidden="true" size={16} strokeWidth={2.25} />
                 ) : (
-                  <Play aria-hidden="true" fill="currentColor" size={16} strokeWidth={2} />
+                  <Play
+                    aria-hidden="true"
+                    fill="currentColor"
+                    size={16}
+                    strokeWidth={2}
+                  />
                 )}
-                {isMonitoringActive ? "Hentikan Monitoring" : "Mulai Monitoring"}
+                {isAnalysing
+                  ? "Menganalisis…"
+                  : isMonitoringActive
+                    ? "Hentikan Monitoring"
+                    : "Mulai Monitoring"}
               </button>
             </div>
           </div>
-          <SignalChart isActive={isMonitoringActive} data={signalsData} />
+          {toggleHint ? (
+            <p
+              className="mt-3 text-[0.9375rem] font-medium text-primary-900/80"
+              id={toggleHintId}
+            >
+              {toggleHint}
+            </p>
+          ) : null}
+          {isMonitoringActive ? (
+            <div
+              className="mt-4 flex max-w-[760px] gap-3 rounded-[18px] bg-primary-50 p-4 text-[0.9375rem] leading-[1.55] text-primary-900"
+              role="note"
+            >
+              <Hand
+                aria-hidden="true"
+                className="mt-0.5 size-5 shrink-0 text-primary-500"
+                strokeWidth={2}
+              />
+              <p>
+                {"Biarkan wristband tetap terpasang dan usahakan tangan tidak banyak bergerak selama perekaman."}
+              </p>
+            </div>
+          ) : null}
+          {phase === "timeout" ? (
+            <div
+              className="mt-4 flex max-w-[760px] gap-3 rounded-[18px] bg-paper p-4 text-[0.9375rem] leading-[1.55] text-primary-900"
+              role="note"
+            >
+              <Clock
+                aria-hidden="true"
+                className="mt-0.5 size-5 shrink-0 text-primary-500"
+                strokeWidth={2}
+              />
+              <p>
+                {"Hasil sesi terakhir belum tersedia. Cek Riwayat beberapa saat lagi."}{" "}
+                <Link
+                  className="font-semibold text-primary-500 underline underline-offset-4 transition-colors hover:text-primary-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-300"
+                  href="/riwayat"
+                >
+                  Buka Riwayat
+                </Link>
+              </p>
+            </div>
+          ) : null}
+          {/* A failed read is not "no signal": say so, with a retry. */}
+          {signalsError ? (
+            <div className="mt-6 grid min-h-[180px] place-items-center border-y border-primary-900/10 sm:min-h-[200px]">
+              <DataErrorState
+                compact
+                live="status"
+                message={signalsError.message}
+                onRetry={reloadSignals}
+                retrying={isSignalsRetrying}
+                title="Grafik belum bisa dimuat"
+              />
+            </div>
+          ) : (
+            <SignalChart
+              data={signalsData}
+              isActive={isMonitoringActive}
+              rangeMinutes={Number(monitoringRange)}
+            />
+          )}
         </article>
 
         <div className="mt-6 grid items-stretch gap-6 lg:grid-cols-2">
-          <article className="flex h-full flex-col justify-between rounded-[24px] border border-[#edf0f3] bg-white p-6">
-            <div>
-              <div className="flex items-start justify-between">
-                <h2 className="text-[16px] font-semibold text-[#171c21]">Monitoring Terakhir</h2>
-                {latestData && (
-                  <div className="flex flex-col items-end">
-                    <span className="text-[11px] text-[#9ca2aa]">Keyakinan AI</span>
-                    <span className="mt-0.5 flex items-center gap-1 text-[12px] font-semibold text-primary-500">
-                      <Sparkles size={12} className="text-primary-400" />
-                      {confidenceVal > 0
-                        ? confidenceVal <= 1
-                          ? `${(confidenceVal * 100).toFixed(1)}%`
-                          : `${confidenceVal}%`
-                        : "95%"}
-                    </span>
-                  </div>
-                )}
-              </div>
-              <div className="mt-4">
-                {latestData ? (
-                  <div>
-                    <p
-                      className={`flex items-center gap-2 text-[12px] ${latestData.resultLabel?.toLowerCase().includes("normal")
-                          ? "text-[#4abb59]"
-                          : "text-[#ff4572]"
-                        }`}
-                    >
-                      <StatusMark
-                        size="small"
-                        status={
-                          latestData.resultLabel?.toLowerCase().includes("normal")
-                            ? "normal"
-                            : "af"
-                        }
-                      />
-                      <span className="font-medium">
-                        {latestData.resultLabel?.toLowerCase().includes("normal")
-                          ? "Normal Rhythm"
-                          : "Terdeteksi Potensi AF"}
-                      </span>
-                    </p>
-
-                    <h3 className="mt-2 text-[16px] font-semibold text-[#171c21]">
-                      {latestData.resultLabel?.toLowerCase().includes("normal")
-                        ? "Irama Jantung Normal & Stabil"
-                        : "Indikasi Anomali Irama Jantung"}
-                    </h3>
-
-                    <dl className="mt-5 grid grid-cols-2 gap-x-4 gap-y-3">
-                      <div>
-                        <dt className="text-[12px] text-[#9ca2aa]">Waktu Pengukuran</dt>
-                        <dd className="mt-1 whitespace-nowrap text-[12px] font-semibold text-[#171c21]">
-                          {latestData.createdAt
-                            ? `${new Intl.DateTimeFormat("id-ID", {
-                              timeZone: "Asia/Jakarta",
-                              day: "numeric",
-                              month: "short",
-                              year: "numeric",
-                              hour: "2-digit",
-                              minute: "2-digit",
-                            }).format(new Date(latestData.createdAt))} WIB`
-                            : "-"}
-                        </dd>
-                      </div>
-
-                      <div>
-                        <dt className="text-[12px] text-[#9ca2aa]">Grafik Sinyal</dt>
-                        <dd className="mt-1 flex items-center">
-                          <Sparkline
-                            tone={
-                            latestData.resultLabel?.toLowerCase().includes("normal")
-                              ? "blue"
-                              : "pink"
-                          }
-                          data={latestData.ppgResult?.rawPpgData}
-                        />
-                      </dd>
-                    </div>
-                  </dl>
-                </div>
-              ) : (
-                <p className="py-8 text-center text-[12px] text-[#9b9fa7]">
-                  Belum ada riwayat terbaru.
-                </p>
-              )}
-            </div>
-          </div>
-
-          <Link
-            className="mt-6 flex h-10 w-full items-center justify-center rounded-full border border-primary-300 text-[12px] font-medium text-primary-300 transition-colors hover:bg-primary-50"
-            href="/riwayat"
+          <article
+            className={`flex h-full flex-col p-6 sm:p-7 ${panelClassName}`}
           >
-            Lihat semua riwayat
-          </Link>
-        </article>
+            <h2 className="text-[1.25rem] font-bold tracking-[-0.03em] text-primary-900">
+              Monitoring Terakhir
+            </h2>
+            {latestData ? (
+              <div className="mt-5 flex-1">
+                <p className="flex items-center gap-3">
+                  {isNeutral ? null : (
+                    <StatusMark
+                      label={copy.label}
+                      size="small"
+                      status={isAlert ? "af" : "normal"}
+                    />
+                  )}
+                  <span
+                    className={`text-[0.9375rem] font-semibold ${
+                      isNeutral
+                        ? "text-primary-900/70"
+                        : result === "normal"
+                          ? "text-primary-500"
+                          : "text-af-700"
+                    }`}
+                  >
+                    {copy.label}
+                  </span>
+                </p>
+                <h3 className="mt-3 text-[1.1875rem] font-semibold text-primary-900">
+                  {copy.title}
+                </h3>
+                <dl className="mt-5 grid grid-cols-2 gap-x-4 gap-y-4">
+                  <div>
+                    <dt className={labelClassName}>Waktu Pengukuran</dt>
+                    <dd className={valueClassName}>{measuredAt ?? "—"}</dd>
+                  </div>
+                  <div>
+                    <dt className={labelClassName}>Keyakinan AI</dt>
+                    <dd className={valueClassName}>{confidence ?? "—"}</dd>
+                  </div>
+                  <div className="col-span-2">
+                    <dt className={labelClassName}>Grafik Sinyal</dt>
+                    <dd className="mt-2">
+                      <Sparkline
+                        data={latestData.ppgResult?.rawPpgData}
+                        tone={isAlert ? "pink" : "blue"}
+                      />
+                    </dd>
+                  </div>
+                </dl>
+              </div>
+            ) : (
+              <p className="flex-1 py-8 text-center text-[0.9375rem] text-primary-900/75">
+                Belum ada riwayat terbaru.
+              </p>
+            )}
+            <Link
+              className="mt-6 inline-flex h-12 items-center justify-center gap-2 rounded-full border-[1.5px] border-primary-900/20 text-[0.9375rem] font-semibold text-primary-900 transition-colors hover:bg-paper-deep focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-300"
+              href="/riwayat"
+            >
+              Lihat semua riwayat
+              <ArrowRight
+                aria-hidden="true"
+                className="size-4"
+                strokeWidth={2.25}
+              />
+            </Link>
+          </article>
 
-        <article className="flex h-full flex-col rounded-[24px] border border-[#edf0f3] bg-white p-6">
-          <h2 className="text-[16px] font-semibold text-[#171c21]">Status Perangkat</h2>
-          <div className="mt-4 flex flex-1 flex-col justify-center">
-            <div className="flex items-stretch gap-6">
+          <article
+            className={`flex h-full flex-col p-6 sm:p-7 ${panelClassName}`}
+          >
+            <h2 className="text-[1.25rem] font-bold tracking-[-0.03em] text-primary-900">
+              Status Perangkat
+            </h2>
+            <div className="mt-5 flex flex-1 items-center gap-6">
               <Image
                 alt="SiHEDAF Wristband"
-                className="h-[160px] w-auto shrink-0 object-contain sm:h-[170px]"
+                className="h-[150px] w-auto shrink-0 object-contain sm:h-[170px]"
                 height={218}
                 src="/watch2.png"
                 width={63}
               />
-              <div className="flex flex-1 flex-col justify-between min-w-0 pt-1 pb-6">
-                <div>
-                  <p
-                    className={`flex items-center gap-2 text-[12px] ${
-                      deviceData?.status === "ONLINE" ? "text-[#4abb59]" : "text-[#9ca2aa]"
-                    }`}
-                  >
+              <div className="min-w-0 flex-1">
+                <p className="flex items-center gap-2 text-[0.9375rem] font-semibold text-primary-900">
+                  {deviceStatusLive ? (
                     <span
-                      className={`h-3 w-3 rounded-full ${
-                        deviceData?.status === "ONLINE" ? "bg-[#45bb59]" : "bg-[#9ca2aa]"
-                      }`}
+                      aria-hidden="true"
+                      className="live-dot !bg-primary-300"
                     />
-                    {deviceData?.status === "ONLINE"
-                      ? "Terhubung"
-                      : deviceData
-                      ? "Terputus"
-                      : "Memuat..."}
-                  </p>
-                  <h3 className="mt-1 text-[16px] font-semibold text-[#171c21]">SiHEDAF Wristband</h3>
-                </div>
-
-                <dl className="grid grid-cols-2 gap-x-4 gap-y-3 sm:grid-cols-3">
-                  <div className="col-span-1">
-                    <dt className="text-[12px] text-[#9ca2aa]">Device ID</dt>
-                    <dd className="mt-1 truncate text-[12px] font-semibold text-[#171c21]">
-                      {deviceData?.deviceNumber || "-"}
+                  ) : (
+                    <span
+                      aria-hidden="true"
+                      className="h-2.5 w-2.5 rounded-full border-2 border-primary-900/40"
+                    />
+                  )}
+                  {deviceStatusLabel}
+                </p>
+                <h3 className="mt-2 text-[1.1875rem] font-semibold text-primary-900">
+                  SiHEDAF Wristband
+                </h3>
+                <dl className="mt-5 grid gap-4">
+                  <div className="min-w-0">
+                    <dt className={labelClassName}>Device ID</dt>
+                    <dd
+                      className={`${valueClassName} truncate font-mono tracking-[0.06em]`}
+                    >
+                      {deviceData?.deviceNumber || "—"}
                     </dd>
                   </div>
-                  <div className="col-span-1">
-                    <dt className="text-[12px] text-[#9ca2aa]">Baterai</dt>
-                    <dd className="mt-1 flex items-center gap-2 text-[12px] font-semibold text-[#171c21]">
-                      <DashboardIcon className="h-3.5 w-3.5 text-primary-300" name="battery" />
-                      92%
-                    </dd>
-                  </div>
-                  <div className="col-span-2 sm:col-span-1">
-                    <dt className="text-[12px] text-[#9ca2aa]">Waktu Sinkronisasi</dt>
-                    <dd className="mt-1 whitespace-nowrap text-[12px] font-semibold text-[#171c21]">
-                      {deviceData?.lastSeen
-                        ? new Intl.DateTimeFormat("id-ID", {
-                            timeZone: "Asia/Jakarta",
-                            day: "numeric",
-                            month: "short",
-                            year: "numeric",
-                            hour: "2-digit",
-                            minute: "2-digit",
-                          }).format(new Date(deviceData.lastSeen))
-                        : "-"}
+                  <div>
+                    <dt className={labelClassName}>Sinkronisasi terakhir</dt>
+                    <dd className={valueClassName}>
+                      {formatWib(deviceData?.lastSeen) ?? "—"}
                     </dd>
                   </div>
                 </dl>
-                </div>
               </div>
             </div>
           </article>
@@ -318,12 +518,14 @@ export function DashboardOverview() {
       </div>
 
       <AiResultModal
+        autoFinished={autoFinished}
         data={latestData}
-        onClose={() => setIsAiModalOpen(false)}
+        onClose={closeAiModal}
+        onRestart={restartMonitoring}
         open={isAiModalOpen}
+        restart={restartState}
+        view={modalView}
       />
     </section>
   );
 }
-
-

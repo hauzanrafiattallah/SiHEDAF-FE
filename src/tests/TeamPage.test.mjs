@@ -72,8 +72,9 @@ test("renders four blank team cards with active route navigation", async (contex
   assert.ok(pageSource.indexOf("<HeaderSection") < pageSource.indexOf("<TeamSection"));
   assert.ok(pageSource.indexOf("<TeamSection") < pageSource.indexOf("<FooterSection"));
   assert.match(pageSource, /activePage="team"/);
-  assert.match(teamSource, /Tim Pengembang/);
-  assert.match(teamSource, /dibalik/);
+  assert.match(teamSource, /Tim pengembang/);
+  assert.match(teamSource, /di balik/);
+  assert.doesNotMatch(teamSource, /font-serif/);
   assert.match(teamSource, /SiHEDAF/);
 
   for (const role of [
@@ -89,6 +90,8 @@ test("renders four blank team cards with active route navigation", async (contex
   assert.match(teamSource, /name: "Hauzan Rafi Attallah"/);
   assert.match(teamSource, /name: "Muhammad Rifki Anandita"/);
   assert.match(teamSource, /name: "Agung Ramadhan"/);
+  assert.equal((teamSource.match(/role: "/g) ?? []).length, 10);
+  assert.match(teamSource, /key=\{member\.name\}/);
   assert.match(cardSource, /LinkedIn/);
   assert.match(cardSource, /bg-gradient-to-b/);
   assert.match(headerSource, /from "next\/link"/);

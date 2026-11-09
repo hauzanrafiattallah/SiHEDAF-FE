@@ -1,27 +1,54 @@
 "use client";
 
-import { useEffect, useId, type ReactNode } from "react";
+import {
+  useEffect,
+  useId,
+  useRef,
+  useState,
+  useSyncExternalStore,
+  type ReactNode,
+} from "react";
+import { createPortal } from "react-dom";
 import { X } from "lucide-react";
+
+function subscribeNoop() {
+  return () => {};
+}
 
 type DashboardModalProps = Readonly<{
   children: ReactNode;
+  /**
+   * A new key swaps in a fresh dialog element (focus moves to it and its
+   * title is announced) while the backdrop and the opener to restore stay.
+   */
+  contentKey?: string;
   description?: string;
   onClose: () => void;
   open: boolean;
   title: string;
   showCloseButton?: boolean;
+  size?: "default" | "wide";
 }>;
 
 export function DashboardModal({
   children,
+  contentKey,
   description,
   onClose,
   open,
   title,
   showCloseButton = false,
+  size = "default",
 }: DashboardModalProps) {
   const titleId = useId();
   const descriptionId = useId();
+  // False during server render and hydration, true on the client afterwards,
+  // so an initially open modal never touches document before mount.
+  const mounted = useSyncExternalStore(
+    subscribeNoop,
+    () => true,
+    () => false,
+  );
 
   useEffect(() => {
     if (!open) return;
@@ -41,13 +68,47 @@ export function DashboardModal({
     };
   }, [onClose, open]);
 
-  if (!open) return null;
+  const dialogRef = useRef<HTMLElement>(null);
+  const isShown = open && mounted;
 
-  return (
+  // The content key the modal opened with. A later key is a swap, which skips
+  // the enter animation so the dialog does not look as if it reopened.
+  const [openedKey, setOpenedKey] = useState(contentKey);
+  const [wasShown, setWasShown] = useState(isShown);
+  if (wasShown !== isShown) {
+    setWasShown(isShown);
+    setOpenedKey(contentKey);
+  }
+  const isSwap = contentKey !== openedKey;
+
+  // Move focus into the dialog once it exists and give it back on close. The
+  // opener is captured only when the modal opens, never on a content swap.
+  useEffect(() => {
+    if (!isShown) return;
+
+    const opener = document.activeElement;
+    dialogRef.current?.focus();
+
+    return () => {
+      if (opener instanceof HTMLElement && opener.isConnected) opener.focus();
+    };
+  }, [isShown]);
+
+  // A content swap mounts a new dialog element: move focus into it so its
+  // title is announced.
+  useEffect(() => {
+    if (!isShown) return;
+
+    dialogRef.current?.focus();
+  }, [contentKey, isShown]);
+
+  if (!isShown) return null;
+
+  return createPortal(
     <div className="fixed inset-0 z-[80] grid place-items-center overflow-y-auto px-4 py-8">
       <button
         aria-label="Tutup dialog"
-        className="modal-backdrop fixed inset-0 bg-[#0d1520]/25"
+        className="modal-backdrop fixed inset-0 bg-primary-900/40 backdrop-blur-[2px]"
         onClick={onClose}
         type="button"
       />
@@ -55,13 +116,16 @@ export function DashboardModal({
         aria-describedby={description ? descriptionId : undefined}
         aria-labelledby={titleId}
         aria-modal="true"
-        className="modal-enter relative z-10 w-full max-w-[460px] rounded-[24px] bg-white p-6 text-[#171c22] shadow-[0_0_0_1px_rgba(0,0,0,0.04),0_4px_16px_rgba(0,20,60,0.08),0_24px_64px_rgba(0,20,60,0.14)] sm:p-8"
+        key={contentKey}
+        ref={dialogRef}
+        tabIndex={-1}
+        className={`${isSwap ? "" : "modal-enter "}outline-none relative z-10 w-full ${size === "wide" ? "max-w-[760px]" : "max-w-[480px]"} rounded-[28px] bg-white p-6 text-primary-900 shadow-[0_24px_64px_rgba(0,39,88,0.2)] sm:p-8`}
         role="dialog"
       >
         {showCloseButton ? (
           <button
             aria-label="Tutup"
-            className="absolute right-5 top-5 grid h-8 w-8 place-items-center rounded-full text-[#a0a7b0] transition-all hover:bg-[#f0f2f5] hover:text-[#505962] focus-visible:outline-2 focus-visible:outline-primary-300"
+            className="absolute top-5 right-5 grid h-10 w-10 place-items-center rounded-full text-primary-900/75 transition-colors hover:bg-paper hover:text-primary-900 focus-visible:outline-2 focus-visible:outline-primary-300"
             onClick={onClose}
             type="button"
           >
@@ -69,17 +133,23 @@ export function DashboardModal({
           </button>
         ) : null}
 
-        <h2 className="pr-12 text-[21px] font-semibold tracking-[-0.035em]" id={titleId}>
+        <h2
+          className="pr-12 text-[1.5rem] leading-[1.15] font-bold tracking-[-0.035em]"
+          id={titleId}
+        >
           {title}
         </h2>
         {description ? (
-          <p className="mt-2 pr-10 text-[13px] leading-5 text-[#8f969f]" id={descriptionId}>
+          <p
+            className="mt-2 pr-10 text-[1rem] leading-[1.55] text-primary-900/80"
+            id={descriptionId}
+          >
             {description}
           </p>
         ) : null}
         <div className="mt-6">{children}</div>
       </section>
-    </div>
+    </div>,
+    document.body,
   );
 }
-

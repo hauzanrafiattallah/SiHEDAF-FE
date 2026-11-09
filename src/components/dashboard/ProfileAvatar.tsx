@@ -15,22 +15,21 @@ export function profileInitials(fullname: string) {
 }
 
 export function ProfileAvatar({
-  className = "h-20 w-20 text-[17px]",
+  className = "h-20 w-20 text-[1.375rem]",
   fullname,
   profileImage,
 }: ProfileAvatarProps) {
   return (
     <span
       aria-label={profileImage ? `Foto profil ${fullname}` : undefined}
-      className={`grid shrink-0 place-items-center rounded-full border-4 border-white/80 bg-[radial-gradient(circle_at_32%_28%,#d9efff_0_16%,transparent_17%),linear-gradient(145deg,#8ab8dd,#315a85)] bg-cover bg-center font-semibold text-white shadow-sm ${className}`}
+      className={`grid shrink-0 place-items-center rounded-full border-4 border-white bg-primary-800 bg-cover bg-center font-bold tracking-[-0.02em] text-white ${profileImage ? "" : "before:content-[attr(data-initials)]"} ${className}`}
+      data-initials={profileImage ? undefined : profileInitials(fullname)}
       role={profileImage ? "img" : undefined}
       style={
         profileImage
           ? { backgroundImage: `url("${profileImage.replaceAll('"', "%22")}")` }
           : undefined
       }
-    >
-      {profileImage ? null : profileInitials(fullname)}
-    </span>
+    />
   );
 }

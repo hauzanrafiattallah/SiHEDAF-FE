@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import {
   createContext,
   useCallback,
@@ -9,14 +10,21 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { useRouter } from "next/navigation";
+
+import { DataErrorState } from "@/components/ui/DataErrorState";
+import {
+  describeCaughtError,
+  type DataError,
+} from "@/components/ui/FetchError";
+import { PulseLoader } from "@/components/ui/PulseLoader";
+import { SESSION_EXPIRED_PATH } from "@/features/auth/session/client/ApiFetch";
 
 import type { UserProfile } from "@/features/profile/shared/ProfileTypes";
 
 import { fetchCurrentProfile } from "./services/ProfileClient";
 
 type ProfileContextValue = {
-  error: string | null;
+  error: DataError | null;
   isLoading: boolean;
   reload: () => Promise<void>;
   updateUser: (changes: Partial<Pick<UserProfile, "fullname">>) => void;
@@ -25,11 +33,20 @@ type ProfileContextValue = {
 
 const ProfileContext = createContext<ProfileContextValue | null>(null);
 
-export function ProfileProvider({ children, initialUser }: { children: ReactNode, initialUser?: UserProfile | null }) {
-  const router = useRouter();
+export function ProfileProvider({
+  children,
+  initialUser,
+}: {
+  children: ReactNode;
+  initialUser?: UserProfile | null;
+}) {
   const [user, setUser] = useState<UserProfile | null>(initialUser ?? null);
   const [isLoading, setIsLoading] = useState(!initialUser);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<DataError | null>(null);
+  // Expired: apiFetch is already sending the reader to /login. The page says
+  // so, with a link in case that navigation was stopped; no error panel and
+  // no second redirect.
+  const [sessionExpired, setSessionExpired] = useState(false);
 
   const reload = useCallback(async () => {
     setIsLoading(true);
@@ -38,18 +55,14 @@ export function ProfileProvider({ children, initialUser }: { children: ReactNode
 
     if (!result.success) {
       setIsLoading(false);
-      if (result.status === 401) {
-        setError(result.message);
-        router.replace("/login");
-        return;
-      }
-      setError(result.message);
+      if (result.status === 401) setSessionExpired(true);
+      else setError(describeCaughtError(result.cause, result.status));
       return;
     }
 
     setUser(result.user);
     setIsLoading(false);
-  }, [router]);
+  }, []);
 
   useEffect(() => {
     if (initialUser) return;
@@ -61,12 +74,8 @@ export function ProfileProvider({ children, initialUser }: { children: ReactNode
 
       if (!result.success) {
         setIsLoading(false);
-        if (result.status === 401) {
-          setError(result.message);
-          router.replace("/login");
-          return;
-        }
-        setError(result.message);
+        if (result.status === 401) setSessionExpired(true);
+        else setError(describeCaughtError(result.cause, result.status));
         return;
       }
 
@@ -77,7 +86,7 @@ export function ProfileProvider({ children, initialUser }: { children: ReactNode
     return () => {
       isActive = false;
     };
-  }, [router, initialUser]);
+  }, [initialUser]);
 
   const updateUser = useCallback(
     (changes: Partial<Pick<UserProfile, "fullname">>) => {
@@ -95,13 +104,29 @@ export function ProfileProvider({ children, initialUser }: { children: ReactNode
     return (
       <main
         aria-busy="true"
-        className="grid min-h-dvh place-items-center bg-[#f7f7f8] px-6"
+        className="grid min-h-dvh place-items-center bg-white px-6"
       >
-        <div className="text-center">
-          <span className="mx-auto block h-9 w-9 animate-spin rounded-full border-4 border-primary-100 border-t-primary-300" />
-          <p className="mt-4 text-[13px] font-medium text-primary-900">
-            Memverifikasi sesi...
+        <PulseLoader label="Memverifikasi sesi..." />
+      </main>
+    );
+  }
+
+  if (sessionExpired) {
+    return (
+      <main className="grid min-h-dvh place-items-center bg-white px-6">
+        <div className="flex w-full max-w-md flex-col items-center gap-5 rounded-[24px] border border-primary-900/15 bg-white p-8 text-center">
+          <p
+            className="text-[1rem] leading-[1.55] font-semibold text-primary-900"
+            role="status"
+          >
+            Sesimu sudah berakhir. Mengalihkan ke halaman masuk…
           </p>
+          <Link
+            className="btn-primary inline-flex min-h-12 items-center justify-center rounded-full bg-primary-900 px-6 text-[0.9375rem] font-semibold text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-300"
+            href={SESSION_EXPIRED_PATH}
+          >
+            Masuk lagi
+          </Link>
         </div>
       </main>
     );
@@ -109,24 +134,18 @@ export function ProfileProvider({ children, initialUser }: { children: ReactNode
 
   if (error || !user) {
     return (
-      <main className="grid min-h-dvh place-items-center bg-[#f7f7f8] px-6">
-        <div className="w-full max-w-md rounded-[24px] border border-[#e3e7eb] bg-white p-7 text-center shadow-sm">
-          <h1 className="text-[18px] font-semibold text-primary-900">
+      <main className="grid min-h-dvh place-items-center bg-white px-6">
+        <div className="w-full max-w-md rounded-[24px] border border-primary-900/15 bg-white p-8 text-center">
+          <h1 className="text-[1.5rem] font-bold tracking-[-0.035em] text-primary-900">
             Sesi belum dapat diverifikasi
           </h1>
-          <p className="mt-3 text-[13px] leading-6 text-[#737b85]">
-            {error ?? "Konten dashboard belum dapat ditampilkan."}
-          </p>
-          <p className="mt-1 text-[12px] text-[#9aa0a8]">
-            Konten dashboard belum dapat ditampilkan sebelum sesi terverifikasi.
-          </p>
-          <button
-            className="mt-6 h-11 rounded-full bg-primary-300 px-6 text-[13px] font-medium text-white hover:bg-primary-400"
-            onClick={() => void reload()}
-            type="button"
-          >
-            Coba lagi
-          </button>
+          <DataErrorState
+            message={
+              error?.message ?? "Konten dashboard belum dapat ditampilkan."
+            }
+            onRetry={() => void reload()}
+            title={error?.title ?? "Profil belum dapat dimuat"}
+          />
         </div>
       </main>
     );

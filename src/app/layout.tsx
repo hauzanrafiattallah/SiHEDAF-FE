@@ -1,8 +1,9 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
 
 import { HashRouteRedirect } from "@/components/auth/HashRouteRedirect";
 import { AppToaster } from "@/components/ui/AppToaster";
+import { textSizeScript } from "@/components/ui/TextSize";
 
 import "./globals.css";
 
@@ -14,10 +15,32 @@ const switzer = localFont({
   display: "swap",
 });
 
+const siteUrl = process.env.SIHEDAF_SITE_URL;
+const siteDescription =
+  "Wearable PPG dan AI untuk deteksi dini Atrial Fibrillation, faktor risiko utama stroke. Pantau irama jantungmu dari pergelangan tangan.";
+
 export const metadata: Metadata = {
+  // Absolute URLs for link previews; set SIHEDAF_SITE_URL in production.
+  metadataBase: siteUrl ? new URL(siteUrl) : undefined,
   title: "SiHEDAF",
-  description: "SiHEDAF",
+  description: siteDescription,
+  applicationName: "SiHEDAF",
+  appleWebApp: { capable: true, title: "SiHEDAF", statusBarStyle: "default" },
+  openGraph: {
+    type: "website",
+    locale: "id_ID",
+    siteName: "SiHEDAF",
+    title: "SiHEDAF — Pemantauan irama jantung dari pergelangan tangan",
+    description: siteDescription,
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "SiHEDAF — Pemantauan irama jantung dari pergelangan tangan",
+    description: siteDescription,
+  },
 };
+
+export const viewport: Viewport = { themeColor: "#f5f3ee" };
 
 export default function RootLayout({
   children,
@@ -26,6 +49,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="id" className={`${switzer.variable} h-full antialiased`} suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: textSizeScript() }} />
+      </head>
       <body className="min-h-full flex flex-col" suppressHydrationWarning>
         {children}
         <HashRouteRedirect />
